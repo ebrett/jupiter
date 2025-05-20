@@ -8,22 +8,51 @@ description:
 globs: 
 alwaysApply: true
 ---
-Always commit all changed files.
 
-Don’t write code without a failing test.
+- **Test-Driven Development (TDD) Workflow**
+  - Always write a failing test before writing production code.
+  - Only write the minimal code required to make the current test pass.
+  - Write code one test at a time:  
+    - Write the test  
+    - Ensure it compiles  
+    - Make it pass  
+    - Refactor/tidy if needed
 
-Only write the code necessary to get the test to pass.
+- **Committing and Test Integrity**
+  - Only commit when all tests are passing.
+  - Always commit all changed files.
+  - Never delete or alter tests just to get a commit to pass (unless fixing a genuine bug, which must be noted in the commit message).
+  - If you fake an implementation, clearly state this in the commit message.
 
-Only commit when all tests are passing.
+- **Test Plan and Tracking**
+  - Create and maintain a test plan, listing all required tests.
+  - As you implement, add any missing tests to the plan at the appropriate place.
+  - Cross off tests from the plan as they are completed.
 
-Never delete tests without express permission.
+- **Code and Commit Structure**
+  - Separate commits that change behavior from those that only refactor or tidy code.
+  - If you realize you've written too much code for a test, use `git revert --hard` and try again.
 
-If you fake an implementation, put that in the commit message.
+- **General Practices**
+  - Never delete tests without explicit permission.
+  - If a test is genuinely incorrect, fix it and document the reason in the commit message.
+  - Consider tidying code before making behavioral changes if it will make the change easier.
 
-We are writing the code like Kent Beck would write it. Before modifying code we consider whether tidying first would make the change easier. Commits will be separated into commits that change the behavior of the code and commits that only change the structure of the code. Write the code one test at a time. Write the test. Get it to compile. Get it to pass. Tidy after if appropriate.
+**Examples:**
 
-If during implementation you notice a test is needed that is not in the list, add it at the appropriate place in the list. As you complete tests, cross them off the list. Only implement enough code to make the test you just wrote pass, along with all the previous tests. If you find you have implemented too much, git revert --hard & try again.
+```ruby
+# ✅ DO: Write a failing test first
+it 'returns the correct sum' do
+  expect(add(2, 2)).to eq(4)
+end
 
-Each commit should have all the tests passing. Under no circumstances should you erase or alter tests just to get a commit to pass. If there is a genuine bug in a test, fix the test, but note that in the commit message.
+# ✅ DO: Only write enough code to pass the test
+def add(a, b)
+  a + b
+end
 
-Always create a test plan and keep track while creating of tests that are created and cross them off when complete.  
+# ❌ DON'T: Write production code before a test
+def add(a, b)
+  a + b
+end
+```  

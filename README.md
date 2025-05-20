@@ -96,6 +96,44 @@ bundle exec rspec
 bundle exec rubocop
 ```
 
+## Development Setup
+
+1. Install dependencies:
+   ```sh
+   bundle install
+   ```
+2. Set up environment variables:
+   - Copy `.env.example` to `.env` and fill in values as needed.
+3. Set up the database:
+   ```sh
+   rails db:create db:migrate db:seed
+   ```
+4. Run the test suite:
+   ```sh
+   bundle exec rspec
+   ```
+5. Run the linter:
+   ```sh
+   bundle exec rubocop
+   ```
+
+## Environment Variables
+
+See `.env.example` for required variables.
+
+## Docker (Optional)
+
+- To use Docker for development, ensure Docker is installed and run:
+  ```sh
+  docker-compose up --build
+  ```
+- See `Dockerfile` and `docker-compose.yml` for configuration.
+
+## Continuous Integration
+
+- CI is configured via GitHub Actions in `.github/workflows/ci.yml`.
+- The pipeline runs tests and linting on each push and pull request.
+
 ## Contributing
 
 Please see the [CONTRIBUTING.md](CONTRIBUTING.md) file for details on how to contribute to this project.
