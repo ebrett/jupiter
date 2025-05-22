@@ -84,6 +84,28 @@ This system enables organizations to efficiently handle financial requests, main
 
 6. Visit http://localhost:3000 in your browser
 
+### Seed Test Data
+
+The application provides a set of test users for development and QA purposes. These users are created automatically when you run:
+
+```bash
+rails db:seed
+```
+
+The seeding process is idempotent—running it multiple times will not create duplicate users.
+
+**Test User Credentials:**
+
+| Email                | Password      |
+|----------------------|--------------|
+| admin@example.com    | password123  |
+| user1@example.com    | password123  |
+| user2@example.com    | password123  |
+| qa@example.com       | password123  |
+| guest@example.com    | password123  |
+
+You can use these accounts to log in and test different user scenarios in the development environment.
+
 ### Running Tests
 
 ```bash
