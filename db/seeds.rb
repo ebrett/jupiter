@@ -14,3 +14,19 @@
 #   user.password = 'password'
 #   user.admin = true
 # end
+
+# Test users for development and QA
+# Credentials: email_address / password
+users = [
+  { email_address: 'admin@example.com', password: 'password123' },
+  { email_address: 'user1@example.com', password: 'password123' },
+  { email_address: 'user2@example.com', password: 'password123' },
+  { email_address: 'qa@example.com', password: 'password123' },
+  { email_address: 'guest@example.com', password: 'password123' }
+]
+
+users.each do |attrs|
+  User.find_or_create_by!(email_address: attrs[:email_address]) do |user|
+    user.password = attrs[:password]
+  end
+end
