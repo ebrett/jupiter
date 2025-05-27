@@ -3,6 +3,8 @@ require 'uri'
 require 'json'
 
 class NationbuilderTokenExchangeService
+  class TokenExchangeError < StandardError; end
+
   def initialize(client_id:, client_secret:, redirect_uri:)
     @client_id = client_id
     @client_secret = client_secret
@@ -23,7 +25,9 @@ class NationbuilderTokenExchangeService
     res = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) do |http|
       http.request(req)
     end
-    raise "Token exchange failed: #{res.code}" unless res.is_a?(Net::HTTPSuccess)
+    unless res.is_a?(Net::HTTPSuccess)
+      raise TokenExchangeError, "Token exchange failed: #{res.code} - #{res.body}"
+    end
     JSON.parse(res.body, symbolize_names: true)
   end
 end 
