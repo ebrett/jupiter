@@ -10,9 +10,21 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_05_20_052327) do
+ActiveRecord::Schema[8.0].define(version: 2025_05_27_023957) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "nationbuilder_tokens", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "access_token"
+    t.string "refresh_token"
+    t.datetime "expires_at"
+    t.string "scope"
+    t.jsonb "raw_response"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_nationbuilder_tokens_on_user_id"
+  end
 
   create_table "sessions", force: :cascade do |t|
     t.bigint "user_id", null: false
@@ -28,8 +40,11 @@ ActiveRecord::Schema[8.0].define(version: 2025_05_20_052327) do
     t.string "password_digest", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "nationbuilder_uid"
     t.index ["email_address"], name: "index_users_on_email_address", unique: true
+    t.index ["nationbuilder_uid"], name: "index_users_on_nationbuilder_uid", unique: true
   end
 
+  add_foreign_key "nationbuilder_tokens", "users"
   add_foreign_key "sessions", "users"
 end
