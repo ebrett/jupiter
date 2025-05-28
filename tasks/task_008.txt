@@ -1,0 +1,43 @@
+# Task ID: 8
+# Title: Admin Dashboard with Hotwire
+# Status: pending
+# Dependencies: 3
+# Priority: high
+# Description: Create comprehensive admin interface using Rails and Hotwire
+# Details:
+Build user management interface using Rails admin patterns. Implement system configuration options and create role mapping interface. Use Hotwire for real-time updates and Stimulus for interactive features.
+
+# Test Strategy:
+Test admin functionality and configuration options
+
+# Subtasks:
+## 1. Set up Admin Dashboard Layout and Authentication [pending]
+### Dependencies: None
+### Description: Create the basic admin dashboard layout with navigation and ensure proper authentication/authorization for admin users
+### Details:
+Create an admin namespace in routes.rb, implement admin controller with before_action to verify admin permissions, design responsive layout with sidebar navigation using Tailwind CSS, and implement admin-specific authentication checks
+
+## 2. Implement User Management Interface with Hotwire [pending]
+### Dependencies: 8.1
+### Description: Build CRUD interface for managing users with real-time updates using Hotwire Turbo Frames and Streams
+### Details:
+Create users controller in admin namespace, implement index view with pagination and filtering, build new/edit forms within Turbo Frames, add user deletion with confirmation modals, and implement Turbo Streams for real-time updates when users are created/updated/deleted
+
+## 3. Create Role Management System with Stimulus [pending]
+### Dependencies: 8.2
+### Description: Implement interface for creating and assigning roles to users with interactive features using Stimulus
+### Details:
+Create Role model with many-to-many relationship to users, build role CRUD interface, implement role assignment UI with Stimulus controllers for drag-and-drop functionality, add permission toggles for each role, and ensure proper validation
+
+## 4. Build System Configuration Interface [pending]
+### Dependencies: 8.1
+### Description: Create interface for managing system-wide configuration options with real-time validation
+### Details:
+Implement Settings model/table for storing configuration, create configuration controller and views, use Stimulus for real-time validation of settings, implement Turbo Frames for inline editing of configuration values, and add configuration categories/grouping
+
+## 5. Implement Admin Dashboard Analytics and Activity Log [pending]
+### Dependencies: 8.2, 8.3, 8.4
+### Description: Create dashboard overview with key metrics and activity log showing recent admin actions
+### Details:
+Build dashboard controller and view with summary cards for key metrics, implement activity logging for all admin actions, create activity feed with Turbo Streams for real-time updates, add basic charts using Chartkick, and implement date range filtering
+

@@ -1,0 +1,188 @@
+# Task ID: 12
+# Title: Implement OAuth2 Authorization Code Flow with Refresh Token Handling for Nationbuilder V2 API
+# Status: pending
+# Dependencies: None
+# Priority: high
+# Description: Develop a complete OAuth2 implementation for the Nationbuilder V2 API that handles both initial authorization and automatic token refresh, ensuring continuous API access without requiring user re-authentication.
+# Details:
+This task requires implementing the full OAuth2 authorization code flow and refresh token mechanism for the Nationbuilder V2 API integration. Key implementation details include:
+
+1. **Initial Authorization Flow**:
+   - Create OAuth2 client configuration with appropriate scopes for Nationbuilder V2 API
+   - Implement authorization request endpoint that redirects users to Nationbuilder
+   - Create callback handler to process authorization codes
+   - Exchange authorization code for initial access and refresh tokens
+   - Store both tokens securely in the database with user association and expiration metadata
+
+2. **Token Refresh Mechanism**:
+   - Implement token expiration detection (access tokens expire after 24 hours)
+   - Create a service to handle automatic refresh token exchange
+   - Update the stored tokens after successful refresh
+   - Implement proper error handling for refresh failures
+
+3. **API Request Handling**:
+   - Create a request wrapper that verifies token validity before making API calls
+   - Automatically trigger refresh flow when access token is expired
+   - Retry failed requests with new tokens when appropriate
+
+4. **Error Handling**:
+   - Handle invalid/expired refresh tokens
+   - Manage user revocation scenarios
+   - Implement graceful fallbacks when refresh fails
+   - Add appropriate logging for debugging authentication issues
+
+5. **Security Considerations**:
+   - Ensure tokens are stored securely (encrypted if necessary)
+   - Implement proper token rotation and management
+   - Follow OAuth2 security best practices
+
+6. **Code Organization**:
+   - Create reusable OAuth2 client services
+   - Separate authentication logic from API business logic
+   - Design for testability with dependency injection
+
+The implementation should be robust enough to handle all common OAuth2 edge cases while providing a seamless experience for users.
+
+# Test Strategy:
+Testing for this OAuth2 implementation should be comprehensive and cover all aspects of the authorization and refresh flows:
+
+1. **Unit Tests**:
+   - Test token storage and retrieval mechanisms
+   - Verify token expiration detection logic
+   - Test refresh token service in isolation with mocked responses
+   - Validate error handling for various failure scenarios
+
+2. **Integration Tests**:
+   - Create tests that mock the Nationbuilder OAuth endpoints
+   - Verify the full authorization code flow from request to token storage
+   - Test the refresh token flow with simulated expired access tokens
+   - Ensure API requests properly detect expired tokens and trigger refresh
+
+3. **Mock Server Tests**:
+   - Set up a mock OAuth2 server that simulates Nationbuilder's behavior
+   - Test against this server to verify correct request/response handling
+   - Simulate various error conditions (invalid tokens, server errors)
+
+4. **End-to-End Tests**:
+   - Create a sandbox Nationbuilder account for testing if possible
+   - Verify the complete flow works against the actual API
+   - Test the user experience through the authorization process
+
+5. **Specific Test Cases**:
+   - Successful initial authorization and token storage
+   - Successful token refresh when access token expires
+   - Failed refresh due to invalid refresh token
+   - Failed refresh due to revoked access
+   - API call with valid token
+   - API call with expired token that triggers refresh
+   - Concurrent API calls handling token refresh properly
+   - Edge cases like network failures during refresh
+
+6. **Test Fixtures and Helpers**:
+   - Create fixtures for various token states (valid, expired, etc.)
+   - Implement time manipulation helpers to test expiration without waiting
+
+All tests should be automated and included in the CI pipeline to ensure ongoing functionality.
+
+# Subtasks:
+## 1. Implement OAuth2 Client Configuration and Initial Authorization Flow [done]
+### Dependencies: None
+### Description: Create the OAuth2 client configuration and implement the initial authorization flow that redirects users to Nationbuilder for authentication and handles the callback with authorization code.
+### Details:
+1. Create an OAuth2Client class with configuration parameters (client_id, client_secret, redirect_uri, scopes)
+2. Implement an authorization URL generator method that builds the proper Nationbuilder authorization URL with required parameters
+3. Create an endpoint in the application that redirects users to this authorization URL
+4. Implement a callback handler endpoint that receives the authorization code from Nationbuilder
+5. Add appropriate error handling for authorization failures
+6. Use environment variables for sensitive OAuth configuration
+<info added on 2025-05-21T13:26:43.584Z>
+Implementation Plan and Code Structure for OAuth2 Client Configuration and Initial Authorization Flow:
+
+**Files/Components:**
+- app/services/oauth2_client.rb: Service class for OAuth2 logic (client_id, client_secret, redirect_uri, scopes, authorization_url)
+- app/controllers/nationbuilder_auth_controller.rb: Controller for OAuth endpoints (redirect and callback actions)
+- config/routes.rb: Add routes for /auth/nationbuilder and /auth/nationbuilder/callback
+- .env: Store NATIONBUILDER_CLIENT_ID, NATIONBUILDER_CLIENT_SECRET, NATIONBUILDER_REDIRECT_URI
+- (Optional) config/initializers/nationbuilder_oauth.rb: Centralize config loading if needed
+
+**Key Steps:**
+1. Oauth2Client service: builds authorization URL from ENV/config
+2. Controller: redirect action sends user to Nationbuilder, callback action handles code/error
+3. Routes: map /auth/nationbuilder and /auth/nationbuilder/callback
+4. All secrets/config from ENV, never hardcoded
+5. Error handling for missing/invalid params and OAuth errors
+
+**Testing:**
+- Unit test Oauth2Client#authorization_url for correct URL generation
+- Integration test controller flow with mocks
+
+**Potential Challenges:**
+- Ensuring correct redirect URI registration with Nationbuilder
+- Handling all error cases gracefully
+
+This plan covers the structure and initial implementation approach for subtask 12.1. Next step: implement the service, controller, and routes as described.
+</info added on 2025-05-21T13:26:43.584Z>
+
+## 2. Implement Token Exchange and Secure Storage [pending]
+### Dependencies: 12.1
+### Description: Develop the functionality to exchange the authorization code for access and refresh tokens, and implement secure storage of these tokens in the database.
+### Details:
+1. Create a token exchange service that calls Nationbuilder token endpoint with authorization code
+2. Parse and validate the token response (access_token, refresh_token, expires_in, etc.)
+3. Design a database schema for securely storing tokens with user association
+4. Implement encryption for token storage if required by security policy
+5. Store tokens with metadata including expiration time, scope, and user information
+6. Create methods to retrieve and validate stored tokens
+
+## 3. Implement Token Refresh Mechanism [pending]
+### Dependencies: 12.2
+### Description: Create a service that detects token expiration and automatically refreshes access tokens using the stored refresh tokens.
+### Details:
+1. Implement a token validation method that checks if access tokens are expired
+2. Create a token refresh service that exchanges refresh tokens for new access tokens
+3. Update the stored tokens after successful refresh
+4. Implement retry logic with exponential backoff for failed refresh attempts
+5. Add event hooks for successful and failed token refreshes
+6. Create a background job or middleware that proactively refreshes tokens approaching expiration
+
+## 4. Create API Request Wrapper with Token Management [pending]
+### Dependencies: 12.3
+### Description: Develop a request wrapper for the Nationbuilder V2 API that verifies token validity before making API calls and handles token refresh when needed.
+### Details:
+1. Create an API client class that wraps all Nationbuilder V2 API requests
+2. Implement request interceptors that check token validity before each request
+3. Automatically trigger the refresh flow when an access token is expired
+4. Handle 401/403 responses by attempting token refresh and retrying the request
+5. Implement request queuing during active token refresh to prevent multiple simultaneous refresh attempts
+6. Add appropriate request/response logging for debugging
+
+## 5. Implement Comprehensive Error Handling and Recovery [pending]
+### Dependencies: 12.4
+### Description: Develop robust error handling for all OAuth2 edge cases including invalid/expired refresh tokens, user revocation scenarios, and network failures.
+### Details:
+1. Create specific error classes for different OAuth2 failure scenarios
+2. Implement handlers for invalid/expired refresh tokens that trigger re-authentication
+3. Add detection and handling for user-revoked access
+4. Create a notification system for authentication failures that require user intervention
+5. Implement graceful degradation of functionality when authentication cannot be restored automatically
+6. Add detailed logging for all authentication events for audit and debugging purposes
+7. Create admin dashboard components to monitor OAuth2 token status across users
+
+## 6. Documentation and Developer Onboarding for OAuth2 Flow [pending]
+### Dependencies: 12.5
+### Description: Document the OAuth2 and refresh token implementation for Nationbuilder V2. Include setup instructions, environment/configuration requirements, usage examples, and troubleshooting tips for developers. Ensure onboarding is clear for new team members.
+### Details:
+
+
+## 7. CI/CD Integration for OAuth2 and Token Refresh Flow [pending]
+### Dependencies: 12.5
+### Description: Integrate tests for the OAuth2 and refresh token flow into the CI/CD pipeline. Ensure all relevant unit, integration, and end-to-end tests are run automatically on each commit and pull request. Add checks for token management and error handling coverage.
+### Details:
+
+
+## 8. User Experience and UI for Authentication and Token Errors [pending]
+### Dependencies: 12.5
+### Description: Design and implement user-facing UI/UX for authentication and token error scenarios. This includes clear error messages, re-authentication prompts, and guidance for users when access is lost or needs to be restored. Ensure a seamless and informative experience for all authentication flows.
+### Details:
+
+

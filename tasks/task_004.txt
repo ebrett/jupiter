@@ -1,0 +1,43 @@
+# Task ID: 4
+# Title: Request Creation System with Hotwire
+# Status: pending
+# Dependencies: 3
+# Priority: high
+# Description: Build the core request creation and management system using Rails and Hotwire
+# Details:
+Implement request creation interface using Rails forms and Hotwire for real-time updates. Create draft saving functionality and request submission workflow. Use Stimulus for form interactions and TailwindCSS for styling.
+
+# Test Strategy:
+Test request creation, saving, and submission flows with system tests
+
+# Subtasks:
+## 1. Create Request Model and Database Schema [pending]
+### Dependencies: None
+### Description: Design and implement the Request model with appropriate attributes, validations, and associations. Set up the database schema with migrations.
+### Details:
+Create a Request model with attributes like title, description, status (draft/submitted), user_id, and any other relevant fields. Add validations for required fields. Create database migrations to set up the schema. Implement associations with User model if applicable. Add enum for request status handling.
+
+## 2. Implement Request Form with Stimulus [pending]
+### Dependencies: None
+### Description: Build the request creation form using Rails form helpers and enhance with Stimulus controllers for dynamic interactions.
+### Details:
+Create a form partial with Rails form_with helper. Implement Stimulus controllers for form validation, character counting, and dynamic field behavior. Style the form using TailwindCSS with responsive design. Include error handling and client-side validations. Add ARIA attributes for accessibility.
+
+## 3. Develop Draft Saving Functionality [pending]
+### Dependencies: None
+### Description: Implement automatic draft saving for requests in progress using Hotwire and background processing.
+### Details:
+Create a Stimulus controller that detects form changes and triggers draft saves via fetch requests. Implement a controller action to handle draft updates. Use Turbo Streams to update the UI with save status without page refreshes. Add debounce functionality to prevent excessive saves. Implement draft retrieval when users return to an incomplete form.
+
+## 4. Build Request Submission Workflow [pending]
+### Dependencies: None
+### Description: Implement the complete submission flow for requests, including validation, confirmation, and status updates.
+### Details:
+Create a submission controller action that validates and processes the final request. Implement a confirmation modal using Stimulus. Add server-side validations for submission requirements. Use Turbo Streams to update the UI after submission. Implement flash notifications for submission status. Add hooks for any post-submission processes like notifications.
+
+## 5. Implement Real-time Request List with Turbo Frames [pending]
+### Dependencies: None
+### Description: Create a real-time updating list of requests using Turbo Frames and Streams for immediate UI updates.
+### Details:
+Build a requests index view with Turbo Frames for each request item. Implement Turbo Streams broadcasts for real-time updates when requests are created, updated, or deleted. Add filtering and sorting capabilities using Stimulus controllers. Style the list with TailwindCSS, including responsive design for mobile views. Implement pagination if needed.
+
