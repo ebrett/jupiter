@@ -53,6 +53,6 @@ Rails.application.configure do
 
   # Set up test encryption credentials
   config.active_record.encryption.primary_key = "test" * 8  # 32 characters
-  config.active_record.encryption.deterministic_key = "test" * 8  # 32 characters  
+  config.active_record.encryption.deterministic_key = "test" * 8  # 32 characters
   config.active_record.encryption.key_derivation_salt = "test" * 8  # 32 characters
 end

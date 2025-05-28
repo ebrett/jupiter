@@ -16,4 +16,4 @@ RSpec.describe 'Admin', type: :request do
     expect(response).to have_http_status(:ok)
     expect(response.body).to include('Admin Dashboard')
   end
-end 
+end

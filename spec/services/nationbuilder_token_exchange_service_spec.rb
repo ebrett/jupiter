@@ -67,4 +67,4 @@ RSpec.describe NationbuilderTokenExchangeService do
       service.exchange_code_for_token('bad_code')
     }.to raise_error(NationbuilderTokenExchangeService::TokenExchangeError, /Token exchange failed/)
   end
-end 
+end

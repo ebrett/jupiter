@@ -20,4 +20,4 @@ class NationbuilderToken < ApplicationRecord
             scope: scope,
             raw_response: raw_response)
   end
-end 
+end

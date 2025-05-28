@@ -1,10 +1,19 @@
 require 'rails_helper'
 
 describe Oauth2Client do
+  subject do
+    described_class.new(
+      client_id: client_id,
+      client_secret: client_secret,
+      redirect_uri: redirect_uri,
+      scopes: scopes
+    )
+  end
+
   let(:client_id) { 'dummy_id' }
   let(:client_secret) { 'dummy_secret' }
   let(:redirect_uri) { 'https://example.com/callback' }
-  let(:scopes) { ['people:read', 'sites:read'] }
+  let(:scopes) { [ 'people:read', 'sites:read' ] }
 
   before do
     @original_slug = ENV['NATIONBUILDER_NATION_SLUG']
@@ -15,14 +24,6 @@ describe Oauth2Client do
     ENV['NATIONBUILDER_NATION_SLUG'] = @original_slug
   end
 
-  subject do
-    described_class.new(
-      client_id: client_id,
-      client_secret: client_secret,
-      redirect_uri: redirect_uri,
-      scopes: scopes
-    )
-  end
 
   describe '#authorization_url' do
     it 'generates the correct Nationbuilder OAuth2 authorization URL' do
@@ -35,4 +36,4 @@ describe Oauth2Client do
       expect(url).to start_with('https://testnation.nationbuilder.com/oauth/authorize?')
     end
   end
-end 
+end

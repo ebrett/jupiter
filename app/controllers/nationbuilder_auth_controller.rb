@@ -1,14 +1,14 @@
 class NationbuilderAuthController < ApplicationController
-  allow_unauthenticated_access only: [:redirect, :callback]
+  allow_unauthenticated_access only: [ :redirect, :callback ]
 
   before_action :resume_session
 
   def redirect
     client = Oauth2Client.new(
-      client_id: ENV['NATIONBUILDER_CLIENT_ID'],
-      client_secret: ENV['NATIONBUILDER_CLIENT_SECRET'],
-      redirect_uri: ENV['NATIONBUILDER_REDIRECT_URI'],
-      scopes: ['people:read', 'sites:read'] # Example scopes, adjust as needed
+      client_id: ENV["NATIONBUILDER_CLIENT_ID"],
+      client_secret: ENV["NATIONBUILDER_CLIENT_SECRET"],
+      redirect_uri: ENV["NATIONBUILDER_REDIRECT_URI"],
+      scopes: [ "people:read", "sites:read" ] # Example scopes, adjust as needed
     )
     redirect_to client.authorization_url(state: session.id), allow_other_host: true
   end
@@ -33,20 +33,20 @@ class NationbuilderAuthController < ApplicationController
   end
 
   def handle_missing_code
-    redirect_to root_path, alert: 'No authorization code received.'
+    redirect_to root_path, alert: "No authorization code received."
   end
 
   def exchange_code_for_token
     token_data = token_exchange_service.exchange_code_for_token(params[:code])
     update_user_token(token_data)
-    redirect_to root_path, notice: 'Nationbuilder authentication successful.'
+    redirect_to root_path, notice: "Nationbuilder authentication successful."
   end
 
   def token_exchange_service
     NationbuilderTokenExchangeService.new(
-      client_id: ENV['NATIONBUILDER_CLIENT_ID'],
-      client_secret: ENV['NATIONBUILDER_CLIENT_SECRET'],
-      redirect_uri: ENV['NATIONBUILDER_REDIRECT_URI']
+      client_id: ENV["NATIONBUILDER_CLIENT_ID"],
+      client_secret: ENV["NATIONBUILDER_CLIENT_SECRET"],
+      redirect_uri: ENV["NATIONBUILDER_REDIRECT_URI"]
     )
   end
 
@@ -60,4 +60,4 @@ class NationbuilderAuthController < ApplicationController
       raw_response: token_data
     )
   end
-end 
+end

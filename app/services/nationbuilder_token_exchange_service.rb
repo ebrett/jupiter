@@ -1,6 +1,6 @@
-require 'net/http'
-require 'uri'
-require 'json'
+require "net/http"
+require "uri"
+require "json"
 
 class NationbuilderTokenExchangeService
   class TokenExchangeError < StandardError; end
@@ -9,7 +9,7 @@ class NationbuilderTokenExchangeService
     @client_id = client_id
     @client_secret = client_secret
     @redirect_uri = redirect_uri
-    @nation_slug = ENV['NATIONBUILDER_NATION_SLUG']
+    @nation_slug = ENV["NATIONBUILDER_NATION_SLUG"]
   end
 
   def exchange_code_for_token(code)
@@ -20,7 +20,7 @@ class NationbuilderTokenExchangeService
       client_secret: @client_secret,
       redirect_uri: @redirect_uri,
       code: code,
-      grant_type: 'authorization_code'
+      grant_type: "authorization_code"
     )
     res = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) do |http|
       http.request(req)
@@ -30,4 +30,4 @@ class NationbuilderTokenExchangeService
     end
     JSON.parse(res.body, symbolize_names: true)
   end
-end 
+end

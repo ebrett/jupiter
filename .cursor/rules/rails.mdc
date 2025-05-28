@@ -69,3 +69,23 @@ alwaysApply: true
   
   Follow the official Ruby on Rails guides for best practices in routing, controllers, models, views, and other Rails components.
   
+  - **Rails 8.0.2 is the current standard (released March 2025)**
+    - All code, conventions, and examples should assume Rails 8.0.2 unless otherwise specified.
+    - Do not reference Rails 7 or earlier versions in new documentation or rules.
+
+  - **Active Record Encryption**
+    - Use the `encrypts` macro to declare encrypted attributes in models.
+      ```ruby
+      class NationbuilderToken < ApplicationRecord
+        encrypts :access_token
+        encrypts :refresh_token
+      end
+      ```
+    - Encryption keys must be set in credentials or environment variables.
+    - All encrypted fields are transparently handled by Rails 8.0.2.
+
+  - **General Rails 8 Conventions**
+    - Follow idiomatic Ruby and Rails 8 best practices for models, controllers, and views.
+    - Use the latest Rails 8 features and APIs where appropriate.
+    - Reference the [Rails 8.0.2 Guides](https://guides.rubyonrails.org/) for up-to-date documentation.
+  

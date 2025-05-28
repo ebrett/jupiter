@@ -12,8 +12,8 @@ Rails.application.routes.draw do
   # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
 
   # Defines the root path route ("/")
-  root 'home#index'
-  get 'admin', to: 'admin#index'
-  get '/auth/nationbuilder', to: 'nationbuilder_auth#redirect'
-  get '/auth/nationbuilder/callback', to: 'nationbuilder_auth#callback'
+  root "home#index"
+  get "admin", to: "admin#index"
+  get "/auth/nationbuilder", to: "nationbuilder_auth#redirect"
+  get "/auth/nationbuilder/callback", to: "nationbuilder_auth#callback"
 end

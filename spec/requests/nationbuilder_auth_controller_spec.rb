@@ -26,7 +26,7 @@ RSpec.describe 'NationbuilderAuthController', type: :request do
     let(:session_record) { user.sessions.create!(user_agent: 'test', ip_address: '127.0.0.1') }
 
     it 'redirects to root with alert if error param is present' do
-      get '/auth/nationbuilder/callback', params: { error: 'access_denied', error_description: 'User denied access' }, 
+      get '/auth/nationbuilder/callback', params: { error: 'access_denied', error_description: 'User denied access' },
           headers: { 'Cookie' => "session_id=#{Rails.application.message_verifier('signed cookie').generate(session_record.id)}" }
       expect(response).to redirect_to(root_path)
       follow_redirect!
@@ -34,7 +34,7 @@ RSpec.describe 'NationbuilderAuthController', type: :request do
     end
 
     it 'redirects to root with alert if code param is missing' do
-      get '/auth/nationbuilder/callback', 
+      get '/auth/nationbuilder/callback',
           headers: { 'Cookie' => "session_id=#{Rails.application.message_verifier('signed cookie').generate(session_record.id)}" }
       expect(response).to redirect_to(root_path)
       follow_redirect!
@@ -51,7 +51,7 @@ RSpec.describe 'NationbuilderAuthController', type: :request do
       stub_request(:post, 'https://testnation.nationbuilder.com/oauth/token')
         .to_return(status: 200, body: token_response.to_json, headers: { 'Content-Type' => 'application/json' })
 
-      get '/auth/nationbuilder/callback', params: { code: 'valid_code' }, 
+      get '/auth/nationbuilder/callback', params: { code: 'valid_code' },
           headers: { 'Cookie' => "session_id=#{Rails.application.message_verifier('signed cookie').generate(session_record.id)}" }
       expect(response).to redirect_to(root_path)
       follow_redirect!
@@ -68,7 +68,7 @@ RSpec.describe 'NationbuilderAuthController', type: :request do
       stub_request(:post, 'https://testnation.nationbuilder.com/oauth/token')
         .to_return(status: 400, body: { error: 'invalid_grant' }.to_json, headers: { 'Content-Type' => 'application/json' })
 
-      get '/auth/nationbuilder/callback', params: { code: 'invalid_code' }, 
+      get '/auth/nationbuilder/callback', params: { code: 'invalid_code' },
           headers: { 'Cookie' => "session_id=#{Rails.application.message_verifier('signed cookie').generate(session_record.id)}" }
       expect(response).to redirect_to(root_path)
       follow_redirect!
@@ -80,4 +80,4 @@ RSpec.describe 'NationbuilderAuthController', type: :request do
       expect(response).to redirect_to('/session/new')
     end
   end
-end 
+end

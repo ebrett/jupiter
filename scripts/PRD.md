@@ -8,13 +8,11 @@ The purpose of this document is to provide a comprehensive guide for the develop
 
 ## 2. Product overview
 
-The Reimbursement and Vendor Payment Application is a web-based system that allows users to submit, track, and manage reimbursement and vendor payment requests. It replaces the current manual forms with a more efficient digital solution that provides real-time status updates and a streamlined approval workflow.
+This Product Requirements Document (PRD) outlines the specifications for a web application designed to replace the current Combined Request form and In-Kind form used for reimbursement and vendor payment requests. The application aims to streamline the request submission, approval, and payment tracking process while implementing proper role-based access control to maintain security and data integrity.
 
-The application will support various user roles with different permission levels, from submitters who create requests to administrators who manage the entire system. It will capture all required information from the existing forms while adding enhanced tracking and reporting capabilities to improve financial oversight.
+This is a prototype to determine the feasibility of the application.
 
-This system will be built using Python, Flask, and PostgreSQL, with role-based access control to ensure secure access to sensitive financial information. The application will operate independently from the wiki, making it more accessible to users while maintaining proper authentication requirements.
-
-Authentication will be implemented using OAuth integration with Nationbuilder API, providing single sign-on capabilities and leveraging existing user data to inform authorization requirements.
+The purpose of this document is to provide a comprehensive guide for the development team, stakeholders, and testers to ensure the final product meets all business requirements and user needs. It details the functional requirements, user stories, technical specifications, and design considerations necessary for successful implementation.
 
 ## 3. Goals and objectives
 
@@ -62,6 +60,9 @@ User roles and permissions will be partially derived from Nationbuilder user dat
 - OAuth integration with Nationbuilder for authentication
 - Single sign-on capability for users with existing Nationbuilder accounts
 - Role mapping between Nationbuilder permissions and application roles
+- The DA Nationbuilder sandbox is hosted at https://demsabroad.nationbuilder.com 
+- The DA Nationbuilder production site is hosted at https://democratsabroad.nationbuilder.com
+- Make use of the Tagomations Automate List Management.  It is currently used to manage permissions within Nationbuilder for various roles. 
 - User profile data synchronization with Nationbuilder
 - Supplemental user registration for fields not available in Nationbuilder
 - Role-based access control with six distinct roles
