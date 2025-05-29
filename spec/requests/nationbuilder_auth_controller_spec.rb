@@ -70,14 +70,49 @@ RSpec.describe 'NationbuilderAuthController', type: :request do
 
       get '/auth/nationbuilder/callback', params: { code: 'invalid_code' },
           headers: { 'Cookie' => "session_id=#{Rails.application.message_verifier('signed cookie').generate(session_record.id)}" }
-      expect(response).to redirect_to(root_path)
+      expect(response).to redirect_to(new_session_path)
       follow_redirect!
-      expect(response.body).to include('Nationbuilder token exchange failed:')
+      expect(response.body).to include('NationBuilder authentication failed:')
     end
 
-    it 'redirects to login if not authenticated' do
-      get '/auth/nationbuilder/callback', params: { code: 'valid_code' }
-      expect(response).to redirect_to('/session/new')
+    it 'creates new user and session when not authenticated' do
+      token_response = {
+        access_token: 'access123',
+        refresh_token: 'refresh123',
+        expires_in: 3600,
+        scope: 'people:read sites:read'
+      }
+      
+      profile_response = {
+        data: {
+          id: 12345,
+          email: 'newuser@example.com',
+          first_name: 'John',
+          last_name: 'Doe'
+        }
+      }
+
+      stub_request(:post, 'https://testnation.nationbuilder.com/oauth/token')
+        .to_return(status: 200, body: token_response.to_json, headers: { 'Content-Type' => 'application/json' })
+      
+      stub_request(:get, 'https://testnation.nationbuilder.com/api/v2/people/me')
+        .with(headers: { 'Authorization' => 'Bearer access123' })
+        .to_return(status: 200, body: profile_response.to_json, headers: { 'Content-Type' => 'application/json' })
+
+      expect {
+        get '/auth/nationbuilder/callback', params: { code: 'valid_code' }
+      }.to change(User, :count).by(1)
+
+      expect(response).to redirect_to(root_path)
+      follow_redirect!
+      expect(response.body).to include('Successfully signed in with NationBuilder!')
+
+      new_user = User.find_by(nationbuilder_uid: '12345')
+      expect(new_user).to be_present
+      expect(new_user.email_address).to eq('newuser@example.com')
+      expect(new_user.first_name).to eq('John')
+      expect(new_user.last_name).to eq('Doe')
+      expect(new_user.nationbuilder_tokens.first).to be_present
     end
   end
 end
