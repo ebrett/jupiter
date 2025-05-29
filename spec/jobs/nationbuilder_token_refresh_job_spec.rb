@@ -26,7 +26,7 @@ RSpec.describe NationbuilderTokenRefreshJob, type: :job do
         allow_any_instance_of(NationbuilderToken).to receive(:refresh!).and_return(true)
         expect(Rails.logger).to receive(:info).with("Proactively refreshing token for user #{user.id}")
         expect(Rails.logger).to receive(:info).with("Successfully refreshed token for user #{user.id}")
-        
+
         described_class.new.perform(user.id)
       end
     end

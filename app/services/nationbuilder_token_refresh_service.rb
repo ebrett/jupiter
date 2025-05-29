@@ -92,8 +92,8 @@ class NationbuilderTokenRefreshService
 
   def should_retry?(error)
     # Retry on network errors, server errors, but not on auth errors
-    error.message.include?("HTTP error") && 
-      !error.message.include?("401") && 
+    error.message.include?("HTTP error") &&
+      !error.message.include?("401") &&
       !error.message.include?("403")
   end
 
@@ -101,8 +101,8 @@ class NationbuilderTokenRefreshService
     # Base delay of 1 second, exponentially increasing with jitter
     base_delay = 1.0
     max_delay = 16.0
-    delay = [base_delay * (2 ** (retry_count - 1)), max_delay].min
-    
+    delay = [ base_delay * (2 ** (retry_count - 1)), max_delay ].min
+
     # Add jitter to prevent thundering herd
     jitter = rand(0.1..0.3)
     delay * (1 + jitter)
@@ -110,14 +110,14 @@ class NationbuilderTokenRefreshService
 
   def trigger_refresh_success_hook(nationbuilder_token)
     Rails.logger.info "Token refresh successful for user #{nationbuilder_token.user_id}"
-    
+
     # Future: Add event system or webhook notifications here
     # Example: EventBus.publish(:token_refreshed, { user_id: nationbuilder_token.user_id })
   end
 
   def trigger_refresh_failed_hook(nationbuilder_token, error)
     Rails.logger.error "Token refresh failed for user #{nationbuilder_token.user_id}: #{error.message}"
-    
+
     # Future: Add event system, notifications, or admin alerts here
     # Example: EventBus.publish(:token_refresh_failed, { user_id: nationbuilder_token.user_id, error: error.message })
   end

@@ -13,7 +13,14 @@ Rails.application.routes.draw do
 
   # Defines the root path route ("/")
   root "home#index"
+
+  # Admin routes
   get "admin", to: "admin#index"
+  get "admin/oauth_status", to: "admin#oauth_status"
+  get "admin/system_health", to: "admin#system_health"
+  get "admin/export_oauth_data", to: "admin#export_oauth_data"
+
+  # OAuth routes
   get "/auth/nationbuilder", to: "nationbuilder_auth#redirect"
   get "/auth/nationbuilder/callback", to: "nationbuilder_auth#callback"
 end

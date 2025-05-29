@@ -6,8 +6,12 @@
       "Bash(bundle exec rubocop:*)",
       "Bash(ls:*)",
       "Bash(bundle exec rspec:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(rails generate migration:*)",
+      "Bash(bundle exec rails generate migration:*)",
+      "Bash(bundle exec rails:*)"
     ],
     "deny": []
-  }
+  },
+  "enableAllProjectMcpServers": false
 }

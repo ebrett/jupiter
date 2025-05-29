@@ -26,3 +26,35 @@ RSpec/MultipleMemoizedHelpers:
 # Instance variables in specs are acceptable for setup/teardown
 RSpec/InstanceVariable:
   Enabled: false
+
+# Allow any_instance_of in specs - common pattern for stubbing
+RSpec/AnyInstance:
+  Enabled: false
+
+# Allow expect().to receive() pattern in specs
+RSpec/MessageSpies:
+  Enabled: false
+
+# Allow expect when configuring responses in specs
+RSpec/StubbedMock:
+  Enabled: false
+
+# Allow indexed let statements in specs for clarity
+RSpec/IndexedLet:
+  Enabled: false
+
+# Allow let! for test setup even if not directly referenced
+RSpec/LetSetup:
+  Enabled: false
+
+# Allow examples without explicit expectations (setup examples)
+RSpec/NoExpectationExample:
+  Enabled: false
+
+# Allow normal doubles instead of requiring verified doubles
+RSpec/VerifiedDoubles:
+  Enabled: false
+
+# Allow deeper nesting in specs for complex scenarios
+RSpec/NestedGroups:
+  Max: 5

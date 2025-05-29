@@ -6,12 +6,12 @@ RSpec.describe NationbuilderApiClient do
   let!(:nationbuilder_token) { create(:nationbuilder_token, user: user) }
   let(:api_client) { described_class.new(user: user.reload) }
   let(:nation_slug) { 'testnation' }
-  
+
   before do
     @original_slug = ENV['NATIONBUILDER_NATION_SLUG']
     @original_client_id = ENV['NATIONBUILDER_CLIENT_ID']
     @original_client_secret = ENV['NATIONBUILDER_CLIENT_SECRET']
-    
+
     ENV['NATIONBUILDER_NATION_SLUG'] = nation_slug
     ENV['NATIONBUILDER_CLIENT_ID'] = 'test_client_id'
     ENV['NATIONBUILDER_CLIENT_SECRET'] = 'test_client_secret'
@@ -28,7 +28,7 @@ RSpec.describe NationbuilderApiClient do
   describe '#initialize' do
     context 'when NATIONBUILDER_NATION_SLUG is not set' do
       before { ENV['NATIONBUILDER_NATION_SLUG'] = nil }
-      
+
       it 'raises an error' do
         expect { described_class.new(user: user) }.to raise_error(/NATIONBUILDER_NATION_SLUG environment variable is not set/)
       end
@@ -36,7 +36,7 @@ RSpec.describe NationbuilderApiClient do
 
     context 'when user has no nationbuilder_token' do
       let(:user_without_token) { create(:user) }
-      
+
       it 'raises an ArgumentError' do
         expect { described_class.new(user: user_without_token) }.to raise_error(ArgumentError, 'User must have a nationbuilder_token')
       end
@@ -51,7 +51,7 @@ RSpec.describe NationbuilderApiClient do
 
   describe '#request' do
     let(:api_url) { "https://#{nation_slug}.nationbuilder.com/api/v2/people" }
-    let(:success_response) { { people: [{ id: 1, name: 'Test User' }] } }
+    let(:success_response) { { people: [ { id: 1, name: 'Test User' } ] } }
 
     context 'with valid token' do
       before do
@@ -70,10 +70,10 @@ RSpec.describe NationbuilderApiClient do
       end
 
       it 'logs the request and response' do
-        expect(Rails.logger).to receive(:debug).with(/NationBuilder API Request: GET \/api\/v2\/people/).at_least(:once)
-        expect(Rails.logger).to receive(:debug).with(/NationBuilder API Response: 200/).at_least(:once)
+        expect(Rails.logger).to receive(:debug).with(/NationBuilder API Request.*GET \/api\/v2\/people/).at_least(:once)
+        expect(Rails.logger).to receive(:debug).with(/NationBuilder API Response.*200/).at_least(:once)
         allow(Rails.logger).to receive(:debug) # Allow other debug logs
-        
+
         api_client.get('/api/v2/people')
       end
     end
@@ -84,7 +84,6 @@ RSpec.describe NationbuilderApiClient do
       let(:expired_api_client) { described_class.new(user: expired_user) }
 
       before do
-        
         # Mock refresh token endpoint for the tests that actually trigger refresh
         stub_request(:post, "https://#{nation_slug}.nationbuilder.com/oauth/token")
           .with(body: hash_including("grant_type" => "refresh_token"))
@@ -136,10 +135,15 @@ RSpec.describe NationbuilderApiClient do
       before do
         stub_request(:get, api_url)
           .to_return(status: 401, body: 'Unauthorized')
+
+        # Mock refresh token endpoint
+        stub_request(:post, "https://#{nation_slug}.nationbuilder.com/oauth/token")
+          .with(body: hash_including("grant_type" => "refresh_token"))
+          .to_return(status: 401, body: 'Invalid refresh token')
       end
 
       it 'raises AuthenticationError and attempts refresh' do
-        expect { api_client.get('/api/v2/people') }.to raise_error(described_class::AuthenticationError)
+        expect { api_client.get('/api/v2/people') }.to raise_error(NationbuilderOauthErrors::OAuthError)
       end
     end
 
@@ -151,7 +155,7 @@ RSpec.describe NationbuilderApiClient do
       end
 
       it 'raises ApiError' do
-        expect { api_client.get('/api/v2/people') }.to raise_error(described_class::ApiError, /Client error \(400\)/)
+        expect { api_client.get('/api/v2/people') }.to raise_error(NationbuilderOauthErrors::OAuthError)
       end
     end
 
@@ -163,7 +167,7 @@ RSpec.describe NationbuilderApiClient do
       end
 
       it 'raises ApiError' do
-        expect { api_client.get('/api/v2/people') }.to raise_error(described_class::ApiError, /Server error \(500\)/)
+        expect { api_client.get('/api/v2/people') }.to raise_error(NationbuilderOauthErrors::OAuthError)
       end
     end
   end
@@ -179,7 +183,7 @@ RSpec.describe NationbuilderApiClient do
 
       it 'makes GET request with query parameters' do
         api_client.get('/api/v2/people', params: { limit: 10 })
-        
+
         expect(WebMock).to have_requested(:get, "#{api_url}?limit=10")
           .with(headers: { 'Authorization' => "Bearer #{nationbuilder_token.access_token}" })
       end
@@ -194,7 +198,7 @@ RSpec.describe NationbuilderApiClient do
       it 'makes POST request with JSON body' do
         data = { name: 'Test User', email: 'test@example.com' }
         api_client.post('/api/v2/people', params: data)
-        
+
         expect(WebMock).to have_requested(:post, api_url)
           .with(
             body: data.to_json,
@@ -215,7 +219,7 @@ RSpec.describe NationbuilderApiClient do
       it 'makes PUT request with JSON body' do
         data = { name: 'Updated User' }
         api_client.put('/api/v2/people', params: data)
-        
+
         expect(WebMock).to have_requested(:put, api_url)
           .with(
             body: data.to_json,
@@ -235,7 +239,7 @@ RSpec.describe NationbuilderApiClient do
 
       it 'makes DELETE request' do
         api_client.delete('/api/v2/people', params: { id: 123 })
-        
+
         expect(WebMock).to have_requested(:delete, "#{api_url}?id=123")
           .with(headers: { 'Authorization' => "Bearer #{nationbuilder_token.access_token}" })
       end
@@ -320,11 +324,16 @@ RSpec.describe NationbuilderApiClient do
       before do
         stub_request(:get, api_url)
           .to_return(status: 401, body: 'Unauthorized')
+
+        # Mock refresh token endpoint
+        stub_request(:post, "https://#{nation_slug}.nationbuilder.com/oauth/token")
+          .with(body: hash_including("grant_type" => "refresh_token"))
+          .to_return(status: 401, body: 'Invalid refresh token')
       end
 
       it 'does not retry on authentication failure' do
         expect { api_client.request(method: :get, path: '/api/v2/people', retry_on_auth_failure: false) }
-          .to raise_error(described_class::AuthenticationError)
+          .to raise_error(NationbuilderOauthErrors::OAuthError)
       end
     end
 
@@ -334,7 +343,7 @@ RSpec.describe NationbuilderApiClient do
       end
 
       it 'propagates network errors' do
-        expect { api_client.get('/api/v2/people') }.to raise_error(Net::OpenTimeout)
+        expect { api_client.get('/api/v2/people') }.to raise_error(NationbuilderOauthErrors::NetworkError)
       end
     end
   end

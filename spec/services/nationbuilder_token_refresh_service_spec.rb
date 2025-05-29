@@ -123,7 +123,7 @@ RSpec.describe NationbuilderTokenRefreshService do
       it 'does not retry on auth errors' do
         result = service.refresh_token(nationbuilder_token)
         expect(result).to be false
-        
+
         # Verify the request was made only once (no retries for auth errors)
         expect(WebMock).to have_requested(:post, "https://#{nation_slug}.nationbuilder.com/oauth/token").once
       end
@@ -137,10 +137,10 @@ RSpec.describe NationbuilderTokenRefreshService do
 
       it 'retries with exponential backoff' do
         expect(service).to receive(:sleep).exactly(3).times
-        
+
         result = service.refresh_token(nationbuilder_token)
         expect(result).to be false
-        
+
         # Verify the request was made 4 times (1 initial + 3 retries)
         expect(WebMock).to have_requested(:post, "https://#{nation_slug}.nationbuilder.com/oauth/token").times(4)
       end

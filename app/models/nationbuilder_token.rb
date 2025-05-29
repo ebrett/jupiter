@@ -8,10 +8,10 @@ class NationbuilderToken < ApplicationRecord
   validates :access_token, :refresh_token, :expires_at, presence: true
 
   # Scopes for finding tokens in various states
-  scope :expired, -> { where('expires_at <= ?', Time.current) }
-  scope :expiring_soon, ->(buffer_minutes = 5) { where('expires_at <= ? AND expires_at > ?', Time.current + buffer_minutes.minutes, Time.current) }
-  scope :valid_for_api, -> { where('expires_at > ?', Time.current) }
-  scope :needs_refresh, ->(buffer_minutes = 5) { where('expires_at <= ?', Time.current + buffer_minutes.minutes) }
+  scope :expired, -> { where("expires_at <= ?", Time.current) }
+  scope :expiring_soon, ->(buffer_minutes = 5) { where("expires_at <= ? AND expires_at > ?", Time.current + buffer_minutes.minutes, Time.current) }
+  scope :valid_for_api, -> { where("expires_at > ?", Time.current) }
+  scope :needs_refresh, ->(buffer_minutes = 5) { where("expires_at <= ?", Time.current + buffer_minutes.minutes) }
 
   # Check if the token is expired
   def expired?

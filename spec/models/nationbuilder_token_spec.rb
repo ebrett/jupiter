@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe NationbuilderToken, type: :model do
   let(:user) { create(:user) }
-  
+
   describe 'associations' do
     it 'belongs to user' do
       expect(described_class.reflect_on_association(:user).macro).to eq(:belongs_to)
@@ -49,11 +49,11 @@ RSpec.describe NationbuilderToken, type: :model do
     let!(:expired_token) do
       create(:nationbuilder_token, user: user, expires_at: 1.hour.ago)
     end
-    
+
     let!(:expiring_soon_token) do
       create(:nationbuilder_token, user: user, expires_at: 3.minutes.from_now)
     end
-    
+
     let!(:valid_token) do
       create(:nationbuilder_token, user: user, expires_at: 1.hour.from_now)
     end
@@ -114,7 +114,7 @@ RSpec.describe NationbuilderToken, type: :model do
 
   describe '#valid_for_api_use?' do
     it 'returns true when token has access_token and is not expired' do
-      token = build(:nationbuilder_token, 
+      token = build(:nationbuilder_token,
                    access_token: 'token123',
                    expires_at: 1.hour.from_now)
       expect(token.valid_for_api_use?).to be true
@@ -183,7 +183,7 @@ RSpec.describe NationbuilderToken, type: :model do
         client_secret: 'client_secret'
       )
       allow(refresh_service).to receive(:refresh_token).and_return(true)
-      
+
       token.refresh!
     end
 

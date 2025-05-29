@@ -10,9 +10,9 @@ class NationbuilderTokenRefreshJob < ApplicationJob
     return unless nationbuilder_token&.needs_refresh?
 
     Rails.logger.info "Proactively refreshing token for user #{user_id}"
-    
+
     success = nationbuilder_token.refresh!
-    
+
     if success
       Rails.logger.info "Successfully refreshed token for user #{user_id}"
     else
@@ -24,8 +24,8 @@ class NationbuilderTokenRefreshJob < ApplicationJob
   # Class method to enqueue refresh jobs for all users with expiring tokens
   def self.enqueue_for_expiring_tokens(buffer_minutes = 30)
     expiring_tokens = NationbuilderToken.joins(:user)
-                                       .where('expires_at <= ?', Time.current + buffer_minutes.minutes)
-                                       .where('expires_at > ?', Time.current)
+                                       .where("expires_at <= ?", Time.current + buffer_minutes.minutes)
+                                       .where("expires_at > ?", Time.current)
                                        .includes(:user)
 
     Rails.logger.info "Found #{expiring_tokens.count} tokens expiring within #{buffer_minutes} minutes"
@@ -33,7 +33,7 @@ class NationbuilderTokenRefreshJob < ApplicationJob
     expiring_tokens.find_each do |token|
       perform_later(token.user_id)
     end
-    
+
     nil # Ensure no return value interferes with logging
   end
 

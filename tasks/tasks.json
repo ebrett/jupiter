@@ -802,7 +802,7 @@
             3
           ],
           "details": "1. Create an API client class that wraps all Nationbuilder V2 API requests\n2. Implement request interceptors that check token validity before each request\n3. Automatically trigger the refresh flow when an access token is expired\n4. Handle 401/403 responses by attempting token refresh and retrying the request\n5. Implement request queuing during active token refresh to prevent multiple simultaneous refresh attempts\n6. Add appropriate request/response logging for debugging",
-          "status": "in-progress",
+          "status": "done",
           "testStrategy": "Create mock API endpoints that simulate various response scenarios. Test the automatic refresh on 401 responses. Verify request retry behavior works correctly after token refresh."
         },
         {
@@ -813,7 +813,7 @@
             4
           ],
           "details": "1. Create specific error classes for different OAuth2 failure scenarios\n2. Implement handlers for invalid/expired refresh tokens that trigger re-authentication\n3. Add detection and handling for user-revoked access\n4. Create a notification system for authentication failures that require user intervention\n5. Implement graceful degradation of functionality when authentication cannot be restored automatically\n6. Add detailed logging for all authentication events for audit and debugging purposes\n7. Create admin dashboard components to monitor OAuth2 token status across users",
-          "status": "pending",
+          "status": "done",
           "testStrategy": "Test each error scenario with mocked API responses. Verify the system correctly identifies different error types. Test the re-authentication flow triggers correctly for non-recoverable errors."
         },
         {
