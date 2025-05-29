@@ -72,7 +72,7 @@
       "id": 2,
       "title": "Nationbuilder OAuth Integration",
       "description": "Implement OAuth authentication with Nationbuilder in Rails",
-      "status": "pending",
+      "status": "done",
       "dependencies": [
         1
       ],
@@ -85,8 +85,8 @@
           "title": "Set up Nationbuilder OAuth configuration",
           "description": "Register the application with Nationbuilder to obtain OAuth credentials and configure the Rails application to use these credentials.",
           "dependencies": [],
-          "details": "1. Register the application in Nationbuilder developer portal\n2. Obtain client ID and client secret\n3. Create an initializer file (config/initializers/nationbuilder.rb) to store configuration\n4. Use Rails credentials or environment variables to securely store OAuth keys\n5. Install required gems: 'omniauth', 'omniauth-oauth2', and create a custom Nationbuilder OAuth strategy",
-          "status": "pending",
+          "details": "✅ COMPLETED via Task 12 - Environment variable configuration, Oauth2Client service, advanced validation and security",
+          "status": "done",
           "testStrategy": "Create tests to verify configuration is loaded correctly and environment variables are properly accessed"
         },
         {
@@ -96,8 +96,8 @@
           "dependencies": [
             1
           ],
-          "details": "1. Create OmniauthCallbacksController to handle Nationbuilder callbacks\n2. Set up routes for authentication (/auth/nationbuilder and /auth/nationbuilder/callback)\n3. Implement the authentication request method that redirects to Nationbuilder\n4. Handle the callback from Nationbuilder after user authorizes\n5. Implement error handling for failed authentication attempts",
-          "status": "pending",
+          "details": "✅ COMPLETED via Task 12 - NationbuilderAuthController with complete OAuth flow, account linking, and error handling",
+          "status": "done",
           "testStrategy": "Write controller tests that mock OAuth callbacks and verify proper handling of success and failure scenarios"
         },
         {
@@ -107,8 +107,8 @@
           "dependencies": [
             2
           ],
-          "details": "1. Create a NationbuilderUserService class to handle API interactions\n2. Implement methods to fetch user profile data from Nationbuilder API\n3. Create or update local user records based on Nationbuilder data\n4. Map Nationbuilder user attributes to local user model attributes\n5. Handle edge cases like missing data or API failures",
-          "status": "pending",
+          "details": "✅ COMPLETED via Task 12 - NationbuilderUserService with profile sync, user creation, and account linking",
+          "status": "done",
           "testStrategy": "Create unit tests for the service with mocked API responses and integration tests that verify user data is properly synchronized"
         },
         {
@@ -118,8 +118,8 @@
           "dependencies": [
             2
           ],
-          "details": "1. Add columns to User model for storing encrypted access_token, refresh_token, and token_expiry\n2. Implement encryption/decryption for token storage using Rails built-in encryption\n3. Create a TokenRefreshService to handle automatic token refresh when expired\n4. Implement background job to periodically check and refresh tokens before expiry\n5. Add error handling for failed token refreshes",
-          "status": "pending",
+          "details": "✅ COMPLETED via Task 12 - NationbuilderToken model with encryption, automatic refresh, and background jobs",
+          "status": "done",
           "testStrategy": "Test encryption/decryption of tokens, token refresh logic with mocked API responses, and verify tokens are properly updated in the database"
         },
         {
@@ -130,8 +130,8 @@
             3,
             4
           ],
-          "details": "1. Modify the SessionsController to handle SSO login/logout\n2. Implement a mechanism to check if user is already authenticated in Nationbuilder\n3. Create helper methods to generate SSO URLs for Nationbuilder\n4. Implement sign-out that logs user out of both systems\n5. Add session management to maintain consistent authentication state",
-          "status": "pending",
+          "details": "✅ COMPLETED via Task 12 - Complete SSO with session management, sign-in button, and OAuth status monitoring",
+          "status": "done",
           "testStrategy": "Create integration tests that verify the full SSO flow, including login and logout functionality across both systems"
         }
       ]

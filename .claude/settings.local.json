@@ -10,7 +10,10 @@
       "Bash(rails generate migration:*)",
       "Bash(bundle exec rails generate migration:*)",
       "Bash(bundle exec rails:*)",
-      "Bash(mkdir:*)"
+      "Bash(mkdir:*)",
+      "Bash(find:*)",
+      "Bash(bundle add pundit)",
+      "Bash(cat:*)"
     ],
     "deny": []
   },

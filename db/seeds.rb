@@ -15,18 +15,92 @@
 #   user.admin = true
 # end
 
-# Test users for development and QA
-# Credentials: email_address / password
-users = [
-  { email_address: 'admin@example.com', password: 'password123' },
-  { email_address: 'user1@example.com', password: 'password123' },
-  { email_address: 'user2@example.com', password: 'password123' },
-  { email_address: 'qa@example.com', password: 'password123' },
-  { email_address: 'guest@example.com', password: 'password123' }
+# Create roles first
+roles_data = [
+  {
+    name: 'submitter',
+    description: 'Can create and submit reimbursement requests'
+  },
+  {
+    name: 'country_chapter_admin',
+    description: 'Can approve/deny requests for their region'
+  },
+  {
+    name: 'treasury_team_admin',
+    description: 'Can process payments and manage financial operations'
+  },
+  {
+    name: 'super_admin',
+    description: 'Full system access and user management'
+  },
+  {
+    name: 'viewer',
+    description: 'Read-only access to view requests and reports'
+  }
 ]
 
-users.each do |attrs|
-  User.find_or_create_by!(email_address: attrs[:email_address]) do |user|
-    user.password = attrs[:password]
+roles_data.each do |role_attrs|
+  Role.find_or_create_by!(name: role_attrs[:name]) do |role|
+    role.description = role_attrs[:description]
+  end
+end
+
+# Test users for development and QA with roles
+# Credentials: email_address / password
+users_data = [
+  { 
+    email_address: 'admin@example.com', 
+    password: 'password123',
+    first_name: 'Super',
+    last_name: 'Admin',
+    roles: ['super_admin']
+  },
+  { 
+    email_address: 'treasury@example.com', 
+    password: 'password123',
+    first_name: 'Treasury',
+    last_name: 'Admin',
+    roles: ['treasury_team_admin']
+  },
+  { 
+    email_address: 'chapter@example.com', 
+    password: 'password123',
+    first_name: 'Chapter',
+    last_name: 'Admin',
+    roles: ['country_chapter_admin']
+  },
+  { 
+    email_address: 'user1@example.com', 
+    password: 'password123',
+    first_name: 'Regular',
+    last_name: 'User',
+    roles: ['submitter']
+  },
+  { 
+    email_address: 'viewer@example.com', 
+    password: 'password123',
+    first_name: 'View',
+    last_name: 'Only',
+    roles: ['viewer']
+  },
+  { 
+    email_address: 'multi@example.com', 
+    password: 'password123',
+    first_name: 'Multi',
+    last_name: 'Role',
+    roles: ['submitter', 'viewer']
+  }
+]
+
+users_data.each do |user_attrs|
+  user = User.find_or_create_by!(email_address: user_attrs[:email_address]) do |u|
+    u.password = user_attrs[:password]
+    u.first_name = user_attrs[:first_name] if user_attrs[:first_name]
+    u.last_name = user_attrs[:last_name] if user_attrs[:last_name]
+  end
+
+  # Assign roles
+  user_attrs[:roles]&.each do |role_name|
+    user.add_role(role_name)
   end
 end
