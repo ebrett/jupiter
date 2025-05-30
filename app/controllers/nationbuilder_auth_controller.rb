@@ -10,7 +10,7 @@ class NationbuilderAuthController < ApplicationController
       client_id: ENV["NATIONBUILDER_CLIENT_ID"],
       client_secret: ENV["NATIONBUILDER_CLIENT_SECRET"],
       redirect_uri: ENV["NATIONBUILDER_REDIRECT_URI"],
-      scopes: [ "people:read", "sites:read" ] # Example scopes, adjust as needed
+      scopes: [ "default" ] # NationBuilder standard OAuth scope
     )
     redirect_to client.authorization_url(state: session.id), allow_other_host: true
   end
