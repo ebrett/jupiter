@@ -46,7 +46,7 @@ RSpec.describe 'NationbuilderAuthController', type: :request do
         access_token: 'access123',
         refresh_token: 'refresh123',
         expires_in: 3600,
-        scope: 'people:read sites:read'
+        scope: 'default'
       }
       stub_request(:post, 'https://testnation.nationbuilder.com/oauth/token')
         .to_return(status: 200, body: token_response.to_json, headers: { 'Content-Type' => 'application/json' })
@@ -61,7 +61,7 @@ RSpec.describe 'NationbuilderAuthController', type: :request do
       expect(token).to be_present
       expect(token.access_token).to eq('access123')
       expect(token.refresh_token).to eq('refresh123')
-      expect(token.scope).to eq('people:read sites:read')
+      expect(token.scope).to eq('default')
     end
 
     it 'handles token exchange failure gracefully' do
@@ -80,11 +80,11 @@ RSpec.describe 'NationbuilderAuthController', type: :request do
         access_token: 'access123',
         refresh_token: 'refresh123',
         expires_in: 3600,
-        scope: 'people:read sites:read'
+        scope: 'default'
       }
       
       profile_response = {
-        data: {
+        person: {
           id: 12345,
           email: 'newuser@example.com',
           first_name: 'John',
@@ -95,7 +95,7 @@ RSpec.describe 'NationbuilderAuthController', type: :request do
       stub_request(:post, 'https://testnation.nationbuilder.com/oauth/token')
         .to_return(status: 200, body: token_response.to_json, headers: { 'Content-Type' => 'application/json' })
       
-      stub_request(:get, 'https://testnation.nationbuilder.com/api/v2/people/me')
+      stub_request(:get, 'https://testnation.nationbuilder.com/api/v1/people/me')
         .with(headers: { 'Authorization' => 'Bearer access123' })
         .to_return(status: 200, body: profile_response.to_json, headers: { 'Content-Type' => 'application/json' })
 
