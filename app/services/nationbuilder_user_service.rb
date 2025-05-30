@@ -18,7 +18,7 @@ class NationbuilderUserService
   end
 
   def fetch_user_profile
-    response = make_request("/api/v2/people/me")
+    response = make_request("/api/v1/people/me")
     
     if response.success?
       parse_user_data(response.body)
@@ -78,8 +78,9 @@ class NationbuilderUserService
   def parse_user_data(response_body)
     data = JSON.parse(response_body, symbolize_names: true)
     
-    # Handle NationBuilder V2 API response structure
-    person_data = data[:data] || data
+    # Handle NationBuilder V1 API response structure  
+    # V1 API wraps the person data in a 'person' key
+    person_data = data[:person] || data[:data] || data
     
     {
       id: person_data[:id],
