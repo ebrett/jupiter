@@ -27,8 +27,12 @@ bundle exec rspec spec/models/user_spec.rb  # Run single test file
 bundle exec rubocop                  # Linting (rails-omakase preset)
 bundle exec brakeman                 # Security scanning
 
-# Database operations
-rails db:seed    # Creates idempotent test users
+# Database operations and seeding
+rails db:seed                        # Creates idempotent test users (environment-aware)
+rake seed:users                      # Create/update test users only
+rake seed:stats                      # Show current user statistics and test credentials
+rake seed:reset_users                # Remove and recreate all test users
+rake seed:validate                   # Validate seed data integrity
 ```
 
 ## Architecture Overview
@@ -88,3 +92,34 @@ PERPLEXITY_API_KEY
 - Sessions table tracks authentication with IP addresses and user agents
 - Encrypted token storage prevents plaintext OAuth credentials
 - Proper PostgreSQL indexing for performance
+
+## Test User Seeding System
+
+The application includes a robust, idempotent seeding mechanism for creating test users:
+
+### Environment-Aware Configuration
+- **Development**: Creates all user types including edge cases (verbose output)
+- **Test**: Creates admin and test users only (quiet output)
+- **Production**: Creates essential admin users only (minimal output)
+
+### Available Rake Tasks
+```bash
+rake seed:users      # Create/update test users based on environment
+rake seed:stats      # Display current user statistics and credentials
+rake seed:reset_users # Clean slate - remove and recreate all test users
+rake seed:validate   # Verify data integrity and user validity
+```
+
+### Test User Categories
+- **Admin Users**: `admin@example.com` (super_admin role)
+- **Role-based Users**: Treasury, chapter, and standard users with various permissions
+- **Edge Cases**: Long emails, unicode names, minimal data scenarios
+- **QA Users**: Multi-role assignments and permission testing
+
+All test users use password: `password123`
+
+### Seeding Features
+- **Idempotent**: Safe to run multiple times without duplicates
+- **Role Management**: Automatic role assignment with validation
+- **NationBuilder Integration**: Some users include mock OAuth UIDs
+- **Data Validation**: Built-in integrity checks for emails and roles

@@ -5,7 +5,7 @@
 # Priority: high
 # Description: Implement role-based access control system using Rails
 # Details:
-Create role management system using Rails models and controllers. Implement five distinct roles (Submitter, Country/Chapter Admin, Treasury Team Admin, Super Admin, Viewer) with proper authorization using Rails policies. Design system to support multi-role users and hierarchical approval workflows.
+Create role management system using Rails models and controllers. Implement six distinct roles (Submitter, Country/Chapter Admin, Treasury Team Admin, Super Admin, Viewer, Treasury IT) with proper authorization using Rails policies.
 
 # Test Strategy:
 Verify role permissions and access controls through Rails test suite
@@ -13,9 +13,9 @@ Verify role permissions and access controls through Rails test suite
 # Subtasks:
 ## 1. Create Role Model and Database Schema [pending]
 ### Dependencies: None
-### Description: Design and implement the Role model and necessary database schema to support the five distinct roles (Submitter, Country/Chapter Admin, Treasury Team Admin, Super Admin, Viewer).
+### Description: Design and implement the Role model and necessary database schema to support the six distinct roles (Submitter, Country/Chapter Admin, Treasury Team Admin, Super Admin, Viewer, Treasury IT).
 ### Details:
-Create a Role model with appropriate attributes (name, description, permissions). Set up a join table for user-role associations. Generate and run migrations to create the necessary database tables. Include seed data for the five predefined roles. Design schema to support multi-role users (users can have multiple roles simultaneously) and hierarchical approval logic.
+Create a Role model with appropriate attributes (name, description, permissions). Set up a join table for user-role associations. Generate and run migrations to create the necessary database tables. Include seed data for the six predefined roles.
 
 ## 2. Implement User-Role Associations [pending]
 ### Dependencies: 3.1
@@ -27,7 +27,7 @@ Update the User model with a has_many :roles association through a join table. A
 ### Dependencies: 3.2
 ### Description: Implement Pundit policies to handle authorization based on user roles.
 ### Details:
-Install and configure the Pundit gem. Create policy classes for each resource that needs role-based access control. Define permissions for each role in the policies. Implement policy scopes to filter collections based on user roles. Ensure policies handle all five roles correctly and support multi-role scenarios where users may have overlapping permissions.
+Install and configure the Pundit gem. Create policy classes for each resource that needs role-based access control. Define permissions for each role in the policies. Implement policy scopes to filter collections based on user roles. Ensure policies handle all six roles correctly.
 
 ## 4. Implement Role Management UI [pending]
 ### Dependencies: 3.2, 3.3
