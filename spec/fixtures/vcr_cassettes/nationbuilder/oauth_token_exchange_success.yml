@@ -1,0 +1,117 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://testnation.nationbuilder.com/oauth/token
+    body:
+      encoding: US-ASCII
+      string: client_id=<NATIONBUILDER_CLIENT_ID>&client_secret=<NATIONBUILDER_CLIENT_SECRET>&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fauth%2Fnationbuilder%2Fcallback&code=valid_sandbox_code&grant_type=authorization_code
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - testnation.nationbuilder.com
+      Content-Type:
+      - application/x-www-form-urlencoded
+  response:
+    status:
+      code: 404
+      message: Not Found
+    headers:
+      Date:
+      - Fri, 30 May 2025 04:50:40 GMT
+      Content-Type:
+      - text/html
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      X-Nb-Code:
+      - '101'
+      X-Request-Id:
+      - 140bc380-ab5a-4d0b-99c4-a25c1ee8860d
+      X-Runtime:
+      - '0.004563'
+      X-Rack-Cache:
+      - invalidate, pass
+      X-Middleware-Start:
+      - t=1748580640467054
+      Cf-Cache-Status:
+      - DYNAMIC
+      Server:
+      - cloudflare
+      Cf-Ray:
+      - 947b9ca9ecaa14aa-BKK
+      Alt-Svc:
+      - h3=":443"; ma=86400
+    body:
+      encoding: ASCII-8BIT
+      string: |
+        <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+               "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+        <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+
+          <head>
+            <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+            <title>404 Error: The page you were looking for doesn't exist</title>
+            <style type="text/css">
+              @import url("https://use.typekit.net/qxy0faq.css");
+              p {
+                font-size: 17px;
+                margin: 30px 0;
+                font-family: aktiv-grotesk,Helvetica Neue,Helvetica,Arial,sans-serif;
+              }
+              a {
+                color: #1498BE;
+                text-decoration: none;
+              }
+              a:hover {
+                text-decoration: underline;
+              }
+              .container {
+                width: 100%;
+                margin: 0 auto;
+              }
+              img {
+                margin: 40px 0 30px;
+                width: 100%;
+              }
+              @media (min-width: 330px) {
+                img {
+                  width: 300px;
+                }
+              }
+              @media (min-width: 576px) {
+                .container {
+                  width: 550px;
+                }
+                img {
+                  margin: 70px 0 30px;
+                }
+              }
+              @media (min-width: 768px) {
+                .container {
+                  width: 750px;
+                }
+              }
+            </style>
+          </head>
+
+          <body>
+            <!-- This file lives in public/404.html -->
+            <div class="container">
+              <div class="logo"><img alt="NationBuilder" src="/images/nationbuilder-horizontal-black.svg"></div>
+              <div class="message">
+                <p><b>Page cannot be found.</b></p>
+                <p>The URL you requested either moved or no longer exists.</p>
+              </div>
+            </div>
+          <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'947b9ca9ecaa14aa',t:'MTc0ODU4MDY0MC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+        </html>
+  recorded_at: Fri, 30 May 2025 04:50:40 GMT
+recorded_with: VCR 6.3.1
