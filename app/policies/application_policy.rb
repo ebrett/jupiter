@@ -9,15 +9,15 @@ class ApplicationPolicy
   end
 
   def index?
-    false
+    user_present?
   end
 
   def show?
-    false
+    user_present?
   end
 
   def create?
-    false
+    user_present?
   end
 
   def new?
@@ -25,7 +25,7 @@ class ApplicationPolicy
   end
 
   def update?
-    false
+    user_present?
   end
 
   def edit?
@@ -33,7 +33,45 @@ class ApplicationPolicy
   end
 
   def destroy?
-    false
+    admin?
+  end
+
+  protected
+
+  def user_present?
+    user&.persisted?
+  end
+
+  def admin?
+    user_present? && user.admin?
+  end
+
+  def super_admin?
+    user_present? && user.has_role?(:super_admin)
+  end
+
+  def treasury_admin?
+    user_present? && user.has_role?(:treasury_team_admin)
+  end
+
+  def chapter_admin?
+    user_present? && user.has_role?(:country_chapter_admin)
+  end
+
+  def submitter?
+    user_present? && user.has_role?(:submitter)
+  end
+
+  def viewer?
+    user_present? && user.has_role?(:viewer)
+  end
+
+  def can_approve?
+    user_present? && user.can_approve?
+  end
+
+  def can_process_payments?
+    user_present? && user.can_process_payments?
   end
 
   class Scope
@@ -43,7 +81,25 @@ class ApplicationPolicy
     end
 
     def resolve
-      raise NoMethodError, "You must define #resolve in #{self.class}"
+      if user&.persisted?
+        scope.all
+      else
+        scope.none
+      end
+    end
+
+    protected
+
+    def user_present?
+      user&.persisted?
+    end
+
+    def admin?
+      user_present? && user.admin?
+    end
+
+    def super_admin?
+      user_present? && user.has_role?(:super_admin)
     end
 
     private
