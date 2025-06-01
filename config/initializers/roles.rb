@@ -5,8 +5,14 @@ Rails.application.config.after_initialize do
   # Only run in contexts where ActiveRecord is available
   next unless defined?(ActiveRecord::Base)
 
-  # Skip if database doesn't exist or isn't migrated
-  next unless ActiveRecord::Base.connection.data_source_exists?("roles")
+  begin
+    # Check if database is connected and exists
+    next unless ActiveRecord::Base.connected?
+    next unless ActiveRecord::Base.connection.data_source_exists?("roles")
+  rescue ActiveRecord::NoDatabaseError, ActiveRecord::ConnectionNotEstablished
+    # Skip if database doesn't exist or isn't connected
+    next
+  end
 
   # Create default roles if they don't exist
   Role::ROLES.each do |role_name|
