@@ -145,16 +145,16 @@
         2
       ],
       "priority": "high",
-      "details": "Create role management system using Rails models and controllers. Implement six distinct roles (Submitter, Country/Chapter Admin, Treasury Team Admin, Super Admin, Viewer, Treasury IT) with proper authorization using Rails policies.",
+      "details": "Create role management system using Rails models and controllers. Implement five distinct roles (Submitter, Country/Chapter Admin, Treasury Team Admin, Super Admin, Viewer) with proper authorization using Rails policies. The Treasury IT role is no longer required and should not be included in the system.",
       "testStrategy": "Verify role permissions and access controls through Rails test suite",
       "subtasks": [
         {
           "id": 1,
           "title": "Create Role Model and Database Schema",
-          "description": "Design and implement the Role model and necessary database schema to support the six distinct roles (Submitter, Country/Chapter Admin, Treasury Team Admin, Super Admin, Viewer, Treasury IT).",
+          "description": "Design and implement the Role model and necessary database schema to support the five distinct roles (Submitter, Country/Chapter Admin, Treasury Team Admin, Super Admin, Viewer).",
           "dependencies": [],
-          "details": "Create a Role model with appropriate attributes (name, description, permissions). Set up a join table for user-role associations. Generate and run migrations to create the necessary database tables. Include seed data for the six predefined roles.",
-          "status": "pending",
+          "details": "Create a Role model with appropriate attributes (name, description, permissions). Set up a join table for user-role associations. Generate and run migrations to create the necessary database tables. Include seed data for the five predefined roles. Remove any references to the Treasury IT role.",
+          "status": "done",
           "testStrategy": "Write unit tests for the Role model validations and associations. Create factory for roles using FactoryBot."
         },
         {
@@ -164,8 +164,8 @@
           "dependencies": [
             1
           ],
-          "details": "Update the User model with a has_many :roles association through a join table. Add methods to check if a user has a specific role (e.g., user.has_role?(:admin)). Implement methods to assign and remove roles from users. Update user forms/views to allow role assignment.",
-          "status": "pending",
+          "details": "Update the User model with a has_many :roles association through a join table. Add methods to check if a user has a specific role (e.g., user.has_role?(:admin)). Implement methods to assign and remove roles from users. Update user forms/views to allow role assignment. Ensure only the five required roles are available for assignment.",
+          "status": "done",
           "testStrategy": "Test user-role associations with unit tests. Verify role assignment and removal functionality works correctly."
         },
         {
@@ -175,8 +175,8 @@
           "dependencies": [
             2
           ],
-          "details": "Install and configure the Pundit gem. Create policy classes for each resource that needs role-based access control. Define permissions for each role in the policies. Implement policy scopes to filter collections based on user roles. Ensure policies handle all six roles correctly.",
-          "status": "pending",
+          "details": "Install and configure the Pundit gem. Create policy classes for each resource that needs role-based access control. Define permissions for each of the five roles in the policies. Implement policy scopes to filter collections based on user roles. Ensure policies handle all five roles correctly and remove any logic related to the Treasury IT role.",
+          "status": "done",
           "testStrategy": "Write policy specs to test authorization rules for each role. Test both allowed and forbidden actions for different user roles."
         },
         {
@@ -187,7 +187,7 @@
             2,
             3
           ],
-          "details": "Create controllers and views for role management (index, show, edit, update). Implement user search and bulk role assignment features. Add role filtering and sorting capabilities. Ensure the interface is accessible only to users with appropriate permissions (Super Admin). Include confirmation dialogs for critical role changes.",
+          "details": "Create controllers and views for role management (index, show, edit, update). Implement user search and bulk role assignment features. Add role filtering and sorting capabilities. Ensure the interface is accessible only to users with appropriate permissions (Super Admin). Include confirmation dialogs for critical role changes. Remove any UI elements or options related to the Treasury IT role.",
           "status": "pending",
           "testStrategy": "Write system/integration tests using Capybara to verify the role management UI works correctly. Test role assignment, removal, and permission changes."
         },
@@ -198,7 +198,7 @@
           "dependencies": [
             3
           ],
-          "details": "Update controllers to use Pundit for authorization checks. Modify views to show/hide elements based on user roles. Add before_action filters to restrict access to controllers/actions. Implement custom error pages for authorization failures. Add role-specific navigation menus and dashboards for each role type.",
+          "details": "Update controllers to use Pundit for authorization checks. Modify views to show/hide elements based on user roles. Add before_action filters to restrict access to controllers/actions. Implement custom error pages for authorization failures. Add role-specific navigation menus and dashboards for each of the five role types. Remove any logic or UI related to the Treasury IT role.",
           "status": "pending",
           "testStrategy": "Write integration tests to verify that users with different roles see appropriate UI elements and can access only authorized features. Test authorization failures and redirects."
         }
@@ -669,91 +669,6 @@
       ]
     },
     {
-      "id": 11,
-      "title": "Implement Idempotent Seed Data for Major Models",
-      "description": "Create realistic, idempotent seed data for all major models, ensuring seeds can be run multiple times without duplication. Explicitly include the creation of test users for development and QA purposes, covering a variety of user roles and realistic data. Document the process in the README, and ensure the seed process is updated as new models are added.",
-      "status": "pending",
-      "dependencies": [],
-      "priority": "medium",
-      "details": "For each major model in the application, define a set of realistic sample records in the seed file(s). Use idempotent patterns such as `find_or_create_by` or equivalent logic to ensure that running the seed process multiple times does not result in duplicate records or data corruption. Where appropriate, update existing records with new attributes to keep seed data current. Consider extracting common seed logic into helper methods for maintainability. Ensure that all relationships and dependencies between models are respected in the seed data. Explicitly create a diverse set of test users for development and QA, covering all user roles and using realistic data. Add clear documentation to the README explaining how to run the seeds, the idempotency guarantees, and how to extend or modify the seed data as models evolve. Establish a process to evaluate all new models as they are created to determine if they require seed data, and update the seed process accordingly.",
-      "testStrategy": "1. Run the seed process on a clean database and verify that all expected records, including test users with various roles, are created with correct attributes and relationships. 2. Run the seed process multiple times and confirm that no duplicate records are created and existing records are updated as intended. 3. Manually inspect the database or use automated tests to ensure data integrity and idempotency. 4. Review the README to ensure the seed process is clearly documented and instructions are accurate. 5. When new models are added, verify that the evaluation process determines if seed data is needed and updates are made as appropriate.",
-      "subtasks": [
-        {
-          "id": 1,
-          "title": "Analyze and document all major models requiring seed data",
-          "description": "Identify all major models in the application that require seed data, including their relationships and dependencies.",
-          "dependencies": [],
-          "details": "Create a comprehensive list of all major models in the application. For each model, document its attributes, validations, associations, and any special requirements. Identify dependency chains between models (e.g., Users must exist before Posts). Create a dependency graph to visualize the order in which models should be seeded. Document any existing seed data patterns already in use.",
-          "status": "pending",
-          "testStrategy": "Review the documentation with team members to ensure all major models are included and dependencies are correctly identified."
-        },
-        {
-          "id": 2,
-          "title": "Design idempotent seeding patterns and helper methods",
-          "description": "Create reusable helper methods and patterns for idempotent data seeding that can be applied across all models.",
-          "dependencies": [
-            1
-          ],
-          "details": "Implement helper methods for common seeding patterns like `find_or_create_by`, `find_or_initialize_by` with attribute updates, and unique constraint handling. Create methods for generating consistent test data (names, emails, dates, etc.) that won't change between seed runs. Design patterns for handling associations in an idempotent way. Implement error handling and logging for seed operations. Consider using transactions where appropriate to ensure data consistency.",
-          "status": "pending",
-          "testStrategy": "Write unit tests for helper methods to verify idempotency by running the same seed operation multiple times and checking for consistent results."
-        },
-        {
-          "id": 3,
-          "title": "Implement seed data for primary models",
-          "description": "Create seed data for primary models (those with no dependencies on other models) using the idempotent patterns.",
-          "dependencies": [
-            2
-          ],
-          "details": "Using the dependency graph from subtask 1, identify all primary models (those with no dependencies). For each primary model, implement seed data using the helper methods from subtask 2. Create a diverse set of realistic records for each model. Include edge cases and boundary conditions where appropriate. Add comments explaining the purpose of each seed record or group. Ensure all required attributes are populated with realistic values.",
-          "status": "pending",
-          "testStrategy": "Run the seed process multiple times and verify that no duplicate records are created. Check that the database contains exactly the expected number of records for each model."
-        },
-        {
-          "id": 4,
-          "title": "Implement seed data for dependent models",
-          "description": "Create seed data for all remaining models with dependencies, ensuring proper relationship handling.",
-          "dependencies": [
-            3
-          ],
-          "details": "Following the dependency order from subtask 1, implement seed data for all remaining models. Use the helper methods from subtask 2 to ensure idempotency. Reference existing records from primary models when creating associated records. Handle many-to-many relationships appropriately. Ensure foreign key constraints are satisfied. Create a diverse set of relationship patterns (e.g., users with many posts, users with no posts, etc.). Test complex relationship chains to ensure they're correctly established.",
-          "status": "pending",
-          "testStrategy": "Verify that all relationships are correctly established by querying the database after seeding. Check that running seeds multiple times maintains relationship integrity."
-        },
-        {
-          "id": 5,
-          "title": "Document seed process in README and create verification script",
-          "description": "Update the project README with comprehensive documentation about the seed process and create a verification script to validate seed data.",
-          "dependencies": [
-            4
-          ],
-          "details": "Add a dedicated section to the README explaining how to run the seed process. Document the idempotency guarantees and how they're implemented. Explain how to extend or modify seed data as models evolve. Include examples of common seed data modifications. Create a verification script that can be run to validate the seed data is correct and complete. The script should check for expected record counts, verify key relationships, and ensure no orphaned records exist. Add the verification script to the CI pipeline if applicable.",
-          "status": "pending",
-          "testStrategy": "Have a team member follow the README instructions to run the seed process on a clean database and verify the results match expectations."
-        },
-        {
-          "id": 6,
-          "title": "Create diverse test users for development and QA",
-          "description": "Add seed data for test users covering all user roles and realistic scenarios for development and QA purposes.",
-          "dependencies": [
-            2
-          ],
-          "details": "Define a set of test users with a variety of roles (e.g., admin, regular user, QA, guest) and realistic attributes (names, emails, etc.). Ensure these users are created idempotently using the established helper methods. Document the purpose and credentials of these users in the README for easy reference by developers and QA engineers.",
-          "status": "pending",
-          "testStrategy": "After seeding, verify that all test users exist with correct roles and attributes. Run the seed process multiple times to confirm no duplicates are created and user data remains consistent."
-        },
-        {
-          "id": 7,
-          "title": "Evaluate new models for seed data requirements",
-          "description": "Establish and follow a process to review all new models as they are created to determine if they require seed data, and update the seed files and documentation accordingly.",
-          "dependencies": [],
-          "details": "For every new model introduced to the application, assess whether seed data is needed for development, QA, or production environments. If so, add appropriate seed data using idempotent patterns and update the documentation to reflect the change. Ensure this evaluation is part of the model creation workflow.",
-          "status": "pending",
-          "testStrategy": "Review recent model additions to confirm that each has been evaluated for seed data needs and that the seed files and documentation are kept up to date."
-        }
-      ]
-    },
-    {
       "id": 12,
       "title": "Implement OAuth2 Authorization Code Flow with Refresh Token Handling for Nationbuilder V2 API",
       "description": "Develop a complete OAuth2 implementation for the Nationbuilder V2 API that handles both initial authorization and automatic token refresh, ensuring continuous API access without requiring user re-authentication.",
@@ -857,7 +772,7 @@
       "description": "Develop a reusable, idempotent seeding mechanism to create test user accounts with various roles and realistic data for local development and QA workflows.",
       "details": "Design and implement a dedicated seeding module or service responsible for creating test users with diverse roles (e.g., admin, standard user, QA, etc.) and realistic attributes (names, emails, profile data). Ensure the seeding logic is idempotent—running the seed multiple times should not create duplicate users or alter existing test users unexpectedly. Use unique identifiers (such as email addresses) to check for existing users before creation. Structure the seed data to cover a range of scenarios relevant to development and QA, including edge cases. Integrate the seeding process into the development workflow via a script or command (e.g., `npm run seed` or a Rails task), and document usage and customization options. Follow best practices for managing object relationships and dependencies to ensure referential integrity and maintainability. Consider using configuration or environment variables to control which users or roles are seeded in different environments.",
       "testStrategy": "Verify that running the seeding mechanism multiple times does not create duplicate users or modify existing seeded users unexpectedly. Check that all expected user roles and data variations are present in the database after seeding. Test the seeding process in both a clean and pre-populated database state. Review logs or output for errors or warnings. Confirm that seeded users can be used for authentication and authorization in development and QA workflows. Ensure documentation is clear and up to date, and that the seeding process can be triggered easily by developers and QA engineers.",
-      "status": "in-progress",
+      "status": "done",
       "dependencies": [],
       "priority": "high",
       "subtasks": []

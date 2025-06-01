@@ -63,6 +63,8 @@ rake seed:validate                   # Validate seed data integrity
 - **Framework**: Rails 8.0.2 with Hotwire (Turbo + Stimulus)
 - **Database**: PostgreSQL with Active Record
 - **Frontend**: TailwindCSS, minimal JavaScript with Stimulus controllers
+    - Use Tailwind CSS for styling components, following a utility-first approach.
+    - Use Tailwind Plus Application UI elements. Provided HTML - some components require js to be added - at scripts/tailwind-ui folder
 - **Authentication**: NationBuilder OAuth + custom session management
 - **Testing**: RSpec with FactoryBot for test data
 - **Deployment**: Kamal with Docker

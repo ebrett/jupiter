@@ -15,7 +15,14 @@
       "Bash(bundle add pundit)",
       "Bash(cat:*)",
       "Bash(bundle exec rails:*)",
-      "Bash(bundle exec rake:*)"
+      "Bash(bundle exec rake:*)",
+      "Bash(grep:*)",
+      "WebFetch(domain:nationbuilder.com)",
+      "Bash(bin/rails:*)",
+      "Bash(EDITOR=\"nano\" bin/rails credentials:edit)",
+      "Bash(rm:*)",
+      "Bash(bundle install)",
+      "Bash(rm:*)"
     ],
     "deny": []
   },
