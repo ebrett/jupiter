@@ -6,7 +6,7 @@ RSpec.describe RolePolicy, type: :policy do
   let(:super_admin) { create(:user) }
   let(:treasury_admin) { create(:user) }
   let(:submitter) { create(:user) }
-  let(:role_record) { create(:role) }
+  let(:role_record) { Role.find_by(name: 'viewer') }
 
   before do
     super_admin.add_role(:super_admin)
@@ -14,36 +14,32 @@ RSpec.describe RolePolicy, type: :policy do
     submitter.add_role(:submitter)
   end
 
-  [:index?, :show?].each do |permission|
-    describe "##{permission}" do
-      it 'grants access to admin users' do
-        expect(subject).to permit(super_admin, role_record)
-        expect(subject).to permit(treasury_admin, role_record)
-      end
+  permissions :index?, :show? do
+    it 'grants access to admin users' do
+      expect(subject).to permit(super_admin, role_record)
+      expect(subject).to permit(treasury_admin, role_record)
+    end
 
-      it 'denies access to non-admin users' do
-        expect(subject).not_to permit(submitter, role_record)
-      end
+    it 'denies access to non-admin users' do
+      expect(subject).not_to permit(submitter, role_record)
     end
   end
 
-  [:create?, :update?, :assign_to_user?, :remove_from_user?].each do |permission|
-    describe "##{permission}" do
-      it 'grants access to super admin only' do
-        expect(subject).to permit(super_admin, role_record)
-      end
+  permissions :create?, :update?, :assign_to_user?, :remove_from_user? do
+    it 'grants access to super admin only' do
+      expect(subject).to permit(super_admin, role_record)
+    end
 
-      it 'denies access to other admin types' do
-        expect(subject).not_to permit(treasury_admin, role_record)
-      end
+    it 'denies access to other admin types' do
+      expect(subject).not_to permit(treasury_admin, role_record)
+    end
 
-      it 'denies access to non-admin users' do
-        expect(subject).not_to permit(submitter, role_record)
-      end
+    it 'denies access to non-admin users' do
+      expect(subject).not_to permit(submitter, role_record)
     end
   end
 
-  describe '#destroy?' do
+  permissions :destroy? do
     it 'denies access to all users' do
       expect(subject).not_to permit(super_admin, role_record)
       expect(subject).not_to permit(treasury_admin, role_record)

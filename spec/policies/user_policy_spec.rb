@@ -18,7 +18,7 @@ RSpec.describe UserPolicy, type: :policy do
     viewer.add_role(:viewer)
   end
 
-  describe '#index?' do
+  permissions :index? do
     it 'grants access to admin users' do
       expect(subject).to permit(super_admin, User)
       expect(subject).to permit(treasury_admin, User)
@@ -31,7 +31,7 @@ RSpec.describe UserPolicy, type: :policy do
     end
   end
 
-  describe '#show?' do
+  permissions :show? do
     it 'grants access to admin users' do
       expect(subject).to permit(super_admin, target_user)
       expect(subject).to permit(treasury_admin, target_user)
@@ -46,7 +46,7 @@ RSpec.describe UserPolicy, type: :policy do
     end
   end
 
-  describe '#create?' do
+  permissions :create? do
     it 'grants access to super admin only' do
       expect(subject).to permit(super_admin, User)
     end
@@ -57,7 +57,7 @@ RSpec.describe UserPolicy, type: :policy do
     end
   end
 
-  describe '#update?' do
+  permissions :update? do
     it 'grants access to super admin for any user' do
       expect(subject).to permit(super_admin, target_user)
     end
@@ -75,7 +75,7 @@ RSpec.describe UserPolicy, type: :policy do
     end
   end
 
-  describe '#destroy?' do
+  permissions :destroy? do
     it 'grants access to super admin for non-super-admin users' do
       expect(subject).to permit(super_admin, target_user)
     end
@@ -95,21 +95,19 @@ RSpec.describe UserPolicy, type: :policy do
     end
   end
 
-  [:manage_roles?, :assign_role?, :remove_role?, :bulk_update?].each do |permission|
-    describe "##{permission}" do
-      it 'grants access to super admin only' do
-        expect(subject).to permit(super_admin, target_user)
-      end
+  permissions :manage_roles?, :assign_role?, :remove_role?, :bulk_update? do
+    it 'grants access to super admin only' do
+      expect(subject).to permit(super_admin, target_user)
+    end
 
-      it 'denies access to other users' do
-        expect(subject).not_to permit(treasury_admin, target_user)
-        expect(subject).not_to permit(submitter, target_user)
-      end
+    it 'denies access to other users' do
+      expect(subject).not_to permit(treasury_admin, target_user)
+      expect(subject).not_to permit(submitter, target_user)
     end
   end
 
   describe UserPolicy::Scope do
-    let(:all_users) { [super_admin, treasury_admin, chapter_admin, submitter, viewer] }
+    let(:all_users) { [ super_admin, treasury_admin, chapter_admin, submitter, viewer ] }
 
     before do
       all_users # ensure users are created
@@ -128,7 +126,7 @@ RSpec.describe UserPolicy, type: :policy do
 
     it 'returns only own record for non-admin users' do
       resolved = Pundit.policy_scope(submitter, User)
-      expect(resolved).to eq([submitter])
+      expect(resolved).to eq([ submitter ])
     end
   end
 end

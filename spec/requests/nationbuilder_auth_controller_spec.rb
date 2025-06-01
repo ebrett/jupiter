@@ -82,7 +82,7 @@ RSpec.describe 'NationbuilderAuthController', type: :request do
         expires_in: 3600,
         scope: 'default'
       }
-      
+
       profile_response = {
         person: {
           id: 12345,
@@ -94,7 +94,7 @@ RSpec.describe 'NationbuilderAuthController', type: :request do
 
       stub_request(:post, 'https://testnation.nationbuilder.com/oauth/token')
         .to_return(status: 200, body: token_response.to_json, headers: { 'Content-Type' => 'application/json' })
-      
+
       stub_request(:get, 'https://testnation.nationbuilder.com/api/v1/people/me')
         .with(headers: { 'Authorization' => 'Bearer access123' })
         .to_return(status: 200, body: profile_response.to_json, headers: { 'Content-Type' => 'application/json' })

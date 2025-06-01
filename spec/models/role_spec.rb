@@ -3,26 +3,26 @@ require 'rails_helper'
 RSpec.describe Role, type: :model do
   describe "validations" do
     it "validates presence of name" do
-      role = Role.new(description: "Test description")
+      role = described_class.new(description: "Test description")
       expect(role).not_to be_valid
       expect(role.errors[:name]).to include("can't be blank")
     end
 
     it "validates presence of description" do
-      role = Role.new(name: "submitter")
+      role = described_class.new(name: "submitter")
       expect(role).not_to be_valid
       expect(role.errors[:description]).to include("can't be blank")
     end
 
     it "validates uniqueness of name" do
       create(:role, name: "submitter")
-      role = Role.new(name: "submitter", description: "Test")
+      role = described_class.new(name: "submitter", description: "Test")
       expect(role).not_to be_valid
       expect(role.errors[:name]).to include("has already been taken")
     end
 
     it "validates inclusion of name in ROLES" do
-      role = Role.new(name: "invalid_role", description: "Test")
+      role = described_class.new(name: "invalid_role", description: "Test")
       expect(role).not_to be_valid
       expect(role.errors[:name]).to include("is not included in the list")
     end
@@ -30,7 +30,7 @@ RSpec.describe Role, type: :model do
 
   describe "associations" do
     let(:role) { create(:role) }
-    
+
     it "has many user_roles" do
       expect(role).to respond_to(:user_roles)
     end
@@ -57,7 +57,7 @@ RSpec.describe Role, type: :model do
     let!(:admin) { create(:role, :super_admin) }
 
     it "orders roles by name with by_hierarchy scope" do
-      expect(Role.by_hierarchy.to_a).to eq([submitter, admin])
+      expect(described_class.by_hierarchy.to_a).to eq([ submitter, admin ])
     end
   end
 

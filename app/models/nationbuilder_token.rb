@@ -2,9 +2,8 @@ class NationbuilderToken < ApplicationRecord
   belongs_to :user
 
   # Rails 7+ built-in encryption for sensitive fields
-  # TODO: Re-enable after setting up encryption credentials
-  # encrypts :access_token
-  # encrypts :refresh_token
+  encrypts :access_token
+  encrypts :refresh_token
 
   validates :access_token, :refresh_token, :expires_at, presence: true
 

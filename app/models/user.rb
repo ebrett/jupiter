@@ -18,7 +18,7 @@ class User < ApplicationRecord
   def add_role(role_name)
     role = Role.find_by(name: role_name.to_s)
     return false unless role
-    
+
     roles << role unless has_role?(role_name)
     true
   end
@@ -26,7 +26,7 @@ class User < ApplicationRecord
   def remove_role(role_name)
     role = Role.find_by(name: role_name.to_s)
     return false unless role
-    
+
     roles.delete(role)
   end
 

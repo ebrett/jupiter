@@ -57,5 +57,15 @@ class AdminPolicy < ApplicationPolicy
         scope.none
       end
     end
+
+    private
+
+    def treasury_admin?
+      user_present? && user.has_role?(:treasury_team_admin)
+    end
+
+    def chapter_admin?
+      user_present? && user.has_role?(:country_chapter_admin)
+    end
   end
 end

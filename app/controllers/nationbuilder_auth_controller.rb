@@ -1,6 +1,6 @@
 class NationbuilderAuthController < ApplicationController
   include OauthHelper
-  
+
   allow_unauthenticated_access only: [ :redirect, :callback ]
 
   before_action :resume_session
@@ -28,20 +28,20 @@ class NationbuilderAuthController < ApplicationController
       authenticate_with_nationbuilder
     end
   rescue NationbuilderTokenExchangeService::TokenExchangeError => e
-    oauth_error_flash('authentication_error', "NationBuilder authentication failed: #{e.message}")
+    oauth_error_flash("authentication_error", "NationBuilder authentication failed: #{e.message}")
     redirect_to new_session_path
   rescue NationbuilderUserService::UserCreationError => e
-    oauth_error_flash('permissions_error', "Unable to create account: #{e.message}")
+    oauth_error_flash("permissions_error", "Unable to create account: #{e.message}")
     redirect_to new_session_path
   rescue NationbuilderOauthErrors::NetworkError => e
-    oauth_error_flash('network_error', "Connection to NationBuilder failed. Please check your internet connection and try again.")
+    oauth_error_flash("network_error", "Connection to NationBuilder failed. Please check your internet connection and try again.")
     redirect_to new_session_path
   rescue NationbuilderOauthErrors::RateLimitError => e
-    oauth_error_flash('rate_limit_error', "Too many requests. Please wait a moment and try again.", can_retry: false)
+    oauth_error_flash("rate_limit_error", "Too many requests. Please wait a moment and try again.", can_retry: false)
     redirect_to new_session_path
   rescue => e
     Rails.logger.error "OAuth callback error: #{e.message}\n#{e.backtrace.join("\n")}"
-    oauth_error_flash('general', "Authentication failed. Please try again.")
+    oauth_error_flash("general", "Authentication failed. Please try again.")
     redirect_to new_session_path
   end
 
@@ -73,20 +73,20 @@ class NationbuilderAuthController < ApplicationController
   def authenticate_with_nationbuilder
     # Exchange code for tokens
     token_data = token_exchange_service.exchange_code_for_token(params[:code])
-    
+
     # Fetch user profile from NationBuilder
     user_service = NationbuilderUserService.new(access_token: token_data[:access_token])
     profile_data = user_service.fetch_user_profile
-    
+
     # Find or create user from profile
     user = user_service.find_or_create_user(profile_data)
-    
+
     # Store tokens for the user
     store_user_tokens(user, token_data)
-    
+
     # Start session for the user
     start_new_session_for(user)
-    
+
     redirect_to root_path, notice: "Successfully signed in with NationBuilder!"
   end
 

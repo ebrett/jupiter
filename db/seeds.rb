@@ -64,80 +64,80 @@ end
 
 # Define user data sets based on environment needs
 admin_users = [
-  { 
-    email_address: 'admin@example.com', 
+  {
+    email_address: 'admin@example.com',
     password: 'password123',
     first_name: 'Super',
     last_name: 'Admin',
-    roles: ['super_admin'],
+    roles: [ 'super_admin' ],
     nationbuilder_uid: 'nb_admin_123',
     category: :admin
   }
 ]
 
 test_users = [
-  { 
-    email_address: 'treasury@example.com', 
+  {
+    email_address: 'treasury@example.com',
     password: 'password123',
     first_name: 'Treasury',
     last_name: 'Manager',
-    roles: ['treasury_team_admin'],
+    roles: [ 'treasury_team_admin' ],
     nationbuilder_uid: 'nb_treasury_456',
     category: :test
   },
-  { 
-    email_address: 'chapter@example.com', 
+  {
+    email_address: 'chapter@example.com',
     password: 'password123',
     first_name: 'Chapter',
     last_name: 'Leader',
-    roles: ['country_chapter_admin'],
+    roles: [ 'country_chapter_admin' ],
     nationbuilder_uid: 'nb_chapter_789',
     category: :test
   },
-  { 
-    email_address: 'user1@example.com', 
+  {
+    email_address: 'user1@example.com',
     password: 'password123',
     first_name: 'Alice',
     last_name: 'Johnson',
-    roles: ['submitter'],
+    roles: [ 'submitter' ],
     nationbuilder_uid: 'nb_user1_001',
     category: :test
   },
-  { 
-    email_address: 'user2@example.com', 
+  {
+    email_address: 'user2@example.com',
     password: 'password123',
     first_name: 'Bob',
     last_name: 'Smith',
-    roles: ['submitter'],
+    roles: [ 'submitter' ],
     category: :test
   },
-  { 
-    email_address: 'viewer@example.com', 
+  {
+    email_address: 'viewer@example.com',
     password: 'password123',
     first_name: 'Carol',
     last_name: 'Williams',
-    roles: ['viewer'],
+    roles: [ 'viewer' ],
     category: :test
   },
-  { 
-    email_address: 'multi@example.com', 
+  {
+    email_address: 'multi@example.com',
     password: 'password123',
     first_name: 'David',
     last_name: 'Brown',
-    roles: ['submitter', 'viewer'],
+    roles: [ 'submitter', 'viewer' ],
     nationbuilder_uid: 'nb_multi_002',
     category: :test
   },
-  { 
-    email_address: 'qa@example.com', 
+  {
+    email_address: 'qa@example.com',
     password: 'password123',
     first_name: 'QA',
     last_name: 'Tester',
-    roles: ['submitter', 'viewer'],
+    roles: [ 'submitter', 'viewer' ],
     category: :test
   },
-  { 
-    email_address: 'guest@example.com', 
+  {
+    email_address: 'guest@example.com',
     password: 'password123',
     first_name: 'Guest',
     last_name: 'User',
@@ -147,28 +147,28 @@ test_users = [
 ]
 
 edge_case_users = [
-  { 
-    email_address: 'long.email.address.for.testing@verylongdomainname.example.com', 
+  {
+    email_address: 'long.email.address.for.testing@verylongdomainname.example.com',
     password: 'password123',
     first_name: 'Very',
     last_name: 'LongEmailUser',
-    roles: ['submitter'],
+    roles: [ 'submitter' ],
     category: :edge_case
   },
-  { 
-    email_address: 'unicode.test@example.com', 
+  {
+    email_address: 'unicode.test@example.com',
     password: 'password123',
     first_name: 'Ünicöde',
     last_name: 'Tëst',
-    roles: ['viewer'],
+    roles: [ 'viewer' ],
     category: :edge_case
   },
-  { 
-    email_address: 'minimal@ex.co', 
+  {
+    email_address: 'minimal@ex.co',
     password: 'password123',
     first_name: 'Min',
     last_name: 'User',
-    roles: ['submitter'],
+    roles: [ 'submitter' ],
     category: :edge_case
   }
 ]
@@ -205,7 +205,7 @@ if current_config[:verbose_output]
   end
   puts "Users without roles: #{User.left_joins(:roles).where(roles: { id: nil }).count}"
   puts "\n💡 Test credentials: [email] / password123"
-  
+
   if current_config[:create_edge_case_users]
     puts "🧪 Edge case users included for testing"
   end

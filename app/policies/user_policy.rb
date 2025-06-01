@@ -44,7 +44,7 @@ class UserPolicy < ApplicationPolicy
         scope.all
       when admin?
         # Admins can see all users except super admins
-        scope.joins(:roles).where.not(roles: { name: 'super_admin' }).distinct
+        scope.joins(:roles).where.not(roles: { name: "super_admin" }).distinct
       else
         # Regular users can only see themselves
         scope.where(id: user.id)

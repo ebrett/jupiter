@@ -50,7 +50,7 @@ class NationbuilderTokenPolicy < ApplicationPolicy
     private
 
     def super_admin_user_ids
-      User.joins(:roles).where(roles: { name: 'super_admin' }).pluck(:id)
+      User.joins(:roles).where(roles: { name: "super_admin" }).pluck(:id)
     end
   end
 
