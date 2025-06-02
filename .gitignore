@@ -39,3 +39,4 @@
 /config/credentials/development.key
 
 /scripts/tailwind-ui
+.taskmaster

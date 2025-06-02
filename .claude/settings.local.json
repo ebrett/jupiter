@@ -22,7 +22,9 @@
       "Bash(EDITOR=\"nano\" bin/rails credentials:edit)",
       "Bash(rm:*)",
       "Bash(bundle install)",
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "Bash(unzip:*)",
+      "Bash(git commit:*)"
     ],
     "deny": []
   },
