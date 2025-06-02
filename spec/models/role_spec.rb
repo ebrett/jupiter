@@ -15,7 +15,7 @@ RSpec.describe Role, type: :model do
     end
 
     it "validates uniqueness of name" do
-      existing_role = Role.find_by(name: "submitter") || create(:role, name: "submitter")
+      existing_role = described_class.find_by(name: "submitter") || create(:role, name: "submitter")
       role = described_class.new(name: "submitter", description: "Test")
       expect(role).not_to be_valid
       expect(role.errors[:name]).to include("has already been taken")
@@ -53,8 +53,8 @@ RSpec.describe Role, type: :model do
   end
 
   describe "scopes" do
-    let(:submitter) { Role.find_by(name: "submitter") }
-    let(:admin) { Role.find_by(name: "super_admin") }
+    let(:submitter) { described_class.find_by(name: "submitter") }
+    let(:admin) { described_class.find_by(name: "super_admin") }
 
     it "orders roles by name with by_hierarchy scope" do
       ordered_roles = described_class.by_hierarchy.to_a

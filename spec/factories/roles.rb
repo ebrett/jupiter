@@ -2,7 +2,7 @@ FactoryBot.define do
   factory :role do
     # Use find_or_initialize_by to avoid duplicates
     initialize_with { Role.find_or_initialize_by(name: name) }
-    
+
     name { "submitter" }
     description { "Can create and submit reimbursement requests" }
 
