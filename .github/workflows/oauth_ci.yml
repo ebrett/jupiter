@@ -189,30 +189,30 @@ jobs:
 
     - name: Check for OAuth-specific security issues
       run: |
-        bundle exec ruby -e "
-          require 'json'
+        bundle exec ruby -e '
+          require "json"
           
-          if File.exist?('tmp/brakeman_results.json')
-            results = JSON.parse(File.read('tmp/brakeman_results.json'))
-            oauth_warnings = results['warnings'].select do |warning|
-              warning['file'].include?('nationbuilder') || 
-              warning['message'].downcase.include?('oauth') ||
-              warning['message'].downcase.include?('token')
+          if File.exist?("tmp/brakeman_results.json")
+            results = JSON.parse(File.read("tmp/brakeman_results.json"))
+            oauth_warnings = results["warnings"].select do |warning|
+              warning["file"].include?("nationbuilder") || 
+              warning["message"].downcase.include?("oauth") ||
+              warning["message"].downcase.include?("token")
             end
             
             if oauth_warnings.any?
-              puts 'OAuth Security Issues Found:'
+              puts "OAuth Security Issues Found:"
               oauth_warnings.each do |warning|
-                puts "- #{warning['warning_type']}: #{warning['message']} (#{warning['file']}:#{warning['line']})"
+                puts "- #{warning["warning_type"]}: #{warning["message"]} (#{warning["file"]}:#{warning["line"]})"
               end
               exit 1
             else
-              puts 'No OAuth-specific security issues found'
+              puts "No OAuth-specific security issues found"
             end
           else
-            puts 'Brakeman results not found'
+            puts "Brakeman results not found"
           end
-        "
+        '
 
     - name: Check for hardcoded secrets
       run: |
