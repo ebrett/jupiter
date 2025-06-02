@@ -105,56 +105,58 @@ jobs:
 
     - name: Test OAuth configuration
       run: |
-        bundle exec ruby -e '
-          require_relative "config/environment"
-          
-          # Test environment variable loading
-          required_vars = %w[NATIONBUILDER_CLIENT_ID NATIONBUILDER_CLIENT_SECRET NATIONBUILDER_REDIRECT_URI NATIONBUILDER_NATION_SLUG]
-          missing_vars = required_vars.select { |var| ENV[var].nil? || ENV[var].empty? }
-          
-          if missing_vars.any?
-            puts "Missing required environment variables: #{missing_vars.join(\", \")}"
-            exit 1
-          end
-          
-          # Test OAuth2 client initialization
-          begin
-            client = Oauth2Client.new(
-              client_id: ENV["NATIONBUILDER_CLIENT_ID"],
-              client_secret: ENV["NATIONBUILDER_CLIENT_SECRET"],
-              redirect_uri: ENV["NATIONBUILDER_REDIRECT_URI"],
-              scopes: ["people:read"]
-            )
-            url = client.authorization_url(state: "test")
-            puts "OAuth2 client configuration: OK"
-            puts "Authorization URL generation: OK"
-          rescue => e
-            puts "OAuth2 client configuration failed: #{e.message}"
-            exit 1
-          end
-        '
+        cat > test_oauth_config.rb << 'EOF'
+        require_relative "config/environment"
+        
+        # Test environment variable loading
+        required_vars = %w[NATIONBUILDER_CLIENT_ID NATIONBUILDER_CLIENT_SECRET NATIONBUILDER_REDIRECT_URI NATIONBUILDER_NATION_SLUG]
+        missing_vars = required_vars.select { |var| ENV[var].nil? || ENV[var].empty? }
+        
+        if missing_vars.any?
+          puts "Missing required environment variables: #{missing_vars.join(', ')}"
+          exit 1
+        end
+        
+        # Test OAuth2 client initialization
+        begin
+          client = Oauth2Client.new(
+            client_id: ENV['NATIONBUILDER_CLIENT_ID'],
+            client_secret: ENV['NATIONBUILDER_CLIENT_SECRET'],
+            redirect_uri: ENV['NATIONBUILDER_REDIRECT_URI'],
+            scopes: ['people:read']
+          )
+          url = client.authorization_url(state: 'test')
+          puts 'OAuth2 client configuration: OK'
+          puts 'Authorization URL generation: OK'
+        rescue => e
+          puts "OAuth2 client configuration failed: #{e.message}"
+          exit 1
+        end
+        EOF
+        bundle exec ruby test_oauth_config.rb
 
     - name: Verify OAuth routes
       run: |
-        bundle exec ruby -e '
-          require_relative "config/environment"
-          Rails.application.reload_routes!
-          
-          oauth_routes = [
-            "/auth/nationbuilder",
-            "/auth/nationbuilder/callback"
-          ]
-          
-          oauth_routes.each do |route|
-            begin
-              Rails.application.routes.recognize_path(route)
-              puts "Route #{route}: OK"
-            rescue ActionController::RoutingError
-              puts "Route #{route}: MISSING"
-              exit 1
-            end
+        cat > test_oauth_routes.rb << 'EOF'
+        require_relative "config/environment"
+        Rails.application.reload_routes!
+        
+        oauth_routes = [
+          "/auth/nationbuilder",
+          "/auth/nationbuilder/callback"
+        ]
+        
+        oauth_routes.each do |route|
+          begin
+            Rails.application.routes.recognize_path(route)
+            puts "Route #{route}: OK"
+          rescue ActionController::RoutingError
+            puts "Route #{route}: MISSING"
+            exit 1
           end
-        '
+        end
+        EOF
+        bundle exec ruby test_oauth_routes.rb
 
 
     - name: Upload coverage reports
