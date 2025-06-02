@@ -32,77 +32,83 @@ RSpec.describe UserPolicy, type: :policy do
   end
 
   permissions :show? do
-    it 'grants access to admin users' do
-      expect(subject).to permit(super_admin, target_user)
-      expect(subject).to permit(treasury_admin, target_user)
+    context 'when user is an admin' do
+      it 'grants show access to any user record' do
+        expect(subject).to permit(super_admin, target_user)
+        expect(subject).to permit(treasury_admin, target_user)
+      end
     end
 
-    it 'grants access to own record' do
-      expect(subject).to permit(submitter, submitter)
-    end
-
-    it 'denies access to other users records' do
-      expect(subject).not_to permit(submitter, target_user)
+    context 'when user is not an admin' do
+      it 'grants show access to own record only' do
+        expect(subject).to permit(submitter, submitter)
+        expect(subject).not_to permit(submitter, target_user)
+      end
     end
   end
 
   permissions :create? do
-    it 'grants access to super admin only' do
+    it 'grants create access to super admin only' do
       expect(subject).to permit(super_admin, User)
     end
 
-    it 'denies access to other admin types' do
+    it 'denies create access to other admin types' do
       expect(subject).not_to permit(treasury_admin, User)
       expect(subject).not_to permit(chapter_admin, User)
     end
   end
 
   permissions :update? do
-    it 'grants access to super admin for any user' do
-      expect(subject).to permit(super_admin, target_user)
+    context 'when user is a super admin' do
+      it 'can update any user' do
+        expect(subject).to permit(super_admin, target_user)
+      end
     end
 
-    it 'grants access to admin for non-super-admin users' do
-      expect(subject).to permit(treasury_admin, target_user)
+    context 'when user is a non-super admin' do
+      it 'can update non-super-admin users only' do
+        expect(subject).to permit(treasury_admin, target_user)
+        expect(subject).not_to permit(treasury_admin, super_admin)
+      end
     end
 
-    it 'denies access to admin for super admin users' do
-      expect(subject).not_to permit(treasury_admin, super_admin)
-    end
-
-    it 'denies access to non-admin users' do
-      expect(subject).not_to permit(submitter, target_user)
+    context 'when user is not an admin' do
+      it 'cannot update any user' do
+        expect(subject).not_to permit(submitter, target_user)
+      end
     end
   end
 
   permissions :destroy? do
-    it 'grants access to super admin for non-super-admin users' do
-      expect(subject).to permit(super_admin, target_user)
+    context 'when user is a super admin' do
+      it 'can destroy only non-super-admin users' do
+        # Can destroy regular users
+        expect(subject).to permit(super_admin, target_user)
+        # Cannot destroy self
+        expect(subject).not_to permit(super_admin, super_admin)
+        # Cannot destroy other super admins
+        other_super_admin = create(:user)
+        other_super_admin.add_role(:super_admin)
+        expect(subject).not_to permit(super_admin, other_super_admin)
+      end
     end
 
-    it 'denies access to super admin for their own record' do
-      expect(subject).not_to permit(super_admin, super_admin)
-    end
-
-    it 'denies access to super admin for other super admin users' do
-      other_super_admin = create(:user)
-      other_super_admin.add_role(:super_admin)
-      expect(subject).not_to permit(super_admin, other_super_admin)
-    end
-
-    it 'denies access to other admin types' do
-      expect(subject).not_to permit(treasury_admin, target_user)
+    context 'when user is a non-super admin' do
+      it 'cannot destroy any user' do
+        expect(subject).not_to permit(treasury_admin, target_user)
+      end
     end
   end
 
   permissions :manage_roles?, :assign_role?, :remove_role?, :bulk_update? do
-    it 'grants access to super admin only' do
-      expect(subject).to permit(super_admin, target_user)
-    end
-
-    it 'denies access to other users' do
-      expect(subject).not_to permit(treasury_admin, target_user)
-      expect(subject).not_to permit(submitter, target_user)
+    context 'when checking role management permissions' do
+      it 'allows only super admin to manage roles' do
+        # Super admin can manage roles
+        expect(subject).to permit(super_admin, target_user)
+        # Other users cannot manage roles
+        expect(subject).not_to permit(treasury_admin, target_user)
+        expect(subject).not_to permit(submitter, target_user)
+      end
     end
   end
 
