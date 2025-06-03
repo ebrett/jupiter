@@ -10,6 +10,15 @@ class User < ApplicationRecord
   validates :email_address, presence: true, uniqueness: true
   validates :password_digest, presence: true
 
+  # Ransack configuration - explicitly allowlist searchable attributes
+  def self.ransackable_attributes(auth_object = nil)
+    [ "created_at", "email_address", "first_name", "id", "id_value", "last_name", "nationbuilder_uid", "updated_at" ]
+  end
+
+  def self.ransackable_associations(auth_object = nil)
+    [ "roles", "user_roles" ]
+  end
+
   # Role management methods
   def has_role?(role_name)
     roles.exists?(name: role_name.to_s)

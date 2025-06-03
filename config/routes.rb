@@ -20,6 +20,26 @@ Rails.application.routes.draw do
   get "admin/system_health", to: "admin#system_health"
   get "admin/export_oauth_data", to: "admin#export_oauth_data"
 
+  # Admin namespace for detailed management
+  namespace :admin do
+    resources :users, except: [ :new, :create ] do
+      member do
+        get :manage_roles
+        post :assign_role
+        delete :remove_role
+      end
+      collection do
+        post :bulk_assign_roles
+      end
+    end
+
+    resources :roles, except: [ :new, :create, :destroy ] do
+      member do
+        get :users_with_role
+      end
+    end
+  end
+
   # OAuth routes
   get "/auth/nationbuilder", to: "nationbuilder_auth#redirect"
   get "/auth/nationbuilder/callback", to: "nationbuilder_auth#callback"

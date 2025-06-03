@@ -21,15 +21,18 @@ class NationbuilderAdminDashboard
 
   # Get detailed information about all users' OAuth2 status
   def user_oauth_status(limit: 50, filter: {})
-    users_with_tokens = User.joins(:nationbuilder_tokens)
-                           .includes(:nationbuilder_tokens)
-                           .limit(limit)
+    all_users = User.includes(:nationbuilder_tokens, :sessions)
+                   .limit(limit)
+                   .order(:email_address)
 
-    users_with_tokens.map do |user|
+    all_users.map do |user|
       {
         user_id: user.id,
         email: user.email_address,
-        token_status: analyze_user_token_status(user),
+        status: determine_user_oauth_status(user),
+        last_login: user.sessions.order(:created_at).last&.created_at,
+        token_expires: user.nationbuilder_tokens.order(:expires_at).last&.expires_at,
+        token_status: user.nationbuilder_tokens.any? ? analyze_user_token_status(user) : nil,
         last_activity: get_user_last_activity(user),
         issues: detect_user_issues(user),
         recommendations: generate_user_recommendations(user)
@@ -275,6 +278,23 @@ class NationbuilderAdminDashboard
                             .where("sessions.created_at > ?", 24.hours.ago)
                             .distinct.count
     }
+  end
+
+  def determine_user_oauth_status(user)
+    tokens = user.nationbuilder_tokens.order(created_at: :desc)
+    current_token = tokens.first
+
+    return nil unless current_token
+
+    if current_token.expired?
+      "expired"
+    elsif current_token.expiring_soon?
+      "expiring_soon"
+    elsif current_token.valid_for_api_use?
+      "connected"
+    else
+      "invalid"
+    end
   end
 
   def analyze_user_token_status(user)

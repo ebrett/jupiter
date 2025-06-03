@@ -8,31 +8,33 @@ Jupiter is a reimbursement and vendor payment web application built with Rails 8
 
 ## Development Commands
 
+**Important**: Always use binstubs instead of `bundle exec` for better performance and consistency.
+
 ```bash
 # Setup
 bundle install
-rails db:create db:migrate db:seed
+bin/rails db:create db:migrate db:seed
 
 # Development server
-rails server
+bin/rails server
 # or with Procfile for concurrent processes
 bin/dev  # Runs web server + TailwindCSS watch
 
 # Testing
-bundle exec rspec                    # Run all tests
-bundle exec rspec spec/models/       # Run specific test directory
-bundle exec rspec spec/models/user_spec.rb  # Run single test file
+bin/rspec                            # Run all tests
+bin/rspec spec/models/               # Run specific test directory
+bin/rspec spec/models/user_spec.rb   # Run single test file
 
 # Code quality
-bundle exec rubocop                  # Linting (rails-omakase preset)
-bundle exec brakeman                 # Security scanning
+bin/rubocop                          # Linting (rails-omakase preset)
+bin/brakeman                         # Security scanning
 
 # Database operations and seeding
-rails db:seed                        # Creates idempotent test users (environment-aware)
-rake seed:users                      # Create/update test users only
-rake seed:stats                      # Show current user statistics and test credentials
-rake seed:reset_users                # Remove and recreate all test users
-rake seed:validate                   # Validate seed data integrity
+bin/rails db:seed                    # Creates idempotent test users (environment-aware)
+bin/rake seed:users                  # Create/update test users only
+bin/rake seed:stats                  # Show current user statistics and test credentials
+bin/rake seed:reset_users            # Remove and recreate all test users
+bin/rake seed:validate               # Validate seed data integrity
 ```
 
 ## Architecture Overview
@@ -106,10 +108,10 @@ The application includes a robust, idempotent seeding mechanism for creating tes
 
 ### Available Rake Tasks
 ```bash
-rake seed:users      # Create/update test users based on environment
-rake seed:stats      # Display current user statistics and credentials
-rake seed:reset_users # Clean slate - remove and recreate all test users
-rake seed:validate   # Verify data integrity and user validity
+bin/rake seed:users      # Create/update test users based on environment
+bin/rake seed:stats      # Display current user statistics and credentials
+bin/rake seed:reset_users # Clean slate - remove and recreate all test users
+bin/rake seed:validate   # Verify data integrity and user validity
 ```
 
 ### Test User Categories

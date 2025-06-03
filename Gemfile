@@ -73,6 +73,9 @@ group :test do
   gem "selenium-webdriver"
   gem "webmock"
   gem "vcr"
+  gem "rails-controller-testing"
 end
 
 gem "pundit", "~> 2.5"
+gem "ransack"
+gem "kaminari"
