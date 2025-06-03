@@ -1,7 +1,8 @@
 # Omakase Ruby styling for Rails
+inherit_from: .rubocop_todo.yml
 inherit_gem:
-  rubocop-rails: rubocop.yml
-  rubocop-rspec: rubocop.yml
+  rubocop-rails-omakase: rubocop.yml
+
 AllCops:
   TargetRubyVersion: 3.2
   NewCops: enable
@@ -9,7 +10,7 @@ AllCops:
     - 'db/schema.rb'
     - 'bin/*'
 
-require:
+plugins:
   - rubocop-rails
   - rubocop-rspec
 

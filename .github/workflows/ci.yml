@@ -21,7 +21,7 @@ jobs:
       RAILS_ENV: test
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
-      DATABASE_URL: postgres://postgres:password@localhost:5432/test
+      DATABASE_URL: postgres://postgres:password@localhost:5432/jupiter_test
     steps:
       - uses: actions/checkout@v3
       - uses: ruby/setup-ruby@v1

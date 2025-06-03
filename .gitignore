@@ -35,3 +35,8 @@
 
 /app/assets/builds/*
 !/app/assets/builds/.keep
+
+/config/credentials/development.key
+
+/scripts/tailwind-ui
+.taskmaster

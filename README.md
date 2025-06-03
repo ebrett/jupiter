@@ -74,27 +74,72 @@ This system enables organizations to efficiently handle financial requests, main
 
 4. Setup database
    ```bash
-   rails db:create db:migrate db:seed
+   bin/rails db:create db:migrate db:seed
    ```
 
 5. Start the server
    ```bash
-   rails server
+   bin/rails server
    ```
 
 6. Visit http://localhost:3000 in your browser
 
+### Seed Test Data
+
+The application provides a set of test users for development and QA purposes. These users are created automatically when you run:
+
+```bash
+bin/rails db:seed
+```
+
+The seeding process is idempotent—running it multiple times will not create duplicate users.
+
+**Test User Credentials:**
+
+| Email                | Password      |
+|----------------------|--------------|
+| admin@example.com    | password123  |
+| user1@example.com    | password123  |
+| user2@example.com    | password123  |
+| qa@example.com       | password123  |
+| guest@example.com    | password123  |
+
+You can use these accounts to log in and test different user scenarios in the development environment.
+
 ### Running Tests
 
 ```bash
-bundle exec rspec
+bin/rspec
 ```
 
 ### Linting
 
 ```bash
-bundle exec rubocop
+bin/rubocop
 ```
+
+### OAuth Authentication Testing
+
+**Important**: NationBuilder OAuth authentication functionality requires manual testing in a staging environment with real NationBuilder credentials. The automated test suite covers all business logic and error handling but excludes actual OAuth API interactions.
+
+To test OAuth functionality:
+
+1. **Set up staging environment** with proper NationBuilder OAuth credentials
+2. **Configure environment variables**:
+   ```bash
+   NATIONBUILDER_CLIENT_ID=your_client_id
+   NATIONBUILDER_CLIENT_SECRET=your_client_secret
+   NATIONBUILDER_REDIRECT_URI=https://your-staging-domain.com/auth/nationbuilder/callback
+   NATIONBUILDER_NATION_SLUG=your_nation_slug
+   ```
+3. **Test the OAuth flow manually**:
+   - Visit `/auth/nationbuilder` to initiate OAuth
+   - Complete authorization on NationBuilder's consent screen
+   - Verify successful callback and token storage
+   - Test admin dashboard OAuth status page
+   - Verify token refresh functionality
+
+The application includes comprehensive error handling and graceful degradation for OAuth failures.
 
 ## Development Setup
 
@@ -106,15 +151,15 @@ bundle exec rubocop
    - Copy `.env.example` to `.env` and fill in values as needed.
 3. Set up the database:
    ```sh
-   rails db:create db:migrate db:seed
+   bin/rails db:create db:migrate db:seed
    ```
 4. Run the test suite:
    ```sh
-   bundle exec rspec
+   bin/rspec
    ```
 5. Run the linter:
    ```sh
-   bundle exec rubocop
+   bin/rubocop
    ```
 
 ## Environment Variables
