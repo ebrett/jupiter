@@ -36,7 +36,7 @@ RSpec.describe AdminController, type: :controller do
       end
     end
 
-    context "analyzing the data structure returned by system_health_check" do
+    context "when analyzing the data structure returned by system_health_check" do
       it "shows what type of data is being returned" do
         controller_instance = described_class.new
         dashboard = NationbuilderAdminDashboard.new

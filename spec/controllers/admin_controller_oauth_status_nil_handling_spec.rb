@@ -36,7 +36,7 @@ RSpec.describe AdminController, type: :controller do
       end
     end
 
-    context "analyzing user_oauth_status data structure" do
+    context "when analyzing user_oauth_status data structure" do
       it "shows what data structure is returned for users without OAuth" do
         dashboard = NationbuilderAdminDashboard.new
         user_oauth_status = dashboard.user_oauth_status(limit: 100)
