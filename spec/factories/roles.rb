@@ -30,4 +30,4 @@ FactoryBot.define do
       description { "Read-only access to view requests and reports" }
     end
   end
-end 
+end

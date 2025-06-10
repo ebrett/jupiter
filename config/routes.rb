@@ -16,8 +16,8 @@ Rails.application.routes.draw do
 
   # System namespace for health and oauth
   namespace :system do
-    resources :health, only: [:index]
-    resources :oauth_status, only: [:index] do
+    resources :health, only: [ :index ]
+    resources :oauth_status, only: [ :index ] do
       collection do
         get :export
       end
@@ -25,7 +25,7 @@ Rails.application.routes.draw do
   end
 
   # Admin dashboard (can be renamed or left as is)
-  get 'admin', to: 'admin#index'
+  get "admin", to: "admin#index"
 
   # Flattened user and role management
   resources :users, except: [ :new, :create ] do

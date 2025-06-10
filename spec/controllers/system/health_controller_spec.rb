@@ -40,6 +40,7 @@ RSpec.describe System::HealthController, type: :controller do
       it "shows what type of data is being returned" do
         controller_instance = described_class.new
         # Removed NationbuilderAdminDashboard usage. If dashboard/system health data is needed, mock or stub as appropriate.
+        skip 'Add expectations or mock data structure as needed.'
       end
     end
   end

@@ -5,4 +5,4 @@ describe 'Routing and routes.rb loading', type: :request do
     expect { get '/' }.not_to raise_error
     expect(response).to be_successful
   end
-end 
+end

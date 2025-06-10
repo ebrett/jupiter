@@ -39,6 +39,7 @@ RSpec.describe System::OauthStatusController, type: :controller do
     context "when analyzing user_oauth_status data structure" do
       it "shows what data structure is returned for users without OAuth" do
         # Removed NationbuilderAdminDashboard usage. If dashboard/user_oauth_status data is needed, mock or stub as appropriate.
+        skip 'Add expectations or mock data structure as needed.'
       end
     end
   end
