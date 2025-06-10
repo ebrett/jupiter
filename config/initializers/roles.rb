@@ -23,7 +23,7 @@ Rails.application.config.after_initialize do
       "Can approve/deny requests for their region"
     when "treasury_team_admin"
       "Can process payments and manage financial operations"
-    when "super_admin"
+    when "system_administrator"
       "Full system access and user management"
     when "viewer"
       "Read-only access to view requests and reports"

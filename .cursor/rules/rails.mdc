@@ -89,3 +89,32 @@ alwaysApply: true
     - Use the latest Rails 8 features and APIs where appropriate.
     - Reference the [Rails 8.0.2 Guides](https://guides.rubyonrails.org/) for up-to-date documentation.
   
+  ## Tailwind UI Component Example Handling (Rails 8 + Hotwire)
+
+  - **Reference Storage:**
+    - Store raw HTML examples from Tailwind UI (e.g., from tailwindcss.com/plus) in `/scripts/tailwind-ui/`.
+    - Do **not** render these files directly in production; use as a design/component reference library only.
+    - Organize by component type (e.g., `/scripts/tailwind-ui/forms/`, `/lists/`, `/navigation/`).
+
+  - **Integration Workflow:**
+    1. **Copy HTML** from `/scripts/tailwind-ui/` into a new partial in `app/views/shared/` or `app/views/components/` (e.g., `_user_table.html.erb`).
+    2. **Refactor** the markup to use Rails view helpers, partials, and dynamic data as needed.
+    3. **Add Interactivity**:
+       - Write a Stimulus controller in `app/javascript/controllers/` for dynamic behavior (dropdowns, modals, tabs, etc.).
+       - Connect the controller using `data-controller="your-controller-name"`.
+       - Use Turbo Frames/Streams for real-time updates or partial page refreshes.
+    4. **Document** adaptations in a README in `/scripts/tailwind-ui/` or `/docs/` if desired, noting which components have been converted and where their Rails versions live.
+
+  - **Best Practices:**
+    - Keep `/scripts/tailwind-ui/` as a reference library only.
+    - Only productionize components by moving/adapting them into `app/views/shared/` or `app/views/components/`.
+    - Use Stimulus and Turbo for all interactive behaviors instead of vanilla JS or Alpine.js.
+    - Document any customizations for team reference.
+
+  - **Example:**
+    - Copy `/scripts/tailwind-ui/lists/tables/with_checkboxes.html` to `app/views/shared/_user_table.html.erb` and adapt for Rails.
+    - Create `app/javascript/controllers/user_table_controller.js` for interactivity.
+    - Import the controller in your JS pack or import map.
+
+  - **Ask the AI for help** when converting a specific component or writing a Stimulus controller for a particular interaction.
+  

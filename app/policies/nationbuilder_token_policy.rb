@@ -40,7 +40,7 @@ class NationbuilderTokenPolicy < ApplicationPolicy
         scope.all
       when admin?
         # Admins can see tokens but not super admin tokens
-        scope.joins(:user).where.not(users: { id: super_admin_user_ids })
+        scope.joins(:user).where.not(users: { id: system_administrator_user_ids })
       else
         # Users can only see their own tokens
         scope.where(user: user)
@@ -49,8 +49,8 @@ class NationbuilderTokenPolicy < ApplicationPolicy
 
     private
 
-    def super_admin_user_ids
-      User.joins(:roles).where(roles: { name: "super_admin" }).pluck(:id)
+    def system_administrator_user_ids
+      User.joins(:roles).where(roles: { name: "system_administrator" }).pluck(:id)
     end
   end
 
@@ -58,5 +58,9 @@ class NationbuilderTokenPolicy < ApplicationPolicy
 
   def own_token?
     record&.user == user
+  end
+
+  def system_administrator?
+    user&.has_role?(:system_administrator)
   end
 end

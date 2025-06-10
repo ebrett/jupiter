@@ -96,7 +96,7 @@ namespace :seed do
     end
 
     # Check all roles exist and are properly assigned
-    required_roles = %w[submitter country_chapter_admin treasury_team_admin super_admin viewer]
+    required_roles = %w[submitter country_chapter_admin treasury_team_admin system_administrator viewer]
     required_roles.each do |role_name|
       unless Role.exists?(name: role_name)
         errors << "Missing required role: #{role_name}"
@@ -104,8 +104,8 @@ namespace :seed do
     end
 
     # Check admin users exist
-    unless User.joins(:roles).where(roles: { name: "super_admin" }).exists?
-      errors << "No super admin user found"
+    unless User.joins(:roles).where(roles: { name: "system_administrator" }).exists?
+      errors << "No system administrator user found"
     end
 
     if errors.empty?

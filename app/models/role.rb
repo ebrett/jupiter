@@ -19,7 +19,7 @@ class Role < ApplicationRecord
     submitter
     country_chapter_admin
     treasury_team_admin
-    super_admin
+    system_administrator
     viewer
   ].freeze
 
@@ -33,7 +33,7 @@ class Role < ApplicationRecord
       "submitter" => "Can create and submit reimbursement requests",
       "country_chapter_admin" => "Can approve/deny requests for their region",
       "treasury_team_admin" => "Can process payments and manage financial operations",
-      "super_admin" => "Full system access and user management",
+      "system_administrator" => "Full system access and user management",
       "viewer" => "Read-only access to view requests and reports"
     }
 

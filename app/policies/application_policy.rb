@@ -46,8 +46,8 @@ class ApplicationPolicy
     user_present? && user.admin?
   end
 
-  def super_admin?
-    user_present? && user.has_role?(:super_admin)
+  def system_administrator?
+    user&.has_role?(:system_administrator)
   end
 
   def treasury_admin?
@@ -98,8 +98,8 @@ class ApplicationPolicy
       user_present? && user.admin?
     end
 
-    def super_admin?
-      user_present? && user.has_role?(:super_admin)
+    def system_administrator?
+      user_present? && user.has_role?(:system_administrator)
     end
 
     private

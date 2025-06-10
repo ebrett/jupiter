@@ -2,19 +2,19 @@
 
 class RolePolicy < ApplicationPolicy
   def index?
-    admin?
+    system_administrator?
   end
 
   def show?
-    admin?
+    system_administrator?
   end
 
   def create?
-    super_admin?
+    system_administrator?
   end
 
   def update?
-    super_admin?
+    system_administrator?
   end
 
   def destroy?
@@ -22,16 +22,16 @@ class RolePolicy < ApplicationPolicy
   end
 
   def assign_to_user?
-    super_admin?
+    system_administrator?
   end
 
   def remove_from_user?
-    super_admin?
+    system_administrator?
   end
 
   class Scope < ApplicationPolicy::Scope
     def resolve
-      if admin?
+      if system_administrator?
         scope.all
       else
         scope.none

@@ -1,6 +1,5 @@
 FactoryBot.define do
   factory :role do
-    # Use find_or_initialize_by to avoid duplicates
     initialize_with { Role.find_or_initialize_by(name: name) }
 
     name { "submitter" }
@@ -21,8 +20,8 @@ FactoryBot.define do
       description { "Can process payments and manage financial operations" }
     end
 
-    trait :super_admin do
-      name { "super_admin" }
+    trait :system_administrator do
+      name { "system_administrator" }
       description { "Full system access and user management" }
     end
 

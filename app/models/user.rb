@@ -45,16 +45,16 @@ class User < ApplicationRecord
 
   # Check if user has any admin privileges
   def admin?
-    has_role?(:super_admin) || has_role?(:treasury_team_admin) || has_role?(:country_chapter_admin)
+    has_role?(:system_administrator) || has_role?(:treasury_team_admin) || has_role?(:country_chapter_admin)
   end
 
   # Check if user can approve requests
   def can_approve?
-    has_role?(:country_chapter_admin) || has_role?(:treasury_team_admin) || has_role?(:super_admin)
+    has_role?(:country_chapter_admin) || has_role?(:treasury_team_admin) || has_role?(:system_administrator)
   end
 
   # Check if user can process payments
   def can_process_payments?
-    has_role?(:treasury_team_admin) || has_role?(:super_admin)
+    has_role?(:treasury_team_admin) || has_role?(:system_administrator)
   end
 end

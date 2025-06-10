@@ -1,0 +1,35 @@
+<nav class="w-64 min-h-screen bg-white border-r shadow-sm hidden md:block">
+  <div class="h-16 flex items-center px-6 border-b">
+    <span class="text-2xl font-heading font-bold text-brand-primary">Jupiter</span>
+  </div>
+  <ul class="mt-6 space-y-2 px-4">
+    <li>
+      <%= link_to 'Dashboard', root_path, class: "block px-4 py-2 rounded-lg text-gray-700 hover:bg-brand-primary/10 #{'bg-brand-primary text-white' if current_page?(root_path)}" %>
+    </li>
+    <% if policy(User).index? %>
+      <li>
+        <%= link_to 'Users', users_path, class: "block px-4 py-2 rounded-lg text-gray-700 hover:bg-brand-primary/10 #{'bg-brand-primary text-white' if current_page?(users_path)}" %>
+      </li>
+    <% end %>
+    <% if policy(Role).index? %>
+      <li>
+        <%= link_to 'Roles', roles_path, class: "block px-4 py-2 rounded-lg text-gray-700 hover:bg-brand-primary/10 #{'bg-brand-primary text-white' if current_page?(roles_path)}" %>
+      </li>
+    <% end %>
+    <% if current_user&.has_role?(:system_administrator) %>
+      <li>
+        <%= link_to 'OAuth Status', system_oauth_status_index_path, class: "block px-4 py-2 rounded-lg text-gray-700 hover:bg-brand-primary/10 #{'bg-brand-primary text-white' if current_page?(system_oauth_status_index_path)}" %>
+      </li>
+      <li>
+        <%= link_to 'System Health', system_health_index_path, class: "block px-4 py-2 rounded-lg text-gray-700 hover:bg-brand-primary/10 #{'bg-brand-primary text-white' if current_page?(system_health_index_path)}" %>
+      </li>
+    <% end %>
+  </ul>
+  <div class="absolute bottom-0 w-full px-6 py-4 border-t">
+    <div class="flex items-center space-x-2">
+      <span class="text-sm text-gray-500"><%= Current.user&.email_address %></span>
+      <%= button_to 'Log out', session_path, method: :delete, class: 'text-sm text-gray-500 hover:text-brand-primary bg-transparent border-none p-0', data: { confirm: 'Are you sure you want to log out?' } %>
+    </div>
+  </div>
+</nav>
+<!-- Mobile sidebar toggle can be added with Stimulus if needed --> 
