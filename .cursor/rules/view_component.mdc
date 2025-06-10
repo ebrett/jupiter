@@ -1,0 +1,158 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+Here's a step-by-step approach to create a standard view components for your Rails application with branding guidelines:
+
+# ensure Tailwind V4 is being used
+
+## Create Brand-Specific CSS Classes
+
+**In `application.css`, add custom component classes:**
+
+Use the following information as an example
+
+```css
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .btn-primary {
+    @apply bg-brand-primary text-white px-6 py-3 rounded-lg font-semibold hover:bg-brand-primary/90 transition-colors;
+  }
+  
+  .btn-secondary {
+    @apply bg-brand-secondary text-white px-6 py-3 rounded-lg font-semibold hover:bg-brand-secondary/90 transition-colors;
+  }
+  
+  .card {
+    @apply bg-white rounded-lg shadow-md p-6 border border-gray-200;
+  }
+  
+  .page-header {
+    @apply text-3xl font-heading font-bold text-gray-900 mb-6;
+  }
+}
+```
+
+## Create Reusable View Components
+
+**Generate ViewComponent classes (optional but recommended):**
+
+```bash
+# Add to Gemfile
+gem "view_component"
+
+# Generate components
+rails generate component Button
+rails generate component Card
+rails generate component PageHeader
+```
+
+**Example Button component:**
+```ruby
+# app/components/button_component.rb
+class ButtonComponent < ViewComponent::Base
+  def initialize(variant: :primary, size: :medium, **html_options)
+    @variant = variant
+    @size = size
+    @html_options = html_options
+  end
+
+  private
+
+  def css_classes
+    base_classes = "font-semibold rounded-lg transition-colors"
+    variant_classes = variant_styles[@variant]
+    size_classes = size_styles[@size]
+    
+    "#{base_classes} #{variant_classes} #{size_classes}"
+  end
+
+  def variant_styles
+    {
+      primary: "btn-primary",
+      secondary: "btn-secondary",
+      outline: "border-2 border-brand-primary text-brand-primary hover:bg-brand-primary hover:text-white"
+    }
+  end
+
+  def size_styles
+    {
+      small: "px-4 py-2 text-sm",
+      medium: "px-6 py-3",
+      large: "px-8 py-4 text-lg"
+    }
+  end
+end
+```
+
+## Create Application Layout Template
+**Update `app/views/layouts/application.html.erb`:**
+
+```erb
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Your App</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body class="bg-gray-50 font-sans">
+    <%= render "shared/navbar" %>
+    
+    <main class="min-h-screen">
+      <%= render "shared/flash_messages" if flash.any? %>
+      <%= yield %>
+    </main>
+    
+    <%= render "shared/footer" %>
+  </body>
+</html>
+```
+
+## 6. Create Shared Partials
+
+**Navigation (`app/views/shared/_navbar.html.erb`):**
+```erb
+<nav class="bg-white shadow-sm border-b">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between items-center h-16">
+      <%= link_to root_path, class: "flex items-center" do %>
+        <span class="text-2xl font-heading font-bold text-brand-primary">Your Brand</span>
+      <% end %>
+      
+      <div class="hidden md:flex space-x-8">
+        <%= link_to "Home", root_path, class: "text-gray-600 hover:text-brand-primary" %>
+        <%= link_to "About", about_path, class: "text-gray-600 hover:text-brand-primary" %>
+      </div>
+    </div>
+  </div>
+</nav>
+```
+
+## Document Your Design System
+
+**Create `app/assets/stylesheets/README.md`:**
+```markdown
+# Design System Guidelines
+
+## Colors
+- Primary: #your-color (brand-primary)
+- Secondary: #your-color (brand-secondary)
+
+## Typography
+- Headings: font-heading
+- Body: font-sans
+
+## Components
+- Buttons: .btn-primary, .btn-secondary
+- Cards: .card
+- Page headers: .page-header

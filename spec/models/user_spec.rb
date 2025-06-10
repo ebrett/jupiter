@@ -41,31 +41,31 @@ RSpec.describe User, type: :model do
 
   describe "role management" do
     let(:user) { create(:user) }
-    let(:admin_role) { create(:role, :super_admin) }
+    let(:admin_role) { create(:role, :system_administrator) }
     let(:submitter_role) { create(:role, :submitter) }
 
     describe "#has_role?" do
       it "returns true if user has the role" do
         user.roles << admin_role
-        expect(user.has_role?(:super_admin)).to be true
-        expect(user.has_role?('super_admin')).to be true
+        expect(user.has_role?(:system_administrator)).to be true
+        expect(user.has_role?('system_administrator')).to be true
       end
 
       it "returns false if user doesn't have the role" do
-        expect(user.has_role?(:super_admin)).to be false
+        expect(user.has_role?(:system_administrator)).to be false
       end
     end
 
     describe "#add_role" do
       it "adds a role to the user" do
         admin_role # ensure role exists
-        expect { user.add_role(:super_admin) }.to change { user.roles.count }.by(1)
-        expect(user.has_role?(:super_admin)).to be true
+        expect { user.add_role(:system_administrator) }.to change { user.roles.count }.by(1)
+        expect(user.has_role?(:system_administrator)).to be true
       end
 
       it "doesn't add duplicate roles" do
-        user.add_role(:super_admin)
-        expect { user.add_role(:super_admin) }.not_to change { user.roles.count }
+        user.add_role(:system_administrator)
+        expect { user.add_role(:system_administrator) }.not_to change { user.roles.count }
       end
 
       it "returns false for non-existent roles" do
@@ -77,8 +77,8 @@ RSpec.describe User, type: :model do
       before { user.roles << admin_role }
 
       it "removes a role from the user" do
-        expect { user.remove_role(:super_admin) }.to change { user.roles.count }.by(-1)
-        expect(user.has_role?(:super_admin)).to be false
+        expect { user.remove_role(:system_administrator) }.to change { user.roles.count }.by(-1)
+        expect(user.has_role?(:system_administrator)).to be false
       end
 
       it "returns false for non-existent roles" do
@@ -89,14 +89,14 @@ RSpec.describe User, type: :model do
     describe "#role_names" do
       it "returns array of role names" do
         user.roles << admin_role << submitter_role
-        expect(user.role_names).to contain_exactly('super_admin', 'submitter')
+        expect(user.role_names).to contain_exactly('system_administrator', 'submitter')
       end
     end
 
     describe "#admin?" do
-      it "returns true for super_admin" do
+      it "returns true for system_administrator" do
         admin_role # ensure role exists
-        user.add_role(:super_admin)
+        user.add_role(:system_administrator)
         expect(user.admin?).to be true
       end
 

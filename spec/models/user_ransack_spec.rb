@@ -44,7 +44,7 @@ RSpec.describe User, type: :model do
     end
 
     context "when using search in admin users controller" do
-      let(:admin_user) { create(:user, :with_super_admin_role) }
+      let(:admin_user) { create(:user, :with_system_administrator_role) }
 
       before do
         session = admin_user.sessions.create!(user_agent: 'test', ip_address: '127.0.0.1')

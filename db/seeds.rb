@@ -47,7 +47,7 @@ roles_data = [
     description: 'Can process payments and manage financial operations'
   },
   {
-    name: 'super_admin',
+    name: 'system_administrator',
     description: 'Full system access and user management'
   },
   {
@@ -69,7 +69,7 @@ admin_users = [
     password: 'password123',
     first_name: 'Super',
     last_name: 'Admin',
-    roles: [ 'super_admin' ],
+    roles: [ 'system_administrator' ],
     nationbuilder_uid: 'nb_admin_123',
     category: :admin
   }

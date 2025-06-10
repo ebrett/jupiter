@@ -1,0 +1,149 @@
+<% content_for :page_title, "Edit Role" %>
+
+<div class="space-y-6">
+  <!-- Breadcrumb -->
+  <nav class="flex" aria-label="Breadcrumb">
+    <ol role="list" class="flex items-center space-x-4">
+      <li>
+        <%= link_to roles_path, class: "text-gray-400 hover:text-gray-500" do %>
+          <svg class="flex-shrink-0 h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v3.57A22.952 22.952 0 0110 13a22.95 22.95 0 01-8-1.43V8a2 2 0 012-2h2zm2-1a1 1 0 011-1h2a1 1 0 011 1v1H8V5zm1 5a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clip-rule="evenodd"></path>
+            <path d="M2 13.692V16a2 2 0 002 2h12a2 2 0 002-2v-2.308A24.974 24.974 0 0110 15c-2.796 0-5.487-.46-8-1.308z"></path>
+          </svg>
+          <span class="sr-only">Roles</span>
+        <% end %>
+      </li>
+      <li>
+        <div class="flex items-center">
+          <svg class="flex-shrink-0 h-5 w-5 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 111.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+          </svg>
+          <%= link_to role_path(@role), class: "ml-4 text-sm font-medium text-gray-500 hover:text-gray-700" do %>
+            <%= @role.name.humanize %>
+          <% end %>
+        </div>
+      </li>
+      <li>
+        <div class="flex items-center">
+          <svg class="flex-shrink-0 h-5 w-5 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 111.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+          </svg>
+          <span class="ml-4 text-sm font-medium text-gray-500">Edit</span>
+        </div>
+      </li>
+    </ol>
+  </nav>
+
+  <!-- Edit Form -->
+  <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+    <div class="px-4 py-5 sm:p-6">
+      <div class="flex items-center mb-6">
+        <div class="flex-shrink-0 h-12 w-12">
+          <div class="h-12 w-12 rounded-full bg-indigo-100 flex items-center justify-center">
+            <svg class="h-6 w-6 text-indigo-600" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v3.57A22.952 22.952 0 0110 13a22.95 22.95 0 01-8-1.43V8a2 2 0 012-2h2zm2-1a1 1 0 011-1h2a1 1 0 011 1v1H8V5zm1 5a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clip-rule="evenodd"></path>
+              <path d="M2 13.692V16a2 2 0 002 2h12a2 2 0 002-2v-2.308A24.974 24.974 0 0110 15c-2.796 0-5.487-.46-8-1.308z"></path>
+            </svg>
+          </div>
+        </div>
+        <div class="ml-4">
+          <h1 class="text-xl font-bold text-gray-900">Edit Role: <%= @role.name.humanize %></h1>
+          <p class="text-sm text-gray-500">Modify the role description and permissions</p>
+        </div>
+      </div>
+
+      <%= form_with model: [:admin, @role], local: true, class: "space-y-6" do |f| %>
+        <% if @role.errors.any? %>
+          <div class="rounded-md bg-red-50 p-4">
+            <div class="flex">
+              <div class="flex-shrink-0">
+                <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                </svg>
+              </div>
+              <div class="ml-3">
+                <h3 class="text-sm font-medium text-red-800">
+                  There were <%= pluralize(@role.errors.count, "error") %> with your submission:
+                </h3>
+                <div class="mt-2 text-sm text-red-700">
+                  <ul role="list" class="list-disc list-inside">
+                    <% @role.errors.full_messages.each do |message| %>
+                      <li><%= message %></li>
+                    <% end %>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% end %>
+
+        <div class="grid grid-cols-1 gap-y-6">
+          <div>
+            <%= f.label :name, class: "block text-sm font-medium text-gray-700" %>
+            <div class="mt-1">
+              <input type="text" 
+                     value="<%= @role.name.humanize %>" 
+                     disabled 
+                     class="block w-full border-gray-300 rounded-md shadow-sm bg-gray-50 text-gray-500 sm:text-sm">
+            </div>
+            <p class="mt-2 text-sm text-gray-500">Role names cannot be changed to maintain system integrity.</p>
+          </div>
+          
+          <div>
+            <%= f.label :description, class: "block text-sm font-medium text-gray-700" %>
+            <%= f.text_area :description, rows: 4, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm", placeholder: "Enter a detailed description of this role's permissions and responsibilities..." %>
+            <p class="mt-2 text-sm text-gray-500">Provide a clear description of what this role allows users to do.</p>
+          </div>
+        </div>
+
+        <!-- Role Information -->
+        <div class="bg-gray-50 rounded-lg p-4">
+          <h4 class="text-sm font-medium text-gray-900 mb-2">Role Information</h4>
+          <dl class="grid grid-cols-1 gap-x-4 gap-y-2 sm:grid-cols-2">
+            <div>
+              <dt class="text-sm font-medium text-gray-500">System Name</dt>
+              <dd class="text-sm text-gray-900 font-mono"><%= @role.name %></dd>
+            </div>
+            <div>
+              <dt class="text-sm font-medium text-gray-500">Users Assigned</dt>
+              <dd class="text-sm text-gray-900"><%= @role.users.count %></dd>
+            </div>
+            <div>
+              <dt class="text-sm font-medium text-gray-500">Created</dt>
+              <dd class="text-sm text-gray-900"><%= @role.created_at.strftime("%B %d, %Y") %></dd>
+            </div>
+            <div>
+              <dt class="text-sm font-medium text-gray-500">Last Updated</dt>
+              <dd class="text-sm text-gray-900"><%= @role.updated_at.strftime("%B %d, %Y at %I:%M %p") %></dd>
+            </div>
+          </dl>
+        </div>
+
+        <div class="flex justify-end space-x-3">
+          <%= link_to role_path(@role), class: "inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring" do %>
+            Cancel
+          <% end %>
+          <%= f.submit "Save Changes", class: "bg-indigo-600 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500", 
+                       data: { confirm: "Are you sure you want to update this role? This will affect #{@role.users.count} user(s)." } %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Warning Notice -->
+  <div class="rounded-md bg-yellow-50 p-4">
+    <div class="flex">
+      <div class="flex-shrink-0">
+        <svg class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+        </svg>
+      </div>
+      <div class="ml-3">
+        <h3 class="text-sm font-medium text-yellow-800">Important Notice</h3>
+        <div class="mt-2 text-sm text-yellow-700">
+          <p>Changes to role descriptions will be visible to all users with this role. Role names cannot be modified to maintain system stability and data integrity.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

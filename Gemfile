@@ -78,3 +78,5 @@ end
 gem "pundit", "~> 2.5"
 gem "ransack"
 gem "kaminari"
+
+gem "view_component", "~> 3.23"

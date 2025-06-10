@@ -31,7 +31,7 @@ RSpec.describe ApplicationPolicy, type: :policy do
       let(:admin_user) { create(:user) }
 
       before do
-        admin_user.add_role(:super_admin)
+        admin_user.add_role(:system_administrator)
       end
 
       it 'grants access to admin users' do
@@ -67,7 +67,7 @@ RSpec.describe ApplicationPolicy, type: :policy do
 
     describe '#admin?' do
       it 'returns true for super admin' do
-        user.add_role(:super_admin)
+        user.add_role(:system_administrator)
         expect(policy.send(:admin?)).to be true
       end
 
@@ -87,15 +87,15 @@ RSpec.describe ApplicationPolicy, type: :policy do
       end
     end
 
-    describe '#super_admin?' do
+    describe '#system_administrator?' do
       it 'returns true for super admin' do
-        user.add_role(:super_admin)
-        expect(policy.send(:super_admin?)).to be true
+        user.add_role(:system_administrator)
+        expect(policy.send(:system_administrator?)).to be true
       end
 
       it 'returns false for other roles' do
         user.add_role(:treasury_team_admin)
-        expect(policy.send(:super_admin?)).to be false
+        expect(policy.send(:system_administrator?)).to be false
       end
     end
   end

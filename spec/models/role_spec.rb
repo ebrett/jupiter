@@ -46,7 +46,7 @@ RSpec.describe Role, type: :model do
         'submitter',
         'country_chapter_admin',
         'treasury_team_admin',
-        'super_admin',
+        'system_administrator',
         'viewer'
       )
     end
@@ -54,7 +54,7 @@ RSpec.describe Role, type: :model do
 
   describe "scopes" do
     let(:submitter) { described_class.find_by(name: "submitter") }
-    let(:admin) { described_class.find_by(name: "super_admin") }
+    let(:admin) { described_class.find_by(name: "system_administrator") }
 
     it "orders roles by name with by_hierarchy scope" do
       ordered_roles = described_class.by_hierarchy.to_a
@@ -71,8 +71,8 @@ RSpec.describe Role, type: :model do
     end
 
     it "creates roles with specific traits" do
-      admin_role = create(:role, :super_admin)
-      expect(admin_role.name).to eq('super_admin')
+      admin_role = create(:role, :system_administrator)
+      expect(admin_role.name).to eq('system_administrator')
       expect(admin_role.description).to include('Full system access')
     end
   end
