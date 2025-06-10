@@ -38,7 +38,7 @@ class SessionPolicy < ApplicationPolicy
     private
 
     def super_admin_user_ids
-      User.joins(:roles).where(roles: { name: "super_admin" }).pluck(:id)
+      User.joins(:roles).where(roles: { name: "system_administrator" }).pluck(:id)
     end
   end
 
@@ -46,5 +46,13 @@ class SessionPolicy < ApplicationPolicy
 
   def own_session?
     record&.user == user
+  end
+
+  def system_administrator?
+    user&.has_role?(:system_administrator)
+  end
+
+  def system_administrator_user_ids
+    User.joins(:roles).where(roles: { name: "system_administrator" }).pluck(:id)
   end
 end

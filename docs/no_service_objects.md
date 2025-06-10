@@ -25,7 +25,7 @@ class SessionsController < ApplicationController
     
     if user.persisted?
       session[:user_id] = user.id
-      redirect_to dashboard_path, notice: 'Successfully connected with NationBuilder!'
+      redirect_to root_path, notice: 'Successfully connected with NationBuilder!'
     else
       redirect_to new_session_path, alert: 'Authentication failed'
     end

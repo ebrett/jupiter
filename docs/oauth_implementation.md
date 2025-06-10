@@ -24,7 +24,6 @@ This document provides comprehensive guidance for developers working with the Na
 
 ### Admin & Monitoring
 
-- **`NationbuilderAdminDashboard`**: System health monitoring and analytics
 - **`NationbuilderAccessMonitor`**: Rate limiting and usage tracking
 - **`NationbuilderGracefulDegradation`**: Service resilience patterns
 
@@ -256,16 +255,6 @@ end
 ```
 
 ## Monitoring & Admin
-
-### Admin Dashboard
-
-Access the admin dashboard at `/admin` to monitor:
-
-- OAuth token health across all users
-- API performance metrics
-- Error rates and patterns
-- System configuration status
-- Security alerts and recommendations
 
 ### Key Metrics
 
