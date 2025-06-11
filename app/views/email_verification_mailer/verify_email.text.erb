@@ -1,0 +1,12 @@
+Welcome to Jupiter!
+
+Hi <%= @user.first_name.present? ? @user.first_name : 'there' %>,
+
+Thanks for signing up for Jupiter! To complete your registration and start using the application, please verify your email address by visiting this link:
+
+<%= @verification_url %>
+
+This verification link will expire in 24 hours. If you didn't create this account, you can safely ignore this email.
+
+Best regards,
+The Jupiter Team

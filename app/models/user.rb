@@ -1,5 +1,5 @@
 class User < ApplicationRecord
-  has_secure_password
+  has_secure_password validations: false
   has_many :sessions, dependent: :destroy
   has_many :nationbuilder_tokens, dependent: :destroy
   has_many :user_roles, dependent: :destroy
@@ -8,7 +8,21 @@ class User < ApplicationRecord
   normalizes :email_address, with: ->(e) { e.strip.downcase }
 
   validates :email_address, presence: true, uniqueness: true
-  validates :password_digest, presence: true
+  validates :password, presence: true, if: :password_required?
+  validates :password, length: { minimum: 8 }, if: :password_required?
+  validates :verification_token, uniqueness: true, allow_nil: true
+
+  before_create :auto_verify_nationbuilder_users
+  before_create :generate_verification_for_email_users
+
+  # Scopes
+  scope :verified, -> { where.not(email_verified_at: nil) }
+  scope :unverified, -> { where(email_verified_at: nil) }
+
+  # Class methods
+  def self.find_by_verification_token(token)
+    find_by(verification_token: token)
+  end
 
   # Ransack configuration - explicitly allowlist searchable attributes
   def self.ransackable_attributes(auth_object = nil)
@@ -56,5 +70,83 @@ class User < ApplicationRecord
   # Check if user can process payments
   def can_process_payments?
     has_role?(:treasury_team_admin) || has_role?(:system_administrator)
+  end
+
+  # Authentication methods
+  def nationbuilder_user?
+    nationbuilder_uid.present?
+  end
+
+  def email_password_user?
+    password_digest.present?
+  end
+
+  # Email verification methods
+  def email_verified?
+    email_verified_at.present?
+  end
+
+  def verification_pending?
+    !email_verified? && verification_token.present?
+  end
+
+  def generate_verification_token
+    self.verification_token = SecureRandom.urlsafe_base64(32)
+    self.verification_sent_at = Time.current
+  end
+
+  def verify_email!
+    update!(
+      email_verified_at: Time.current,
+      verification_token: nil,
+      verification_sent_at: nil
+    )
+  end
+
+  def verification_expired?
+    return false unless verification_sent_at
+
+    verification_sent_at < 24.hours.ago
+  end
+
+  def can_resend_verification?
+    return false if email_verified?
+    return true unless verification_sent_at
+
+    verification_sent_at < 1.hour.ago
+  end
+
+  def send_verification_email
+    return false if email_verified?
+
+    generate_verification_token
+    save!
+
+    EmailVerificationMailer.verify_email(self).deliver_now
+    true
+  rescue => e
+    Rails.logger.error "Failed to send verification email for user #{id}: #{e.message}"
+    false
+  end
+
+  private
+
+  def password_required?
+    # Password is required if:
+    # 1. User doesn't have a NationBuilder UID (email/password only user)
+    # 2. User is setting a password (password field is present)
+    !nationbuilder_user? || password.present?
+  end
+
+  def auto_verify_nationbuilder_users
+    if nationbuilder_user?
+      self.email_verified_at = Time.current
+    end
+  end
+
+  def generate_verification_for_email_users
+    if !nationbuilder_user? && !email_verified?
+      generate_verification_token
+    end
   end
 end

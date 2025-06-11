@@ -32,7 +32,10 @@ module Authentication
     end
 
     def request_authentication
-      session[:return_to_after_authenticating] = request.url
+      # Don't store authentication-related URLs as return destinations
+      unless request.path.start_with?("/session") || request.path.start_with?("/auth")
+        session[:return_to_after_authenticating] = request.url
+      end
       redirect_to new_session_path
     end
 

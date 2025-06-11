@@ -1,6 +1,10 @@
 Rails.application.routes.draw do
   resource :session
   resources :passwords, param: :token
+
+  # Email verification routes
+  get "/verify_email/:token", to: "email_verification#verify", as: :verify_email
+  post "/resend_verification", to: "email_verification#resend", as: :resend_verification
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.

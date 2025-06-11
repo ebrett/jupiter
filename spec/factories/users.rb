@@ -4,6 +4,19 @@ FactoryBot.define do
     password { "password123" }
     password_confirmation { "password123" }
 
+    trait :nationbuilder_user do
+      sequence(:nationbuilder_uid) { |n| "nb_user_#{n}" }
+      first_name { "John" }
+      last_name { "Doe" }
+      password { nil }
+      password_confirmation { nil }
+    end
+
+    trait :email_password_user do
+      # Uses default password setup above
+      nationbuilder_uid { nil }
+    end
+
     trait :with_system_administrator_role do
       after(:create) do |user|
         role = Role.find_or_create_by(name: "system_administrator") do |r|
