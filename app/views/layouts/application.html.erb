@@ -27,11 +27,12 @@
     <div class="flex-1 flex flex-col min-h-screen">
       <%= render 'shared/navbar' if lookup_context.exists?('shared/navbar') %>
       <main class="flex-1 container mx-auto px-5 py-8">
-        <%= render 'shared/flash_messages' if flash.any? %>
+        <%= render_flash_messages %>
         <%= yield %>
       </main>
       <%= render 'shared/footer' if lookup_context.exists?('shared/footer') %>
     </div>
     <%= render 'shared/oauth_error_modal' %>
+    <%= render AuthModalComponent.new(mode: :login) %>
   </body>
 </html>
