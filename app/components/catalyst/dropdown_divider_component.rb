@@ -10,7 +10,7 @@ module Catalyst
     end
 
     def call
-      content_tag(:div, **divider_options)
+      content_tag(:div, "", **divider_options)
     end
 
     private

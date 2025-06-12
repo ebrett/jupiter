@@ -39,4 +39,8 @@ class ComponentExamplesController < ApplicationController
   def dropdowns
     # Dropdown component examples
   end
+
+  def profiles
+    # Profile component examples
+  end
 end

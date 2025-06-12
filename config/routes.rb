@@ -46,6 +46,17 @@ Rails.application.routes.draw do
     end
   end
 
+  # Account linking routes
+  namespace :account do
+    resource :nationbuilder_link, only: [ :show, :create, :destroy ] do
+      member do
+        get :status
+      end
+    end
+
+    resource :nationbuilder_sync, only: [ :create ]
+  end
+
   resources :roles, except: [ :new, :create, :destroy ] do
     member do
       get :users_with_role
@@ -67,5 +78,6 @@ Rails.application.routes.draw do
     get "component_examples/alerts", to: "component_examples#alerts"
     get "component_examples/cards", to: "component_examples#cards"
     get "component_examples/dropdowns", to: "component_examples#dropdowns"
+    get "component_examples/profiles", to: "component_examples#profiles"
   end
 end

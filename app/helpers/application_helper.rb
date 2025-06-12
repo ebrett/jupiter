@@ -45,4 +45,12 @@ module ApplicationHelper
       Current.user.email_address.split("@").first.titleize
     end
   end
+
+  def nation_display_name
+    slug = ENV["NATIONBUILDER_NATION_SLUG"]
+    return "NationBuilder" if slug.blank?
+
+    # Convert slug to display name (e.g., "democrats-abroad" -> "Democrats Abroad")
+    slug.split("-").map(&:capitalize).join(" ")
+  end
 end

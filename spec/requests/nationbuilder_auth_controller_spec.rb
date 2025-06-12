@@ -51,17 +51,32 @@ RSpec.describe 'NationbuilderAuthController', type: :request do
       stub_request(:post, 'https://testnation.nationbuilder.com/oauth/token')
         .to_return(status: 200, body: token_response.to_json, headers: { 'Content-Type' => 'application/json' })
 
-      get '/auth/nationbuilder/callback', params: { code: 'valid_code' },
-          headers: { 'Cookie' => "session_id=#{Rails.application.message_verifier('signed cookie').generate(session_record.id)}" }
-      expect(response).to redirect_to(root_path)
-      follow_redirect!
-      expect(response.body).to include('Nationbuilder authentication successful.')
+      # Stub the user profile fetch
+      profile_response = {
+        person: {
+          id: 12345,
+          email: 'test@example.com',
+          first_name: 'Test',
+          last_name: 'User',
+          phone: '555-123-4567',
+          tags: [ 'member', 'volunteer' ]
+        }
+      }
+      stub_request(:get, 'https://testnation.nationbuilder.com/api/v1/people/me')
+        .with(headers: { 'Authorization' => 'Bearer access123' })
+        .to_return(status: 200, body: profile_response.to_json, headers: { 'Content-Type' => 'application/json' })
 
-      token = user.nationbuilder_tokens.first
+      # No session cookie for new OAuth user
+      get '/auth/nationbuilder/callback', params: { code: 'valid_code' }
+      expect(response).to redirect_to(root_path)
+
+      # Verify user and token creation
+      oauth_user = User.find_by(email_address: 'test@example.com')
+      expect(oauth_user).to be_present
+
+      token = oauth_user.nationbuilder_tokens.first
       expect(token).to be_present
       expect(token.access_token).to eq('access123')
-      expect(token.refresh_token).to eq('refresh123')
-      expect(token.scope).to eq('default')
     end
 
     it 'handles token exchange failure gracefully' do

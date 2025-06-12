@@ -1,27 +1,47 @@
 import { Controller } from "@hotwired/stimulus"
 
+console.log("Dropdown controller loaded")
+
 export default class extends Controller {
   static targets = ["button", "menu"]
   static classes = ["hidden"]
 
   connect() {
+    console.log("Dropdown controller connected to element:", this.element)
     this.isOpen = false
-    this.hiddenClass = this.hasHiddenClass ? this.hiddenClass : "hidden"
+    
+    // Set initial ARIA state
+    if (this.hasButtonTarget) {
+      this.buttonTarget.setAttribute("aria-expanded", "false")
+      console.log("Button target found:", this.buttonTarget)
+    } else {
+      console.log("No button target found")
+    }
+    
+    if (this.hasMenuTarget) {
+      console.log("Menu target found:", this.menuTarget)
+    } else {
+      console.log("No menu target found")
+    }
   }
 
   toggle(event) {
+    console.log("Toggle method called", event)
     event.preventDefault()
     event.stopPropagation()
     
     if (this.isOpen) {
+      console.log("Closing dropdown")
       this.close()
     } else {
+      console.log("Opening dropdown")
       this.open()
     }
   }
 
   open() {
-    this.menuTarget.classList.remove(this.hiddenClass)
+    console.log("Opening dropdown, menu target:", this.menuTarget)
+    this.menuTarget.classList.remove("hidden")
     this.isOpen = true
     this.buttonTarget.setAttribute("aria-expanded", "true")
     
@@ -30,7 +50,8 @@ export default class extends Controller {
   }
 
   close() {
-    this.menuTarget.classList.add(this.hiddenClass)
+    console.log("Closing dropdown")
+    this.menuTarget.classList.add("hidden")
     this.isOpen = false
     this.buttonTarget.setAttribute("aria-expanded", "false")
     this.buttonTarget.focus()

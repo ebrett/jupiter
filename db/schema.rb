@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_06_11_043836) do
+ActiveRecord::Schema[8.0].define(version: 2025_06_12_121700) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -65,6 +65,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_11_043836) do
     t.datetime "email_verified_at"
     t.string "verification_token"
     t.datetime "verification_sent_at"
+    t.jsonb "nationbuilder_profile_data"
     t.index ["email_address"], name: "index_users_on_email_address", unique: true
     t.index ["nationbuilder_uid"], name: "index_users_on_nationbuilder_uid", unique: true
     t.index ["verification_token"], name: "index_users_on_verification_token", unique: true

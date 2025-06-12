@@ -130,6 +130,36 @@ class User < ApplicationRecord
     false
   end
 
+  # NationBuilder profile data methods
+  def nationbuilder_tags
+    return [] unless nationbuilder_profile_data
+    nationbuilder_profile_data["tags"] || []
+  end
+
+  def nationbuilder_phone
+    return nil unless nationbuilder_profile_data
+    nationbuilder_profile_data["phone"]
+  end
+
+  def nationbuilder_raw_data
+    return {} unless nationbuilder_profile_data
+    nationbuilder_profile_data["raw_data"] || {}
+  end
+
+  def has_nationbuilder_profile_data?
+    nationbuilder_profile_data.present?
+  end
+
+  def update_nationbuilder_profile_data!(profile_data)
+    self.nationbuilder_profile_data = {
+      "tags" => profile_data[:tags] || [],
+      "phone" => profile_data[:phone],
+      "raw_data" => profile_data[:raw_data] || {},
+      "last_synced_at" => Time.current.iso8601
+    }
+    save!
+  end
+
   private
 
   def password_required?

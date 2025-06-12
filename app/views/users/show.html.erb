@@ -73,7 +73,7 @@
     <div class="px-4 py-5 sm:p-6">
       <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">User Information</h3>
       
-      <%= form_with model: [:admin, @user], local: true, class: "space-y-6" do |f| %>
+      <%= form_with model: @user, local: true, class: "space-y-6" do |f| %>
         <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-2">
           <div>
             <%= f.label :first_name, class: "block text-sm font-medium text-gray-700" %>
@@ -100,6 +100,59 @@
       <% end %>
     </div>
   </div>
+
+  <!-- NationBuilder Profile -->
+  <% if @user.nationbuilder_user? %>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div>
+        <%= render NationbuilderProfileComponent.new(user: @user) %>
+      </div>
+      
+      <!-- NationBuilder Connection Management -->
+      <% if @user == Current.user %>
+        <div class="bg-white shadow-sm rounded-lg border border-gray-200">
+          <div class="px-4 py-5 sm:p-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Connection Settings</h3>
+            <div class="space-y-4">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-sm font-medium text-gray-900">Status</p>
+                  <p class="text-sm text-gray-500">Connected to <%= nation_display_name %></p>
+                </div>
+                <%= render Catalyst::BadgeComponent.new(color: :green, size: :sm) do %>
+                  Active
+                <% end %>
+              </div>
+              
+              <div class="pt-4 border-t border-gray-100">
+                <%= link_to "Manage Connection", account_nationbuilder_link_path, 
+                    class: "inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" %>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <!-- NationBuilder Connection for non-connected users -->
+    <% if @user == Current.user %>
+      <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-lg leading-6 font-medium text-gray-900">NationBuilder Connection</h3>
+              <div class="mt-2 max-w-xl text-sm text-gray-500">
+                <p>Connect your <%= nation_display_name %> account to enable single sign-on and profile synchronization.</p>
+              </div>
+            </div>
+            <div class="ml-4 flex-shrink-0">
+              <%= link_to "Connect Account", account_nationbuilder_link_path, class: "inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" %>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  <% end %>
 
   <!-- Role Assignment History (placeholder for future enhancement) -->
   <div class="bg-white shadow overflow-hidden sm:rounded-lg">

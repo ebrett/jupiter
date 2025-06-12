@@ -1,5 +1,12 @@
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-  <div class="mb-8">
+  <!-- Breadcrumb -->
+  <%= render Catalyst::BreadcrumbComponent.new do |breadcrumb| %>
+    <% breadcrumb.with_item(href: root_path, label: "Home") %>
+    <% breadcrumb.with_item(href: "/component_examples", label: "Component Examples") %>
+    <% breadcrumb.with_item(label: "Dropdowns", current: true) %>
+  <% end %>
+
+  <div class="mb-8 mt-6">
     <h1 class="text-3xl font-bold text-gray-900">Dropdown Components</h1>
     <p class="mt-2 text-lg text-gray-600">Interactive dropdown menus with keyboard navigation and accessibility</p>
   </div>

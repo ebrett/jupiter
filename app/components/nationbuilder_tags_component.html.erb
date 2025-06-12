@@ -1,0 +1,17 @@
+<div class="flex flex-wrap gap-2">
+  <% visible_tags.each do |tag| %>
+    <%= render Catalyst::BadgeComponent.new(color: tag_color(tag), size: :sm) do %>
+      <%= tag %>
+    <% end %>
+  <% end %>
+  
+  <% if hidden_tags_count > 0 %>
+    <%= render Catalyst::BadgeComponent.new(color: :gray, size: :sm) do %>
+      +<%= hidden_tags_count %> more
+    <% end %>
+  <% end %>
+  
+  <% if tags.empty? %>
+    <span class="text-sm text-gray-500 italic">No tags assigned</span>
+  <% end %>
+</div>

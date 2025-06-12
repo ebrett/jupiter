@@ -76,6 +76,11 @@ module Authentication
             same_site: :lax
           }
         end
+
+        # Trigger NationBuilder profile sync if applicable
+        if user.nationbuilder_user?
+          NationbuilderProfileSyncJob.perform_later(user.id)
+        end
       end
     end
 

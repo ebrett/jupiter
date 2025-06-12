@@ -34,7 +34,10 @@
       "Bash(bin/rubocop:*)",
       "Bash(touch:*)",
       "Bash(sed:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(git push:*)",
+      "Bash(mv:*)",
+      "Bash(pkill:*)"
     ],
     "deny": []
   },

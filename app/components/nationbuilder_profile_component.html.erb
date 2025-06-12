@@ -1,0 +1,57 @@
+<div class="bg-white shadow-sm rounded-lg border border-gray-200">
+  <div class="px-4 py-5 sm:p-6">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-lg font-medium text-gray-900">NationBuilder Profile</h3>
+      <div class="flex items-center space-x-2">
+        <% if user == current_user %>
+          <%= button_to account_nationbuilder_sync_path, method: :post, 
+              class: "inline-flex items-center px-2.5 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500",
+              title: "Sync latest data from NationBuilder" do %>
+            <svg class="h-3 w-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            Sync
+          <% end %>
+        <% end %>
+        <%= render Catalyst::BadgeComponent.new(color: :green, size: :sm) do %>
+          Connected
+        <% end %>
+      </div>
+    </div>
+    
+    <div class="space-y-6">
+      <% profile_sections.each do |section| %>
+        <div class="border-t border-gray-100 pt-4 first:border-t-0 first:pt-0">
+          <div class="flex items-center mb-3">
+            <svg class="h-4 w-4 text-gray-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <use href="#heroicon-outline-<%= heroicon_name(section[:icon]) %>"></use>
+            </svg>
+            <h4 class="text-sm font-medium text-gray-900"><%= section[:title] %></h4>
+          </div>
+          
+          <% if section[:title] == "Tags" %>
+            <%= render NationbuilderTagsComponent.new(user: user) %>
+          <% else %>
+            <div class="space-y-2">
+              <% section[:items].each do |item| %>
+                <div class="flex justify-between items-center text-sm">
+                  <span class="text-gray-600"><%= item[:label] %></span>
+                  <span class="text-gray-900 font-medium"><%= item[:value] %></span>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+    
+    <% if profile_sections.empty? %>
+      <div class="text-center py-4">
+        <svg class="mx-auto h-8 w-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <use href="#heroicon-outline-user-circle"></use>
+        </svg>
+        <p class="mt-2 text-sm text-gray-500">No profile data available</p>
+      </div>
+    <% end %>
+  </div>
+</div>

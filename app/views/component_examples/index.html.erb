@@ -1,5 +1,11 @@
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-  <div class="mb-8">
+  <!-- Breadcrumb -->
+  <%= render Catalyst::BreadcrumbComponent.new do |breadcrumb| %>
+    <% breadcrumb.with_item(href: root_path, label: "Home") %>
+    <% breadcrumb.with_item(label: "Component Examples", current: true) %>
+  <% end %>
+
+  <div class="mb-8 mt-6">
     <h1 class="text-3xl font-bold text-gray-900">Component Examples</h1>
     <p class="mt-2 text-lg text-gray-600">Browse and explore UI components from the Catalyst UI Kit</p>
   </div>
@@ -43,6 +49,11 @@
     <%= link_to "/component_examples/dropdowns", class: "block p-6 bg-white rounded-lg shadow hover:shadow-lg transition-shadow" do %>
       <h2 class="text-xl font-semibold text-gray-900 mb-2">Dropdowns</h2>
       <p class="text-gray-600">Dropdown menus and select lists</p>
+    <% end %>
+
+    <%= link_to "/component_examples/profiles", class: "block p-6 bg-white rounded-lg shadow hover:shadow-lg transition-shadow" do %>
+      <h2 class="text-xl font-semibold text-gray-900 mb-2">Profiles</h2>
+      <p class="text-gray-600">User profiles and NationBuilder integration</p>
     <% end %>
   </div>
 </div>

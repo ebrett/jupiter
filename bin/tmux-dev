@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+
+# Script to start tmux development session
+# Usage: bin/tmux-dev
+
+SESSION_NAME="dev-session"
+NGROK_URL="rational-needlessly-buck.ngrok-free.app"
+PORT=3000
+
+# Function to check if port is in use
+check_port() {
+    if lsof -i :$PORT >/dev/null 2>&1; then
+        echo "Warning: Port $PORT is already in use."
+        echo "Current processes using port $PORT:"
+        lsof -i :$PORT
+        echo ""
+        read -p "Do you want to kill existing processes on port $PORT? (y/N): " -n 1 -r
+        echo
+        if [[ $REPLY =~ ^[Yy]$ ]]; then
+            echo "Killing processes on port $PORT..."
+            lsof -ti :$PORT | xargs kill -9 2>/dev/null
+            sleep 2
+        else
+            echo "Exiting. Please stop the conflicting processes manually."
+            exit 1
+        fi
+    fi
+}
+
+# Check if session already exists
+if tmux has-session -t "$SESSION_NAME" 2>/dev/null; then
+    echo "Session '$SESSION_NAME' already exists. Attaching..."
+    tmux attach-session -t "$SESSION_NAME"
+    exit 0
+fi
+
+# Check for port conflicts before starting
+check_port
+
+echo "Creating new tmux session '$SESSION_NAME'..."
+
+# Create new session with first window for bin/dev
+tmux new-session -d -s "$SESSION_NAME" -n "dev"
+tmux send-keys -t "$SESSION_NAME":dev "bin/dev" Enter
+
+# Create second window for ngrok
+tmux new-window -t "$SESSION_NAME" -n "ngrok"
+tmux send-keys -t "$SESSION_NAME":ngrok "ngrok http --url=$NGROK_URL $PORT" Enter
+
+# Select the first window (dev)
+tmux select-window -t "$SESSION_NAME":dev
+
+echo "Session created with:"
+echo "  - Window 0 (dev): Running bin/dev"
+echo "  - Window 1 (ngrok): Running ngrok tunnel to $NGROK_URL"
+echo ""
+echo "Attaching to session..."
+
+# Attach to the session
+tmux attach-session -t "$SESSION_NAME"
+

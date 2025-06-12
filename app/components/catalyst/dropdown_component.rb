@@ -22,7 +22,7 @@ module Catalyst
       {
         data: {
           controller: "dropdown",
-          action: "click@window->dropdown#closeOnClickOutside keydown.esc@window->dropdown#close keydown->dropdown#keydown"
+          action: "click@window->dropdown#closeOnClickOutside keydown@window->dropdown#keydown"
         },
         class: class_names(
           "relative inline-block",

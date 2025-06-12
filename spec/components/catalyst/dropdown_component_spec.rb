@@ -19,8 +19,7 @@ RSpec.describe Catalyst::DropdownComponent, type: :component do
     it "includes correct data actions for Stimulus" do
       container = doc.find("div[data-controller='dropdown']")
       expect(container["data-action"]).to include("click@window->dropdown#closeOnClickOutside")
-      expect(container["data-action"]).to include("keydown.esc@window->dropdown#close")
-      expect(container["data-action"]).to include("keydown->dropdown#keydown")
+      expect(container["data-action"]).to include("keydown@window->dropdown#keydown")
     end
   end
 
