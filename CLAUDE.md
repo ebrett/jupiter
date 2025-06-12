@@ -67,9 +67,12 @@ bin/rake seed:validate               # Validate seed data integrity
 - **Frontend**: TailwindCSS, minimal JavaScript with Stimulus controllers
     - Use Tailwind CSS for styling components, following a utility-first approach.
     - Use Tailwind Plus Application UI elements. Provided HTML - some components require js to be added - at scripts/tailwind-ui folder
+    - **ViewComponent**: Component-based architecture for reusable UI elements
 - **Authentication**: NationBuilder OAuth + custom session management
 - **Testing**: RSpec with FactoryBot for test data
 - **Deployment**: Kamal with Docker
+- **Background Jobs**: Solid Queue for async processing (token refresh, etc.)
+- **Authorization**: Pundit for policy-based access control
 
 ## Environment Variables
 
@@ -127,3 +130,36 @@ All test users use password: `password123`
 - **Role Management**: Automatic role assignment with validation
 - **NationBuilder Integration**: Some users include mock OAuth UIDs
 - **Data Validation**: Built-in integrity checks for emails and roles
+
+## Service Architecture
+
+The application implements a service-oriented architecture within Rails conventions:
+
+### NationBuilder Integration Services
+- **API Client Pattern**: `NationbuilderApiClient` handles authenticated requests with automatic token refresh
+- **Token Management**: `NationbuilderTokenExchangeService` and `NationbuilderTokenRefreshService` manage OAuth lifecycle
+- **User Synchronization**: `NationbuilderUserService` handles profile fetching and account creation
+- **Monitoring & Resilience**: `NationbuilderAccessMonitor`, `NationbuilderErrorHandler`, and graceful degradation patterns
+
+### Error Handling Strategy
+- **Classified Errors**: `NationbuilderOauthErrors` provides structured error types
+- **Recovery Patterns**: Automatic retry with exponential backoff
+- **Audit Logging**: `NationbuilderAuditLogger` tracks all OAuth events and performance metrics
+- **Graceful Degradation**: Service continues operating with reduced functionality during API failures
+
+## Development Patterns
+
+### Component Architecture
+- Use ViewComponent for reusable UI elements (located in `app/components/`)
+- Follow Rails 8 conventions with Hotwire for reactive interfaces
+- Utilize Stimulus controllers for minimal JavaScript interactions
+
+### PRD Workflow
+- Use `.cursor/rules/create-prd.mdc` rule for structured feature development
+- PRDs should be saved in `/tasks/` directory as `prd-[feature-name].md`
+- Follow the clarifying questions process before implementation
+
+### Code Quality
+- RuboCop with rails-omakase preset for consistent styling
+- Brakeman for security scanning
+- Comprehensive test coverage with RSpec and FactoryBot

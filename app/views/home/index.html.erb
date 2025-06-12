@@ -1,2 +1,71 @@
-<h1>Welcome to Jupiter</h1>
-<p>This is the public home page. No authentication required.</p> 
+<div class="max-w-4xl mx-auto px-6 py-12">
+  <div class="text-center">
+    <h1 class="text-4xl font-bold text-gray-900 mb-6">Welcome to Jupiter</h1>
+    <p class="text-xl text-gray-600 mb-8">A reimbursement and vendor payment management system</p>
+    
+    <% if authenticated? %>
+      <div class="bg-white p-8 rounded-lg shadow-sm border border-gray-200 mb-8">
+        <div class="flex items-center justify-center mb-6">
+          <%= render Catalyst::AvatarComponent.new(
+            initials: user_initials,
+            size: :xl,
+            alt: user_display_name,
+            class: "bg-indigo-600 text-white"
+          ) %>
+        </div>
+        <h2 class="text-2xl font-semibold text-gray-900 mb-2">
+          Welcome back, 
+          <% if Current.user.first_name.present? %>
+            <%= Current.user.first_name %>!
+          <% else %>
+            <%= Current.user.email_address.split('@').first.titleize %>!
+          <% end %>
+        </h2>
+        <p class="text-gray-600 mb-6">You're logged in as <%= Current.user.email_address %></p>
+        
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+          <% if policy(User).index? %>
+            <%= render Catalyst::ButtonComponent.new(href: users_path, variant: :primary) do %>
+              Manage Users
+            <% end %>
+          <% end %>
+          
+          <% if policy(Role).index? %>
+            <%= render Catalyst::ButtonComponent.new(href: roles_path, variant: :secondary) do %>
+              Manage Roles
+            <% end %>
+          <% end %>
+          
+          <%= render Catalyst::ButtonComponent.new(href: session_path, variant: :ghost, data: { turbo_method: :delete, confirm: "Are you sure you want to sign out?" }) do %>
+            Sign Out
+          <% end %>
+        </div>
+      </div>
+    <% else %>
+      <div class="bg-white p-8 rounded-lg shadow-sm border border-gray-200 mb-8">
+        <h2 class="text-2xl font-semibold text-gray-900 mb-4">Get Started</h2>
+        <p class="text-gray-600 mb-6">Sign in to access your account or create a new one to get started.</p>
+        
+        <div class="flex flex-col sm:flex-row gap-4 justify-center" data-controller="auth">
+          <%= render Catalyst::ButtonComponent.new(variant: :primary, data: { action: "click->auth#openLogin" }) do %>
+            Sign In
+          <% end %>
+          
+          <%= render Catalyst::ButtonComponent.new(variant: :secondary, data: { action: "click->auth#openRegister" }) do %>
+            Create Account
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+    
+    <% if Rails.env.development? %>
+      <div class="bg-blue-50 p-6 rounded-lg border border-blue-200">
+        <h3 class="text-lg font-semibold text-blue-900 mb-2">Development Resources</h3>
+        <p class="text-blue-700 mb-4">View our complete component library and design system examples.</p>
+        <%= render Catalyst::ButtonComponent.new(href: component_examples_path, variant: :secondary, class: "border-blue-300 text-blue-700 hover:bg-blue-100") do %>
+          View Component Examples
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>

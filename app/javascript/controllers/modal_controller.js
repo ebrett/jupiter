@@ -1,43 +1,43 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["modal"]
+  static targets = ["dialog"]
+  static values = { closeable: Boolean }
 
   connect() {
-    // Bind escape key to close modal
     this.handleEscape = this.handleEscape.bind(this)
+    this.handleClickOutside = this.handleClickOutside.bind(this)
   }
 
   disconnect() {
     document.removeEventListener("keydown", this.handleEscape)
+    document.body.style.overflow = ""
   }
 
   open() {
-    this.element.classList.remove("hidden")
+    this.element.style.display = "flex"
     document.addEventListener("keydown", this.handleEscape)
-    document.body.style.overflow = "hidden" // Prevent background scrolling
+    document.addEventListener("click", this.handleClickOutside)
+    document.body.style.overflow = "hidden"
   }
 
   close() {
-    this.element.classList.add("hidden")
+    if (!this.closeableValue) return
+    
+    this.element.style.display = "none"
     document.removeEventListener("keydown", this.handleEscape)
-    document.body.style.overflow = "" // Restore scrolling
-  }
-
-  retry() {
-    // This method can be overridden by specific modal controllers
-    this.close()
+    document.removeEventListener("click", this.handleClickOutside)
+    document.body.style.overflow = ""
   }
 
   handleEscape(event) {
-    if (event.key === "Escape") {
+    if (event.key === "Escape" && this.closeableValue) {
       this.close()
     }
   }
 
-  // Close modal when clicking outside of it
-  clickOutside(event) {
-    if (event.target === this.element) {
+  handleClickOutside(event) {
+    if (this.closeableValue && !this.dialogTarget.contains(event.target)) {
       this.close()
     }
   }

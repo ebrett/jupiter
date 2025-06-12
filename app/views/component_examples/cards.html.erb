@@ -1,0 +1,147 @@
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="mb-8">
+    <%= link_to "← Back to Components", "/component_examples", class: "text-sm text-gray-500 hover:text-gray-700 mb-4 inline-block" %>
+    <h1 class="text-3xl font-bold text-gray-900">Card Components</h1>
+    <p class="mt-2 text-lg text-gray-600">Content cards and panels</p>
+  </div>
+
+  <div class="space-y-12">
+    <!-- Basic Cards -->
+    <section>
+      <h2 class="text-xl font-semibold text-gray-900 mb-4">Basic Cards</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="bg-white rounded-lg shadow p-6">
+          <h3 class="text-lg font-medium text-gray-900 mb-2">Simple Card</h3>
+          <p class="text-gray-600">This is a basic card with just text content. Perfect for simple information display.</p>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow overflow-hidden">
+          <div class="p-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-2">Card with Actions</h3>
+            <p class="text-gray-600 mb-4">This card includes action buttons at the bottom.</p>
+            <div class="flex gap-2">
+              <button class="bg-blue-600 text-white px-3 py-1.5 rounded text-sm hover:bg-blue-700">View</button>
+              <button class="bg-gray-200 text-gray-700 px-3 py-1.5 rounded text-sm hover:bg-gray-300">Edit</button>
+            </div>
+          </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow overflow-hidden">
+          <div class="bg-gray-200 h-32 flex items-center justify-center">
+            <span class="text-gray-500">Image Placeholder</span>
+          </div>
+          <div class="p-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-2">Card with Image</h3>
+            <p class="text-gray-600">This card includes an image header section.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Stat Cards -->
+    <section>
+      <h2 class="text-xl font-semibold text-gray-900 mb-4">Stat Cards</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="bg-white rounded-lg shadow p-6">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <div class="w-8 h-8 bg-blue-500 rounded-md flex items-center justify-center">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13.5 0a4 4 0 11-8-3 3 3 0 006-4 6 6 0 018 0z" />
+                </svg>
+              </div>
+            </div>
+            <div class="ml-4">
+              <p class="text-sm font-medium text-gray-500">Total Users</p>
+              <p class="text-2xl font-semibold text-gray-900">71,897</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow p-6">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <div class="w-8 h-8 bg-green-500 rounded-md flex items-center justify-center">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                </svg>
+              </div>
+            </div>
+            <div class="ml-4">
+              <p class="text-sm font-medium text-gray-500">Revenue</p>
+              <p class="text-2xl font-semibold text-gray-900">$58,404</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow p-6">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <div class="w-8 h-8 bg-yellow-500 rounded-md flex items-center justify-center">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+              </div>
+            </div>
+            <div class="ml-4">
+              <p class="text-sm font-medium text-gray-500">Sales</p>
+              <p class="text-2xl font-semibold text-gray-900">24.57%</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow p-6">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <div class="w-8 h-8 bg-red-500 rounded-md flex items-center justify-center">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.18 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+              </div>
+            </div>
+            <div class="ml-4">
+              <p class="text-sm font-medium text-gray-500">Issues</p>
+              <p class="text-2xl font-semibold text-gray-900">12</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Feature Cards -->
+    <section>
+      <h2 class="text-xl font-semibold text-gray-900 mb-4">Feature Cards</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-white rounded-lg shadow-lg p-8 text-center">
+          <div class="w-12 h-12 bg-blue-100 rounded-lg mx-auto mb-4 flex items-center justify-center">
+            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+          </div>
+          <h3 class="text-xl font-semibold text-gray-900 mb-2">Fast Performance</h3>
+          <p class="text-gray-600">Lightning fast load times and optimized performance for the best user experience.</p>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-lg p-8 text-center">
+          <div class="w-12 h-12 bg-green-100 rounded-lg mx-auto mb-4 flex items-center justify-center">
+            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h3 class="text-xl font-semibold text-gray-900 mb-2">Reliable</h3>
+          <p class="text-gray-600">99.9% uptime guarantee with enterprise-grade security and data protection.</p>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-lg p-8 text-center">
+          <div class="w-12 h-12 bg-purple-100 rounded-lg mx-auto mb-4 flex items-center justify-center">
+            <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+            </svg>
+          </div>
+          <h3 class="text-xl font-semibold text-gray-900 mb-2">User Friendly</h3>
+          <p class="text-gray-600">Intuitive design and easy-to-use interface that anyone can master quickly.</p>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>

@@ -1,0 +1,28 @@
+<%= tag.nav(**breadcrumb_attributes) do %>
+  <ol class="flex items-center space-x-0">
+    <% items.each_with_index do |item, index| %>
+      <li class="flex items-center" data-test="breadcrumb-item">
+        <% if index > 0 %>
+          <span class="<%= separator_classes %>" aria-hidden="true" data-test="breadcrumb-separator"><%= separator_content %></span>
+        <% end %>
+        
+        <% if item.current %>
+          <span class="<%= item.item_classes %>" aria-current="page" data-test="breadcrumb-current">
+            <%= item.render_icon %>
+            <%= item.label %>
+          </span>
+        <% elsif item.href %>
+          <%= link_to item.href, class: item.item_classes, data: { test: "breadcrumb-link" } do %>
+            <%= item.render_icon %>
+            <%= item.label %>
+          <% end %>
+        <% else %>
+          <span class="<%= item.item_classes %>" data-test="breadcrumb-text">
+            <%= item.render_icon %>
+            <%= item.label %>
+          </span>
+        <% end %>
+      </li>
+    <% end %>
+  </ol>
+<% end %>
