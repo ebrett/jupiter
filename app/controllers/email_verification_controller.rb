@@ -21,13 +21,8 @@ class EmailVerificationController < ApplicationController
 
     @user.verify_email!
 
-    # Automatically log in the user after verification
-    session = @user.sessions.create!(
-      ip_address: request.remote_ip,
-      user_agent: request.user_agent
-    )
-    Current.session = session
-    cookies.signed.permanent[:session_id] = { value: session.id, httponly: true, same_site: :lax }
+    # Automatically log in the user after verification (default session duration)
+    start_new_session_for(@user)
 
     redirect_to root_path, notice: "Email verified successfully! Welcome to Jupiter."
   rescue => e

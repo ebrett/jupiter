@@ -10,6 +10,7 @@ class User < ApplicationRecord
   validates :email_address, presence: true, uniqueness: true
   validates :password, presence: true, if: :password_required?
   validates :password, length: { minimum: 8 }, if: :password_required?
+  validates :password, confirmation: true, if: :password_required?
   validates :verification_token, uniqueness: true, allow_nil: true
 
   before_create :auto_verify_nationbuilder_users
@@ -133,9 +134,9 @@ class User < ApplicationRecord
 
   def password_required?
     # Password is required if:
-    # 1. User doesn't have a NationBuilder UID (email/password only user)
-    # 2. User is setting a password (password field is present)
-    !nationbuilder_user? || password.present?
+    # 1. New record and it's an email/password user (no NationBuilder UID)
+    # 2. Password is being explicitly set/changed
+    (new_record? && !nationbuilder_user?) || password.present?
   end
 
   def auto_verify_nationbuilder_users
