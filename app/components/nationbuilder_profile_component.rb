@@ -7,7 +7,7 @@ class NationbuilderProfileComponent < Catalyst::BaseComponent
     "tag" => "tag",
     "refresh" => "arrow-path"
   }.freeze
-  
+
   DEFAULT_ICON = "information-circle".freeze
 
   # Make Current available in the component

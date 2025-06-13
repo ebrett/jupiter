@@ -1,7 +1,7 @@
 class NationbuilderTagsComponent < Catalyst::BaseComponent
   # Configuration constants
   DEFAULT_TAG_DISPLAY_LIMIT = 10
-  
+
   def initialize(user:, **options)
     @user = user
     super(**options)

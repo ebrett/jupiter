@@ -159,17 +159,17 @@ class User < ApplicationRecord
   def update_nationbuilder_profile_data!(profile_data)
     # Validate and sanitize raw_data before storing
     raw_data = sanitize_raw_data(profile_data[:raw_data] || {})
-    
+
     self.nationbuilder_profile_data = {
       "tags" => profile_data[:tags] || [],
       "phone" => profile_data[:phone],
       "raw_data" => raw_data,
       "last_synced_at" => Time.current.iso8601
     }
-    
+
     # Clear memoized profile data since we're updating it
     clear_profile_memoization
-    
+
     save!
   end
 
@@ -177,18 +177,18 @@ class User < ApplicationRecord
 
   def sanitize_raw_data(raw_data)
     return {} unless raw_data.is_a?(Hash)
-    
+
     # Remove potentially sensitive keys and limit data size
     sanitized = raw_data.except(
-      'password', 'secret', 'token', 'key', 'private', 'credential',
-      'authentication', 'authorization', 'session', 'cookie'
+      "password", "secret", "token", "key", "private", "credential",
+      "authentication", "authorization", "session", "cookie"
     )
-    
+
     # Limit the size of the raw data to prevent storage bloat
     # Convert to JSON and back to ensure it's serializable and limit size
     json_string = sanitized.to_json
     return {} if json_string.bytesize > 10.kilobytes
-    
+
     JSON.parse(json_string)
   rescue JSON::GeneratorError, JSON::ParserError
     # Return empty hash if data is not serializable
