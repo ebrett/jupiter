@@ -9,7 +9,7 @@ RSpec.describe Catalyst::InputComponent, type: :component do
   let(:doc) { render_component(component) }
 
   describe "basic rendering" do
-    it "renders an input element" do
+    it "renders text input element" do
       expect(doc).to have_css("input[type='text']")
     end
 
@@ -19,10 +19,6 @@ RSpec.describe Catalyst::InputComponent, type: :component do
 
     it "includes test selector" do
       expect(doc).to have_css("input[data-test='input-text']")
-    end
-
-    it "has default text type" do
-      expect(doc).to have_css("input[type='text']")
     end
 
     it "applies base input classes" do

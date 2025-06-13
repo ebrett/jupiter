@@ -365,11 +365,11 @@ RSpec.describe Catalyst::TableComponent, type: :component do
       expect(doc).to have_css("td", text: "")
     end
 
-    it "handles format errors gracefully" do
+    it "handles invalid date format gracefully" do
       expect(doc).to have_css("td", text: "not a date")
     end
 
-    it "handles missing keys gracefully" do
+    it "handles missing data keys gracefully" do
       expect(doc).to have_css("td", text: "")
     end
   end
