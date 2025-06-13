@@ -18,7 +18,7 @@ RSpec.describe UsersController, type: :controller do
       end
 
       it "does not raise NameError for current_user" do
-        expect { get :index }.not_to raise_error(NameError)
+        expect { get :index }.not_to raise_error
       end
     end
 
@@ -48,28 +48,28 @@ RSpec.describe UsersController, type: :controller do
       it "can search by email using Ransack parameters without errors" do
         expect {
           get :index, params: { q: { email_address_cont: "test" } }
-        }.not_to raise_error(RuntimeError, /Ransack needs User attributes explicitly allowlisted/)
+        }.not_to raise_error
         expect(response).to have_http_status(:success)
       end
 
       it "can search by first name using Ransack parameters without errors" do
         expect {
           get :index, params: { q: { first_name_cont: "John" } }
-        }.not_to raise_error(RuntimeError, /Ransack needs User attributes explicitly allowlisted/)
+        }.not_to raise_error
         expect(response).to have_http_status(:success)
       end
 
       it "can search by last name using Ransack parameters without errors" do
         expect {
           get :index, params: { q: { last_name_cont: "Doe" } }
-        }.not_to raise_error(RuntimeError, /Ransack needs User attributes explicitly allowlisted/)
+        }.not_to raise_error
         expect(response).to have_http_status(:success)
       end
 
       it "renders page without Ransack configuration errors" do
         expect {
           get :index
-        }.not_to raise_error(RuntimeError, /Ransack needs User attributes explicitly allowlisted/)
+        }.not_to raise_error
         expect(response).to have_http_status(:success)
       end
     end

@@ -32,7 +32,7 @@ RSpec.describe System::OauthStatusController, type: :controller do
         # This specifically tests the fix for the NoMethodError: undefined method 'humanize' for nil
         expect {
           get :index
-        }.not_to raise_error(NoMethodError)
+        }.not_to raise_error
       end
     end
 
