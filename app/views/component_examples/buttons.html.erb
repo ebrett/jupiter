@@ -1,0 +1,112 @@
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <!-- Breadcrumb -->
+  <%= render Catalyst::BreadcrumbComponent.new do |breadcrumb| %>
+    <% breadcrumb.with_item(href: root_path, label: "Home") %>
+    <% breadcrumb.with_item(href: "/component_examples", label: "Component Examples") %>
+    <% breadcrumb.with_item(label: "Buttons", current: true) %>
+  <% end %>
+
+  <div class="mb-8 mt-6">
+    <h1 class="text-3xl font-bold text-gray-900">Button Components</h1>
+    <p class="mt-2 text-lg text-gray-600">Various button styles and states</p>
+  </div>
+
+  <div class="space-y-12">
+    <!-- Primary Buttons -->
+    <section>
+      <h2 class="text-xl font-semibold text-gray-900 mb-4">Primary Buttons</h2>
+      <div class="bg-white p-6 rounded-lg shadow">
+        <div class="flex flex-wrap gap-4">
+          <button type="button" class="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+            Default
+          </button>
+          <button type="button" class="bg-blue-600 text-white px-6 py-3 rounded-md text-base font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+            Large
+          </button>
+          <button type="button" class="bg-blue-600 text-white px-3 py-1.5 rounded-md text-xs font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+            Small
+          </button>
+          <button type="button" disabled class="bg-blue-300 text-white px-4 py-2 rounded-md text-sm font-medium cursor-not-allowed">
+            Disabled
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Secondary Buttons -->
+    <section>
+      <h2 class="text-xl font-semibold text-gray-900 mb-4">Secondary Buttons</h2>
+      <div class="bg-white p-6 rounded-lg shadow">
+        <div class="flex flex-wrap gap-4">
+          <button type="button" class="bg-white text-gray-700 px-4 py-2 rounded-md text-sm font-medium border border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+            Default
+          </button>
+          <button type="button" class="bg-white text-gray-700 px-6 py-3 rounded-md text-base font-medium border border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+            Large
+          </button>
+          <button type="button" class="bg-white text-gray-700 px-3 py-1.5 rounded-md text-xs font-medium border border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+            Small
+          </button>
+          <button type="button" disabled class="bg-gray-100 text-gray-400 px-4 py-2 rounded-md text-sm font-medium border border-gray-200 cursor-not-allowed">
+            Disabled
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Danger Buttons -->
+    <section>
+      <h2 class="text-xl font-semibold text-gray-900 mb-4">Danger Buttons</h2>
+      <div class="bg-white p-6 rounded-lg shadow">
+        <div class="flex flex-wrap gap-4">
+          <button type="button" class="bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+            Delete
+          </button>
+          <button type="button" class="bg-white text-red-600 px-4 py-2 rounded-md text-sm font-medium border border-red-300 hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+            Cancel
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Button Groups -->
+    <section>
+      <h2 class="text-xl font-semibold text-gray-900 mb-4">Button Groups</h2>
+      <div class="bg-white p-6 rounded-lg shadow">
+        <div class="inline-flex rounded-md shadow-sm" role="group">
+          <button type="button" class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-l-lg hover:bg-gray-100 focus:z-10 focus:ring-2 focus:ring-blue-500">
+            Previous
+          </button>
+          <button type="button" class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-gray-200 hover:bg-gray-100 focus:z-10 focus:ring-2 focus:ring-blue-500">
+            Current
+          </button>
+          <button type="button" class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-r-md hover:bg-gray-100 focus:z-10 focus:ring-2 focus:ring-blue-500">
+            Next
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Icon Buttons -->
+    <section>
+      <h2 class="text-xl font-semibold text-gray-900 mb-4">Icon Buttons</h2>
+      <div class="bg-white p-6 rounded-lg shadow">
+        <div class="flex flex-wrap gap-4">
+          <button type="button" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+            <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+            </svg>
+            Add Item
+          </button>
+          <button type="button" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+            <svg class="-ml-1 mr-2 h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+              <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+              <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+            </svg>
+            Email
+          </button>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>

@@ -1,34 +1,267 @@
 name: CI
 
-on: [push, pull_request]
+on:
+  pull_request:
+    branches: [main]
 
 jobs:
   test:
+    name: General Test Suite
     runs-on: ubuntu-latest
     services:
       postgres:
-        image: postgres:14
-        ports: ['5432:5432']
+        image: postgres:15
         env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: password
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: jupiter_test
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+        ports:
+          - 5432:5432
     env:
       RAILS_ENV: test
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-      DATABASE_URL: postgres://postgres:password@localhost:5432/jupiter_test
+      POSTGRES_PASSWORD: postgres
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/jupiter_test
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: ruby/setup-ruby@v1
         with:
-          ruby-version: 3.2
-      - run: gem install bundler
+          ruby-version: 3.4.1
+          bundler-cache: true
       - run: bundle install --jobs 4 --retry 3
-      - run: bin/rails db:create db:schema:load --trace
-      - run: bundle exec rspec
+      - run: cp config/database.yml.github config/database.yml
+      - run: bundle exec rails db:create
+      - run: bundle exec rails db:migrate
+      - run: bundle exec rails runner 'Role.initialize_all'
+      - run: bundle exec rspec --format documentation
       - run: bundle exec rubocop
+
+  oauth:
+    name: OAuth2 Checks
+    runs-on: ubuntu-latest
+    needs: test
+    if: |
+      github.event.pull_request.head_ref != null &&
+      (contains(join(github.event.pull_request.changed_files.*.filename, ','), 'app/services/nationbuilder_') ||
+       contains(join(github.event.pull_request.changed_files.*.filename, ','), 'app/controllers/nationbuilder_auth_controller.rb') ||
+       contains(join(github.event.pull_request.changed_files.*.filename, ','), 'app/models/nationbuilder_token.rb') ||
+       contains(join(github.event.pull_request.changed_files.*.filename, ','), 'app/jobs/nationbuilder_token_refresh_job.rb') ||
+       contains(join(github.event.pull_request.changed_files.*.filename, ','), 'spec/services/nationbuilder_') ||
+       contains(join(github.event.pull_request.changed_files.*.filename, ','), 'spec/requests/nationbuilder_auth_controller_spec.rb') ||
+       contains(join(github.event.pull_request.changed_files.*.filename, ','), 'spec/models/nationbuilder_token_spec.rb') ||
+       contains(join(github.event.pull_request.changed_files.*.filename, ','), 'spec/jobs/nationbuilder_token_refresh_job_spec.rb') ||
+       contains(join(github.event.pull_request.changed_files.*.filename, ','), 'config/routes.rb') ||
+       contains(join(github.event.pull_request.changed_files.*.filename, ','), '.github/workflows/ci.yml'))
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: jupiter_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    env:
+      RAILS_ENV: test
+      NATIONBUILDER_CLIENT_ID: test_client_id
+      NATIONBUILDER_CLIENT_SECRET: test_client_secret
+      NATIONBUILDER_REDIRECT_URI: http://localhost:3000/auth/nationbuilder/callback
+      NATIONBUILDER_NATION_SLUG: testnation
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/jupiter_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.4.1
+          bundler-cache: true
+      - run: bundle install --jobs 4 --retry 3
+      - run: cp config/database.yml.github config/database.yml
+      - run: bundle exec rails db:create
+      - run: bundle exec rails db:migrate
+      - run: bundle exec rails runner 'Role.initialize_all'
+      - name: Run OAuth-specific tests
+        run: |
+          bundle exec rspec \
+            spec/services/nationbuilder_*_spec.rb \
+            spec/requests/nationbuilder_auth_controller_spec.rb \
+            spec/models/nationbuilder_token_spec.rb \
+            spec/jobs/nationbuilder_token_refresh_job_spec.rb \
+            --format documentation
+      - name: Run OAuth error handling tests
+        run: |
+          bundle exec rspec \
+            spec/services/nationbuilder_error_handler_spec.rb \
+            --format documentation
+      - name: Check OAuth test coverage
+        run: |
+          bundle exec rspec \
+            spec/services/nationbuilder_*_spec.rb \
+            spec/requests/nationbuilder_auth_controller_spec.rb \
+            spec/models/nationbuilder_token_spec.rb \
+            spec/jobs/nationbuilder_token_refresh_job_spec.rb \
+            --require spec_helper \
+            --format documentation
+          # Coverage report will be generated by SimpleCov
+      - name: Test OAuth configuration
+        run: |
+          cat > test_oauth_config.rb << 'EOF'
+          require_relative "config/environment"
+          
+          # Test environment variable loading
+          required_vars = %w[NATIONBUILDER_CLIENT_ID NATIONBUILDER_CLIENT_SECRET NATIONBUILDER_REDIRECT_URI NATIONBUILDER_NATION_SLUG]
+          missing_vars = required_vars.select { |var| ENV[var].nil? || ENV[var].empty? }
+          
+          if missing_vars.any?
+            puts "Missing required environment variables: #{missing_vars.join(', ')}"
+            exit 1
+          end
+          
+          # Test OAuth2 client initialization
+          begin
+            client = Oauth2Client.new(
+              client_id: ENV['NATIONBUILDER_CLIENT_ID'],
+              client_secret: ENV['NATIONBUILDER_CLIENT_SECRET'],
+              redirect_uri: ENV['NATIONBUILDER_REDIRECT_URI'],
+              scopes: ['people:read']
+            )
+            url = client.authorization_url(state: 'test')
+            puts 'OAuth2 client configuration: OK'
+            puts 'Authorization URL generation: OK'
+          rescue => e
+            puts "OAuth2 client configuration failed: #{e.message}"
+            exit 1
+          end
+          EOF
+          bundle exec ruby test_oauth_config.rb
+      - name: Verify OAuth routes
+        run: |
+          cat > test_oauth_routes.rb << 'EOF'
+          require_relative "config/environment"
+          Rails.application.reload_routes!
+          
+          oauth_routes = [
+            "/auth/nationbuilder",
+            "/auth/nationbuilder/callback"
+          ]
+          
+          oauth_routes.each do |route|
+            begin
+              Rails.application.routes.recognize_path(route)
+              puts "Route #{route}: OK"
+            rescue ActionController::RoutingError
+              puts "Route #{route}: MISSING"
+              exit 1
+            end
+          end
+          EOF
+          bundle exec ruby test_oauth_routes.rb
+      - name: Run Brakeman security scanner
+        run: |
+          bundle exec brakeman \
+            --rails8 \
+            --format json \
+            --output tmp/brakeman_results.json \
+            --quiet \
+            --only-files app/services/nationbuilder_,app/controllers/nationbuilder_auth_controller.rb,app/models/nationbuilder_token.rb
+      - name: Check for OAuth-specific security issues
+        run: |
+          bundle exec ruby -e '
+            require "json"
+            
+            if File.exist?("tmp/brakeman_results.json")
+              results = JSON.parse(File.read("tmp/brakeman_results.json"))
+              oauth_warnings = results["warnings"].select do |warning|
+                warning["file"].include?("nationbuilder") || 
+                warning["message"].downcase.include?("oauth") ||
+                warning["message"].downcase.include?("token")
+              end
+              
+              if oauth_warnings.any?
+                puts "OAuth Security Issues Found:"
+                oauth_warnings.each do |warning|
+                  puts "- #{warning["warning_type"]}: #{warning["message"]} (#{warning["file"]}:#{warning["line"]})"
+                end
+                exit 1
+              else
+                puts "No OAuth-specific security issues found"
+              end
+            else
+              puts "Brakeman results not found"
+            end
+          '
+      - name: Check for hardcoded secrets
+        run: |
+          echo "Checking for hardcoded secrets in OAuth files..."
+          
+          # Check for potential hardcoded secrets (excluding test files)
+          if grep -r --include="*.rb" --exclude-dir=spec --exclude-dir=test \
+             -E "(client_secret|access_token|refresh_token|api_key|secret_key)\s*=\s*['\"][^'\"]{10,}" \
+             app/services/nationbuilder_* app/controllers/nationbuilder_auth_controller.rb app/models/nationbuilder_token.rb; then
+            echo "⚠️  Potential hardcoded secrets found in OAuth files"
+            exit 1
+          else
+            echo "✅ No hardcoded secrets found in OAuth files"
+          fi
+      - name: Validate environment variable usage
+        run: |
+          echo "Validating OAuth environment variable usage..."
+          
+          # Check that sensitive data uses ENV variables
+          oauth_files="app/services/nationbuilder_* app/controllers/nationbuilder_auth_controller.rb"
+          
+          if grep -r --include="*.rb" -L "ENV\[" $oauth_files; then
+            echo "⚠️  OAuth files should use ENV variables for configuration"
+          else
+            echo "✅ OAuth files properly use environment variables"
+          fi
+      - name: Run OAuth flow integration tests
+        run: |
+          bundle exec rspec \
+            spec/requests/nationbuilder_auth_controller_spec.rb \
+            --tag oauth_integration \
+            --format documentation
+      - name: Test token refresh background jobs
+        run: |
+          bundle exec rspec \
+            spec/jobs/nationbuilder_token_refresh_job_spec.rb \
+            --format documentation
+      - name: Upload coverage reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: oauth-coverage
+          path: coverage/
+      - name: Upload security results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: oauth-security-results
+          path: tmp/brakeman_results.json
+
+  notify_results:
+    name: Notify CI Results
+    runs-on: ubuntu-latest
+    needs: [test, oauth]
+    if: always()
+    steps:
+      - name: Notify success
+        if: ${{ needs.test.result == 'success' && (needs.oauth.result == 'success' || needs.oauth.result == 'skipped') }}
+        run: |
+          echo "✅ All CI checks passed successfully!"
+          echo "- General test suite: PASSED"
+          echo "- OAuth checks: ${{ needs.oauth.result }}"
+      - name: Notify failure
+        if: ${{ needs.test.result == 'failure' || needs.oauth.result == 'failure' }}
+        run: |
+          echo "❌ CI checks failed!"
+          echo "- General test suite: ${{ needs.test.result }}"
+          echo "- OAuth checks: ${{ needs.oauth.result }}"
+          exit 1

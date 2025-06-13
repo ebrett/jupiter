@@ -1,0 +1,175 @@
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <!-- Breadcrumb -->
+  <%= render Catalyst::BreadcrumbComponent.new do |breadcrumb| %>
+    <% breadcrumb.with_item(href: root_path, label: "Home") %>
+    <% breadcrumb.with_item(href: "/component_examples", label: "Component Examples") %>
+    <% breadcrumb.with_item(label: "Profiles", current: true) %>
+  <% end %>
+
+  <div class="mb-8 mt-6">
+    <h1 class="text-3xl font-bold text-gray-900">Profile Components</h1>
+    <p class="mt-2 text-lg text-gray-600">User profile and NationBuilder integration components</p>
+  </div>
+
+  <div class="space-y-12">
+    <!-- NationBuilder Profile Component -->
+    <section>
+      <div class="mb-6">
+        <h2 class="text-2xl font-bold text-gray-900">NationBuilder Profile</h2>
+        <p class="mt-2 text-gray-600">Displays NationBuilder profile data including tags and contact information</p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Example with profile data -->
+        <div>
+          <h3 class="text-lg font-medium text-gray-900 mb-4">With Profile Data</h3>
+          <% 
+            profile_data = {
+              "tags" => ["member", "volunteer", "donor", "activist", "chapter_leader"],
+              "phone" => "+1 (555) 123-4567",
+              "raw_data" => { "city" => "San Francisco", "state" => "CA" },
+              "last_synced_at" => 2.hours.ago.iso8601
+            }
+            mock_user_with_data = OpenStruct.new(
+              nationbuilder_uid: "12345",
+              nationbuilder_profile_data: profile_data
+            )
+            # Add the helper methods
+            mock_user_with_data.define_singleton_method(:nationbuilder_user?) { true }
+            mock_user_with_data.define_singleton_method(:has_nationbuilder_profile_data?) { true }
+            mock_user_with_data.define_singleton_method(:nationbuilder_tags) { profile_data["tags"] || [] }
+            mock_user_with_data.define_singleton_method(:nationbuilder_phone) { profile_data["phone"] }
+          %>
+          <%= render NationbuilderProfileComponent.new(user: mock_user_with_data) %>
+        </div>
+
+        <!-- Example without profile data -->
+        <div>
+          <h3 class="text-lg font-medium text-gray-900 mb-4">Connected but No Data</h3>
+          <% 
+            mock_user_no_data = OpenStruct.new(
+              nationbuilder_uid: "67890",
+              nationbuilder_profile_data: nil
+            )
+            # Add the helper methods
+            mock_user_no_data.define_singleton_method(:nationbuilder_user?) { true }
+            mock_user_no_data.define_singleton_method(:has_nationbuilder_profile_data?) { false }
+            mock_user_no_data.define_singleton_method(:nationbuilder_tags) { [] }
+            mock_user_no_data.define_singleton_method(:nationbuilder_phone) { nil }
+          %>
+          <%= render NationbuilderProfileComponent.new(user: mock_user_no_data) %>
+        </div>
+      </div>
+    </section>
+
+    <!-- NationBuilder Tags Component -->
+    <section>
+      <div class="mb-6">
+        <h2 class="text-2xl font-bold text-gray-900">NationBuilder Tags</h2>
+        <p class="mt-2 text-gray-600">Displays user tags with smart color coding and overflow handling</p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Few tags -->
+        <div>
+          <h3 class="text-lg font-medium text-gray-900 mb-4">Few Tags</h3>
+          <% 
+            tags_data = ["member", "volunteer", "donor"]
+            user_few_tags = OpenStruct.new(
+              nationbuilder_uid: "123",
+              nationbuilder_profile_data: { "tags" => tags_data }
+            )
+            user_few_tags.define_singleton_method(:nationbuilder_user?) { true }
+            user_few_tags.define_singleton_method(:nationbuilder_tags) { tags_data }
+          %>
+          <%= render NationbuilderTagsComponent.new(user: user_few_tags) %>
+        </div>
+
+        <!-- Many tags -->
+        <div>
+          <h3 class="text-lg font-medium text-gray-900 mb-4">Many Tags (with overflow)</h3>
+          <% 
+            many_tags = [
+              "member", "volunteer", "donor", "activist", "leader", 
+              "supporter", "contributor", "organizer", "ambassador", 
+              "chapter_member", "admin", "super_volunteer", "founder",
+              "board_member", "advisor"
+            ]
+            user_many_tags = OpenStruct.new(
+              nationbuilder_uid: "456",
+              nationbuilder_profile_data: { "tags" => many_tags }
+            )
+            user_many_tags.define_singleton_method(:nationbuilder_user?) { true }
+            user_many_tags.define_singleton_method(:nationbuilder_tags) { many_tags }
+          %>
+          <%= render NationbuilderTagsComponent.new(user: user_many_tags) %>
+        </div>
+
+        <!-- Different tag types for color coding -->
+        <div>
+          <h3 class="text-lg font-medium text-gray-900 mb-4">Tag Color Coding</h3>
+          <% 
+            color_tags = [
+              "member", "supporter", "volunteer", "activist", 
+              "donor", "contributor", "leader", "admin", 
+              "inactive", "former_member"
+            ]
+            user_color_tags = OpenStruct.new(
+              nationbuilder_uid: "789",
+              nationbuilder_profile_data: { "tags" => color_tags }
+            )
+            user_color_tags.define_singleton_method(:nationbuilder_user?) { true }
+            user_color_tags.define_singleton_method(:nationbuilder_tags) { color_tags }
+          %>
+          <%= render NationbuilderTagsComponent.new(user: user_color_tags) %>
+        </div>
+
+        <!-- No tags -->
+        <div>
+          <h3 class="text-lg font-medium text-gray-900 mb-4">No Tags</h3>
+          <% 
+            user_no_tags = OpenStruct.new(
+              nationbuilder_uid: "000",
+              nationbuilder_profile_data: { "tags" => [] }
+            )
+            user_no_tags.define_singleton_method(:nationbuilder_user?) { true }
+            user_no_tags.define_singleton_method(:nationbuilder_tags) { [] }
+          %>
+          <%= render NationbuilderTagsComponent.new(user: user_no_tags) %>
+        </div>
+      </div>
+    </section>
+
+    <!-- Implementation Notes -->
+    <section class="border-t border-gray-200 pt-8">
+      <div class="mb-6">
+        <h2 class="text-2xl font-bold text-gray-900">Implementation Notes</h2>
+      </div>
+      
+      <div class="bg-gray-50 rounded-lg p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Usage</h3>
+        <div class="space-y-4 text-sm">
+          <div>
+            <h4 class="font-medium text-gray-900">NationBuilder Profile Component</h4>
+            <pre class="mt-2 bg-white p-3 rounded border text-xs"><%= raw "&lt;%= render NationbuilderProfileComponent.new(user: @user) %&gt;" %></pre>
+          </div>
+          
+          <div>
+            <h4 class="font-medium text-gray-900">NationBuilder Tags Component</h4>
+            <pre class="mt-2 bg-white p-3 rounded border text-xs"><%= raw "&lt;%= render NationbuilderTagsComponent.new(user: @user) %&gt;" %></pre>
+          </div>
+        </div>
+        
+        <h3 class="text-lg font-medium text-gray-900 mb-4 mt-6">Features</h3>
+        <ul class="list-disc list-inside space-y-1 text-sm text-gray-700">
+          <li>Automatic color coding based on tag content (member=green, volunteer=blue, etc.)</li>
+          <li>Overflow handling for users with many tags (shows "+X more")</li>
+          <li>Graceful handling of missing profile data</li>
+          <li>Last sync timestamp display</li>
+          <li>Contact information display (phone numbers)</li>
+          <li>Integration with Catalyst UI badge components</li>
+        </ul>
+      </div>
+    </section>
+  </div>
+</div>

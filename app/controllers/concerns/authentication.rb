@@ -23,6 +23,15 @@ module Authentication
 
     def resume_session
       Current.session ||= find_session_by_cookie
+
+      # Check if session is expired
+      if Current.session&.expired?
+        terminate_session
+        Current.session = nil
+        Current.user = nil
+        return nil
+      end
+
       Current.user ||= Current.session&.user
       Current.session
     end
@@ -32,7 +41,10 @@ module Authentication
     end
 
     def request_authentication
-      session[:return_to_after_authenticating] = request.url
+      # Don't store authentication-related URLs as return destinations
+      unless request.path.start_with?("/session") || request.path.start_with?("/auth")
+        session[:return_to_after_authenticating] = request.url
+      end
       redirect_to new_session_path
     end
 
@@ -40,10 +52,35 @@ module Authentication
       session.delete(:return_to_after_authenticating) || root_url
     end
 
-    def start_new_session_for(user)
-      user.sessions.create!(user_agent: request.user_agent, ip_address: request.remote_ip).tap do |session|
+    def start_new_session_for(user, remember_me: false)
+      user.sessions.create!(
+        user_agent: request.user_agent,
+        ip_address: request.remote_ip,
+        remember_me: remember_me
+      ).tap do |session|
         Current.session = session
-        cookies.signed.permanent[:session_id] = { value: session.id, httponly: true, same_site: :lax }
+
+        # Set cookie duration based on remember_me preference
+        if remember_me
+          cookies.signed[:session_id] = {
+            value: session.id,
+            expires: Session::REMEMBER_ME_DURATION.from_now,
+            httponly: true,
+            same_site: :lax
+          }
+        else
+          cookies.signed[:session_id] = {
+            value: session.id,
+            expires: Session::DEFAULT_SESSION_DURATION.from_now,
+            httponly: true,
+            same_site: :lax
+          }
+        end
+
+        # Trigger NationBuilder profile sync if applicable
+        if user.nationbuilder_user?
+          NationbuilderProfileSyncJob.perform_later(user.id)
+        end
       end
     end
 

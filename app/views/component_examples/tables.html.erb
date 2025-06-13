@@ -1,0 +1,97 @@
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <!-- Breadcrumb -->
+  <%= render Catalyst::BreadcrumbComponent.new do |breadcrumb| %>
+    <% breadcrumb.with_item(href: root_path, label: "Home") %>
+    <% breadcrumb.with_item(href: "/component_examples", label: "Component Examples") %>
+    <% breadcrumb.with_item(label: "Tables", current: true) %>
+  <% end %>
+
+  <div class="mb-8 mt-6">
+    <h1 class="text-3xl font-bold text-gray-900">Table Components</h1>
+    <p class="mt-2 text-lg text-gray-600">Data tables with sorting and pagination</p>
+  </div>
+
+  <div class="space-y-12">
+    <!-- Basic Table -->
+    <section>
+      <h2 class="text-xl font-semibold text-gray-900 mb-4">Basic Table</h2>
+      <div class="bg-white rounded-lg shadow overflow-hidden">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+              <th class="relative px-6 py-3"><span class="sr-only">Actions</span></th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <tr>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">John Doe</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">john@example.com</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Admin</td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Active</span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                <a href="#" class="text-blue-600 hover:text-blue-900">Edit</a>
+              </td>
+            </tr>
+            <tr>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Jane Smith</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">jane@example.com</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">User</td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">Pending</span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                <a href="#" class="text-blue-600 hover:text-blue-900">Edit</a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Table with Sorting -->
+    <section>
+      <h2 class="text-xl font-semibold text-gray-900 mb-4">Table with Sorting Headers</h2>
+      <div class="bg-white p-4 rounded-lg shadow">
+        <p class="text-gray-600 mb-4">Table headers with sorting indicators</p>
+        <div class="overflow-hidden">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                  <div class="flex items-center space-x-1">
+                    <span>Name</span>
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7l3-3 3 3m0 6l-3 3-3-3" />
+                    </svg>
+                  </div>
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                  <div class="flex items-center space-x-1">
+                    <span>Created</span>
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Project Alpha</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2024-01-15</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">View | Edit | Delete</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>

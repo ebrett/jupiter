@@ -1,0 +1,236 @@
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <!-- Breadcrumb -->
+  <%= render Catalyst::BreadcrumbComponent.new do |breadcrumb| %>
+    <% breadcrumb.with_item(href: root_path, label: "Home") %>
+    <% breadcrumb.with_item(href: "/component_examples", label: "Component Examples") %>
+    <% breadcrumb.with_item(label: "Dropdowns", current: true) %>
+  <% end %>
+
+  <div class="mb-8 mt-6">
+    <h1 class="text-3xl font-bold text-gray-900">Dropdown Components</h1>
+    <p class="mt-2 text-lg text-gray-600">Interactive dropdown menus with keyboard navigation and accessibility</p>
+  </div>
+
+  <!-- Basic Dropdown Example -->
+  <div class="mb-12">
+    <h2 class="text-2xl font-semibold text-gray-900 mb-4">Basic Dropdown</h2>
+    <div class="bg-white p-6 rounded-lg border border-gray-200">
+      <div class="flex gap-4 flex-wrap">
+        <%= render Catalyst::DropdownComponent.new do %>
+          <%= render Catalyst::DropdownButtonComponent.new(variant: :primary) do %>
+            Options
+          <% end %>
+          <%= render Catalyst::DropdownMenuComponent.new do %>
+            <%= render Catalyst::DropdownItemComponent.new do %>
+              Edit
+            <% end %>
+            <%= render Catalyst::DropdownItemComponent.new do %>
+              Duplicate
+            <% end %>
+            <%= render Catalyst::DropdownDividerComponent.new %>
+            <%= render Catalyst::DropdownItemComponent.new do %>
+              Archive
+            <% end %>
+            <%= render Catalyst::DropdownItemComponent.new do %>
+              Delete
+            <% end %>
+          <% end %>
+        <% end %>
+
+        <%= render Catalyst::DropdownComponent.new do %>
+          <%= render Catalyst::DropdownButtonComponent.new(variant: :secondary) do %>
+            Actions
+          <% end %>
+          <%= render Catalyst::DropdownMenuComponent.new do %>
+            <%= render Catalyst::DropdownItemComponent.new(href: "#") do %>
+              View Details
+            <% end %>
+            <%= render Catalyst::DropdownItemComponent.new(href: "#") do %>
+              Share
+            <% end %>
+            <%= render Catalyst::DropdownDividerComponent.new %>
+            <%= render Catalyst::DropdownItemComponent.new(disabled: true) do %>
+              Disabled Action
+            <% end %>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dropdown with Headers -->
+  <div class="mb-12">
+    <h2 class="text-2xl font-semibold text-gray-900 mb-4">Dropdown with Headers</h2>
+    <div class="bg-white p-6 rounded-lg border border-gray-200">
+      <%= render Catalyst::DropdownComponent.new do %>
+        <%= render Catalyst::DropdownButtonComponent.new(variant: :outline) do %>
+          User Menu
+        <% end %>
+        <%= render Catalyst::DropdownMenuComponent.new do %>
+          <%= render Catalyst::DropdownHeaderComponent.new do %>
+            Account
+          <% end %>
+          <%= render Catalyst::DropdownItemComponent.new(href: "#") do %>
+            Profile Settings
+          <% end %>
+          <%= render Catalyst::DropdownItemComponent.new(href: "#") do %>
+            Billing
+          <% end %>
+          <%= render Catalyst::DropdownDividerComponent.new %>
+          <%= render Catalyst::DropdownHeaderComponent.new do %>
+            Support
+          <% end %>
+          <%= render Catalyst::DropdownItemComponent.new(href: "#") do %>
+            Documentation
+          <% end %>
+          <%= render Catalyst::DropdownItemComponent.new(href: "#") do %>
+            Contact Support
+          <% end %>
+          <%= render Catalyst::DropdownDividerComponent.new %>
+          <%= render Catalyst::DropdownItemComponent.new do %>
+            Sign Out
+          <% end %>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Different Anchoring Positions -->
+  <div class="mb-12">
+    <h2 class="text-2xl font-semibold text-gray-900 mb-4">Different Positions</h2>
+    <div class="bg-white p-6 rounded-lg border border-gray-200">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <%= render Catalyst::DropdownComponent.new do %>
+          <%= render Catalyst::DropdownButtonComponent.new(variant: :ghost, size: :sm) do %>
+            Bottom (Default)
+          <% end %>
+          <%= render Catalyst::DropdownMenuComponent.new(anchor: "bottom") do %>
+            <%= render Catalyst::DropdownItemComponent.new do %>
+              Item 1
+            <% end %>
+            <%= render Catalyst::DropdownItemComponent.new do %>
+              Item 2
+            <% end %>
+          <% end %>
+        <% end %>
+
+        <%= render Catalyst::DropdownComponent.new do %>
+          <%= render Catalyst::DropdownButtonComponent.new(variant: :ghost, size: :sm) do %>
+            Bottom Start
+          <% end %>
+          <%= render Catalyst::DropdownMenuComponent.new(anchor: "bottom-start") do %>
+            <%= render Catalyst::DropdownItemComponent.new do %>
+              Item 1
+            <% end %>
+            <%= render Catalyst::DropdownItemComponent.new do %>
+              Item 2
+            <% end %>
+          <% end %>
+        <% end %>
+
+        <%= render Catalyst::DropdownComponent.new do %>
+          <%= render Catalyst::DropdownButtonComponent.new(variant: :ghost, size: :sm) do %>
+            Bottom End
+          <% end %>
+          <%= render Catalyst::DropdownMenuComponent.new(anchor: "bottom-end") do %>
+            <%= render Catalyst::DropdownItemComponent.new do %>
+              Item 1
+            <% end %>
+            <%= render Catalyst::DropdownItemComponent.new do %>
+              Item 2
+            <% end %>
+          <% end %>
+        <% end %>
+
+        <%= render Catalyst::DropdownComponent.new do %>
+          <%= render Catalyst::DropdownButtonComponent.new(variant: :ghost, size: :sm) do %>
+            Top
+          <% end %>
+          <%= render Catalyst::DropdownMenuComponent.new(anchor: "top") do %>
+            <%= render Catalyst::DropdownItemComponent.new do %>
+              Item 1
+            <% end %>
+            <%= render Catalyst::DropdownItemComponent.new do %>
+              Item 2
+            <% end %>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Code Example -->
+  <div class="mb-12">
+    <h2 class="text-2xl font-semibold text-gray-900 mb-4">Usage Example</h2>
+    <div class="bg-gray-50 p-6 rounded-lg">
+      <pre class="text-sm text-gray-800 overflow-x-auto"><code>&lt;%%= render Catalyst::DropdownComponent.new do %%&gt;
+  &lt;%%= render Catalyst::DropdownButtonComponent.new(variant: :primary) do %%&gt;
+    Options
+  &lt;%% end %%&gt;
+  &lt;%%= render Catalyst::DropdownMenuComponent.new do %%&gt;
+    &lt;%%= render Catalyst::DropdownItemComponent.new do %%&gt;
+      Edit
+    &lt;%% end %%&gt;
+    &lt;%%= render Catalyst::DropdownItemComponent.new(href: "/settings") do %%&gt;
+      Settings
+    &lt;%% end %%&gt;
+    &lt;%%= render Catalyst::DropdownDividerComponent.new %%&gt;
+    &lt;%%= render Catalyst::DropdownItemComponent.new(disabled: true) do %%&gt;
+      Disabled Option
+    &lt;%% end %%&gt;
+  &lt;%% end %%&gt;
+&lt;%% end %%&gt;</code></pre>
+    </div>
+  </div>
+
+  <!-- Features -->
+  <div class="mb-12">
+    <h2 class="text-2xl font-semibold text-gray-900 mb-4">Features</h2>
+    <div class="bg-white p-6 rounded-lg border border-gray-200">
+      <ul class="space-y-2 text-gray-700">
+        <li class="flex items-center">
+          <svg class="w-5 h-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+          </svg>
+          Keyboard navigation (Arrow keys, Home, End, Enter, Escape)
+        </li>
+        <li class="flex items-center">
+          <svg class="w-5 h-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+          </svg>
+          Click outside to close
+        </li>
+        <li class="flex items-center">
+          <svg class="w-5 h-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+          </svg>
+          Support for links and buttons
+        </li>
+        <li class="flex items-center">
+          <svg class="w-5 h-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+          </svg>
+          Multiple positioning options
+        </li>
+        <li class="flex items-center">
+          <svg class="w-5 h-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+          </svg>
+          Disabled state support
+        </li>
+        <li class="flex items-center">
+          <svg class="w-5 h-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+          </svg>
+          Section headers and dividers
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="flex justify-between">
+    <%= link_to "/component_examples", class: "text-blue-600 hover:text-blue-800" do %>
+      ← Back to Components
+    <% end %>
+  </div>
+</div>

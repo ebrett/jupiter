@@ -1,0 +1,39 @@
+<div class="<%= table_wrapper_classes %>" data-test="table">
+  <table class="<%= table_classes %>" data-test="table-element">
+    <thead class="<%= thead_classes %>">
+      <tr>
+        <% columns.each do |column| %>
+          <th scope="col" class="<%= th_classes(column) %> <%= column.th_align_class %>" style="<%= column.th_style %>" data-test="table-header-<%= column.key %>">
+            <% if sortable && column.sortable %>
+              <%= link_to request.path, params: sort_params(column), class: "group inline-flex items-center hover:text-gray-700" do %>
+                <%= column.label %>
+                <%= sort_indicator(column).html_safe %>
+              <% end %>
+            <% else %>
+              <%= column.label %>
+            <% end %>
+          </th>
+        <% end %>
+      </tr>
+    </thead>
+    <tbody class="<%= tbody_classes %>">
+      <% if data.any? %>
+        <% data.each_with_index do |row, index| %>
+          <tr class="<%= striped && index.odd? ? 'bg-gray-50' : '' %>" data-test="table-row-<%= index %>">
+            <% columns.each do |column| %>
+              <td class="<%= td_classes %> <%= column.td_align_class %>" data-test="table-cell-<%= column.key %>">
+                <%= render_cell_content(column, row) %>
+              </td>
+            <% end %>
+          </tr>
+        <% end %>
+      <% else %>
+        <tr>
+          <td colspan="<%= columns.count %>" class="<%= td_classes %> text-center text-gray-500">
+            <%= content || "No data available" %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

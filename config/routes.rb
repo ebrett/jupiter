@@ -1,6 +1,13 @@
 Rails.application.routes.draw do
   resource :session
   resources :passwords, param: :token
+
+  # Email verification routes
+  get "/verify_email/:token", to: "email_verification#verify", as: :verify_email
+  post "/resend_verification", to: "email_verification#resend", as: :resend_verification
+
+  # Registration route
+  post "/users", to: "registrations#create"
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
@@ -39,6 +46,17 @@ Rails.application.routes.draw do
     end
   end
 
+  # Account linking routes
+  namespace :account do
+    resource :nationbuilder_link, only: [ :show, :create, :destroy ] do
+      member do
+        get :status
+      end
+    end
+
+    resource :nationbuilder_sync, only: [ :create ]
+  end
+
   resources :roles, except: [ :new, :create, :destroy ] do
     member do
       get :users_with_role
@@ -48,4 +66,18 @@ Rails.application.routes.draw do
   # OAuth routes
   get "/auth/nationbuilder", to: "nationbuilder_auth#redirect"
   get "/auth/nationbuilder/callback", to: "nationbuilder_auth#callback"
+
+  # Component examples (development only)
+  if Rails.env.development?
+    get "component_examples", to: "component_examples#index"
+    get "component_examples/buttons", to: "component_examples#buttons"
+    get "component_examples/forms", to: "component_examples#forms"
+    get "component_examples/modals", to: "component_examples#modals"
+    get "component_examples/tables", to: "component_examples#tables"
+    get "component_examples/navigation", to: "component_examples#navigation"
+    get "component_examples/alerts", to: "component_examples#alerts"
+    get "component_examples/cards", to: "component_examples#cards"
+    get "component_examples/dropdowns", to: "component_examples#dropdowns"
+    get "component_examples/profiles", to: "component_examples#profiles"
+  end
 end

@@ -121,6 +121,9 @@ class NationbuilderUserService
       last_name: profile_data[:last_name]
       # Don't update email_address to avoid conflicts
     )
+
+    # Update NationBuilder profile data separately
+    user.update_nationbuilder_profile_data!(profile_data)
   rescue ActiveRecord::RecordInvalid => e
     Rails.logger.warn "Failed to update user profile from NationBuilder: #{e.message}"
     # Don't raise error for profile updates - user creation/login should still succeed

@@ -6,9 +6,17 @@ class SessionsController < ApplicationController
   end
 
   def create
-    permitted = params.permit(:email_address, :password, :authenticity_token, :commit)
+    permitted = params.permit(:email_address, :password, :remember_me, :authenticity_token, :commit)
+
+    # Check if required parameters are present
+    if permitted[:email_address].blank? || permitted[:password].blank?
+      redirect_to new_session_path, alert: "Try another email address or password."
+      return
+    end
+
     if user = User.authenticate_by(permitted.slice(:email_address, :password))
-      start_new_session_for user
+      remember_me = permitted[:remember_me] == "1"
+      start_new_session_for user, remember_me: remember_me
       redirect_to after_authentication_url
     else
       redirect_to new_session_path, alert: "Try another email address or password."
@@ -17,6 +25,6 @@ class SessionsController < ApplicationController
 
   def destroy
     terminate_session
-    redirect_to new_session_path
+    redirect_to root_path
   end
 end

@@ -1,0 +1,17 @@
+<%= content_tag card_tag, **card_attributes do %>
+  <% if header %>
+    <div class="<%= header_classes %>" data-test="card-header">
+      <%= header %>
+    </div>
+  <% end %>
+  
+  <div class="<%= header || footer ? body_classes : '' %>" data-test="card-body">
+    <%= content %>
+  </div>
+  
+  <% if footer %>
+    <div class="<%= footer_classes %>" data-test="card-footer">
+      <%= footer %>
+    </div>
+  <% end %>
+<% end %>

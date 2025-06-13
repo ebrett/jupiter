@@ -38,6 +38,7 @@
 
 /config/credentials/development.key
 
-/scripts/tailwind-ui
+/scripts/*
 .taskmaster
 .aider*
+

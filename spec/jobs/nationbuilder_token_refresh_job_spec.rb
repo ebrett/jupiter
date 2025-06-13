@@ -51,8 +51,8 @@ RSpec.describe NationbuilderTokenRefreshJob, type: :job do
       end
 
       it 'does not attempt token refresh' do
-        # No specific expectations needed - just ensure no errors
-        described_class.new.perform(999999)
+        expect { described_class.new.perform(999999) }.not_to raise_error
+        # Expect no errors
       end
     end
 
@@ -60,8 +60,8 @@ RSpec.describe NationbuilderTokenRefreshJob, type: :job do
       let(:user_without_token) { create(:user) }
 
       it 'does not attempt refresh' do
-        # No specific expectations needed - just ensure no errors
-        described_class.new.perform(user_without_token.id)
+        expect { described_class.new.perform(user_without_token.id) }.not_to raise_error
+        # Expect no errors
       end
     end
 
@@ -76,39 +76,40 @@ RSpec.describe NationbuilderTokenRefreshJob, type: :job do
   end
 
   describe '.enqueue_for_expiring_tokens' do
-    let!(:user1) { create(:user) }
-    let!(:user2) { create(:user) }
-    let!(:user3) { create(:user) }
+    let!(:user_with_soon_expiring_token1) { create(:user) }
+    let!(:user_with_soon_expiring_token2) { create(:user) }
+    let!(:user_with_distant_expiring_token) { create(:user) }
 
-    let!(:expiring_token1) do
+    let!(:soon_expiring_token1) do
       create(:nationbuilder_token,
-             user: user1,
+             user: user_with_soon_expiring_token1,
              expires_at: 20.minutes.from_now)
     end
 
-    let!(:expiring_token2) do
+    let!(:soon_expiring_token2) do
       create(:nationbuilder_token,
-             user: user2,
+             user: user_with_soon_expiring_token2,
              expires_at: 25.minutes.from_now)
     end
 
-    let!(:non_expiring_token) do
+    let(:distant_expiring_token) do
       create(:nationbuilder_token,
-             user: user3,
+             user: user_with_distant_expiring_token,
              expires_at: 2.hours.from_now)
     end
 
     it 'enqueues jobs for tokens expiring within buffer time' do
       expect {
         described_class.enqueue_for_expiring_tokens(30)
-      }.to have_enqueued_job(described_class).with(user1.id)
-        .and have_enqueued_job(described_class).with(user2.id)
+      }.to have_enqueued_job(described_class).with(user_with_soon_expiring_token1.id)
+        .and have_enqueued_job(described_class).with(user_with_soon_expiring_token2.id)
     end
 
     it 'does not enqueue jobs for tokens not expiring soon' do
+      distant_expiring_token # Create the token
       expect {
         described_class.enqueue_for_expiring_tokens(30)
-      }.not_to have_enqueued_job(described_class).with(user3.id)
+      }.not_to have_enqueued_job(described_class).with(user_with_distant_expiring_token.id)
     end
 
 

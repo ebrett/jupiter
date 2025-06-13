@@ -22,7 +22,7 @@ class NationbuilderAuthController < ApplicationController
     # Handle both authenticated and unauthenticated users
     if Current.user
       # Existing user linking their NationBuilder account
-      exchange_code_for_token
+      handle_account_linking
     else
       # New user signing in via NationBuilder
       authenticate_with_nationbuilder
@@ -103,5 +103,41 @@ class NationbuilderAuthController < ApplicationController
 
   def update_user_token(token_data)
     store_user_tokens(Current.user, token_data)
+  end
+
+  def handle_account_linking
+    # Exchange code for tokens
+    token_data = token_exchange_service.exchange_code_for_token(params[:code])
+
+    # Fetch user profile from NationBuilder
+    user_service = NationbuilderUserService.new(access_token: token_data[:access_token])
+    profile_data = user_service.fetch_user_profile
+
+    # Check if this NationBuilder account is already linked to another user
+    nationbuilder_uid = profile_data["id"].to_s
+    existing_user = User.find_by(nationbuilder_uid: nationbuilder_uid)
+
+    if existing_user && existing_user.id != Current.user.id
+      # This NationBuilder account is already linked to another user
+      flash[:alert] = "This NationBuilder account is already linked to another user."
+      redirect_to account_nationbuilder_link_path
+      return
+    end
+
+    # Update current user with NationBuilder info
+    Current.user.update!(
+      nationbuilder_uid: nationbuilder_uid,
+      first_name: Current.user.first_name.presence || profile_data["first_name"],
+      last_name: Current.user.last_name.presence || profile_data["last_name"]
+    )
+
+    # Store tokens
+    store_user_tokens(Current.user, token_data)
+
+    # Clear linking flag
+    session.delete(:linking_nationbuilder)
+
+    flash[:notice] = "Successfully linked your NationBuilder account!"
+    redirect_to account_nationbuilder_link_path
   end
 end

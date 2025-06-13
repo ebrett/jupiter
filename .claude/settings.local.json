@@ -31,7 +31,13 @@
       "Bash(bin/rspec spec/models/user_ransack_spec.rb --format documentation)",
       "Bash(bin/rspec spec/controllers/admin_controller_system_health_spec.rb --format documentation)",
       "Bash(bin/rspec:*)",
-      "Bash(bin/rubocop:*)"
+      "Bash(bin/rubocop:*)",
+      "Bash(touch:*)",
+      "Bash(sed:*)",
+      "Bash(curl:*)",
+      "Bash(git push:*)",
+      "Bash(mv:*)",
+      "Bash(pkill:*)"
     ],
     "deny": []
   },

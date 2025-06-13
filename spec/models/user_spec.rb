@@ -18,9 +18,17 @@ RSpec.describe User, type: :model do
     expect(user2).not_to be_valid
   end
 
-  it 'requires password_digest to be present' do
-    subject.password_digest = nil
+  it 'requires password for email/password users' do
+    subject.password = nil
     expect(subject).not_to be_valid
+  end
+
+  it 'allows NationBuilder users without password' do
+    nb_user = described_class.new(
+      email_address: 'nb@example.com',
+      nationbuilder_uid: 'nb123'
+    )
+    expect(nb_user).to be_valid
   end
 
   it 'authenticates with correct password' do
@@ -141,6 +149,45 @@ RSpec.describe User, type: :model do
       it "returns false for non-treasury roles" do
         user.add_role(:submitter)
         expect(user.can_process_payments?).to be false
+      end
+    end
+  end
+
+  describe "authentication methods" do
+    describe "#nationbuilder_user?" do
+      it "returns true for users with NationBuilder UID" do
+        user = build(:user, :nationbuilder_user)
+        expect(user.nationbuilder_user?).to be true
+      end
+
+      it "returns false for users without NationBuilder UID" do
+        user = build(:user, :email_password_user)
+        expect(user.nationbuilder_user?).to be false
+      end
+    end
+
+    describe "#email_password_user?" do
+      it "returns true for users with password_digest" do
+        user = create(:user, :email_password_user)
+        expect(user.email_password_user?).to be true
+      end
+
+      it "returns false for NationBuilder-only users" do
+        user = create(:user, :nationbuilder_user)
+        expect(user.email_password_user?).to be false
+      end
+    end
+
+    describe "password validation" do
+      it "validates password length for email/password users" do
+        user = build(:user, password: "short")
+        expect(user).not_to be_valid
+        expect(user.errors[:password]).to include("is too short (minimum is 8 characters)")
+      end
+
+      it "doesn't validate password for NationBuilder-only users" do
+        user = build(:user, :nationbuilder_user)
+        expect(user).to be_valid
       end
     end
   end
