@@ -130,33 +130,74 @@ class User < ApplicationRecord
     false
   end
 
-  # NationBuilder profile data methods
+  # NationBuilder profile data methods with memoization
   def nationbuilder_tags
-    return [] unless nationbuilder_profile_data
-    nationbuilder_profile_data["tags"] || []
+    @nationbuilder_tags ||= begin
+      return [] unless nationbuilder_profile_data
+      nationbuilder_profile_data["tags"] || []
+    end
   end
 
   def nationbuilder_phone
-    return nil unless nationbuilder_profile_data
-    nationbuilder_profile_data["phone"]
+    @nationbuilder_phone ||= begin
+      return nil unless nationbuilder_profile_data
+      nationbuilder_profile_data["phone"]
+    end
   end
 
   def nationbuilder_raw_data
-    return {} unless nationbuilder_profile_data
-    nationbuilder_profile_data["raw_data"] || {}
+    @nationbuilder_raw_data ||= begin
+      return {} unless nationbuilder_profile_data
+      nationbuilder_profile_data["raw_data"] || {}
+    end
   end
 
   def has_nationbuilder_profile_data?
     nationbuilder_profile_data.present?
   end
 
+  private
+
+  def sanitize_raw_data(raw_data)
+    return {} unless raw_data.is_a?(Hash)
+    
+    # Remove potentially sensitive keys and limit data size
+    sanitized = raw_data.except(
+      'password', 'secret', 'token', 'key', 'private', 'credential',
+      'authentication', 'authorization', 'session', 'cookie'
+    )
+    
+    # Limit the size of the raw data to prevent storage bloat
+    # Convert to JSON and back to ensure it's serializable and limit size
+    json_string = sanitized.to_json
+    return {} if json_string.bytesize > 10.kilobytes
+    
+    JSON.parse(json_string)
+  rescue JSON::GeneratorError, JSON::ParserError
+    # Return empty hash if data is not serializable
+    {}
+  end
+
+  def clear_profile_memoization
+    @nationbuilder_tags = nil
+    @nationbuilder_phone = nil
+    @nationbuilder_raw_data = nil
+  end
+
   def update_nationbuilder_profile_data!(profile_data)
+    # Validate and sanitize raw_data before storing
+    raw_data = sanitize_raw_data(profile_data[:raw_data] || {})
+    
     self.nationbuilder_profile_data = {
       "tags" => profile_data[:tags] || [],
       "phone" => profile_data[:phone],
-      "raw_data" => profile_data[:raw_data] || {},
+      "raw_data" => raw_data,
       "last_synced_at" => Time.current.iso8601
     }
+    
+    # Clear memoized profile data since we're updating it
+    clear_profile_memoization
+    
     save!
   end
 

@@ -1,6 +1,15 @@
 class NationbuilderProfileComponent < Catalyst::BaseComponent
   include ActionView::Helpers::DateHelper
 
+  # Configuration for icon mappings
+  ICON_MAPPINGS = {
+    "phone" => "phone",
+    "tag" => "tag",
+    "refresh" => "arrow-path"
+  }.freeze
+  
+  DEFAULT_ICON = "information-circle".freeze
+
   # Make Current available in the component
   delegate :current_user, to: :helpers
 
@@ -121,15 +130,6 @@ class NationbuilderProfileComponent < Catalyst::BaseComponent
   end
 
   def heroicon_name(icon)
-    case icon
-    when "phone"
-      "phone"
-    when "tag"
-      "tag"
-    when "refresh"
-      "arrow-path"
-    else
-      "information-circle"
-    end
+    ICON_MAPPINGS[icon] || DEFAULT_ICON
   end
 end

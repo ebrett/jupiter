@@ -38,9 +38,13 @@ class NationbuilderProfileSyncService
     token = user.nationbuilder_tokens.first
     return nil unless token
 
-    # Refresh token if needed
+    # Refresh token if needed with locking to prevent race conditions
     if token.needs_refresh?
-      token.refresh!
+      token.with_lock do
+        # Double-check after acquiring lock in case another process refreshed it
+        token.reload
+        token.refresh! if token.needs_refresh?
+      end
     end
 
     token.valid_for_api_use? ? token : nil
@@ -58,13 +62,16 @@ class NationbuilderProfileSyncService
   end
 
   def update_user_profile(profile_data)
-    # Update basic fields if they're blank (don't overwrite existing data)
-    user.first_name = profile_data[:first_name] if user.first_name.blank?
-    user.last_name = profile_data[:last_name] if user.last_name.blank?
+    # Wrap all database operations in a transaction
+    User.transaction do
+      # Update basic fields if they're blank (don't overwrite existing data)
+      user.first_name = profile_data[:first_name] if user.first_name.blank?
+      user.last_name = profile_data[:last_name] if user.last_name.blank?
 
-    # Always update the profile data to get latest tags and metadata
-    user.update_nationbuilder_profile_data!(profile_data)
+      # Always update the profile data to get latest tags and metadata
+      user.update_nationbuilder_profile_data!(profile_data)
 
-    user.save! if user.changed?
+      user.save! if user.changed?
+    end
   end
 end
