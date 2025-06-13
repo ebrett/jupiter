@@ -156,6 +156,23 @@ class User < ApplicationRecord
     nationbuilder_profile_data.present?
   end
 
+  def update_nationbuilder_profile_data!(profile_data)
+    # Validate and sanitize raw_data before storing
+    raw_data = sanitize_raw_data(profile_data[:raw_data] || {})
+    
+    self.nationbuilder_profile_data = {
+      "tags" => profile_data[:tags] || [],
+      "phone" => profile_data[:phone],
+      "raw_data" => raw_data,
+      "last_synced_at" => Time.current.iso8601
+    }
+    
+    # Clear memoized profile data since we're updating it
+    clear_profile_memoization
+    
+    save!
+  end
+
   private
 
   def sanitize_raw_data(raw_data)
@@ -182,23 +199,6 @@ class User < ApplicationRecord
     @nationbuilder_tags = nil
     @nationbuilder_phone = nil
     @nationbuilder_raw_data = nil
-  end
-
-  def update_nationbuilder_profile_data!(profile_data)
-    # Validate and sanitize raw_data before storing
-    raw_data = sanitize_raw_data(profile_data[:raw_data] || {})
-    
-    self.nationbuilder_profile_data = {
-      "tags" => profile_data[:tags] || [],
-      "phone" => profile_data[:phone],
-      "raw_data" => raw_data,
-      "last_synced_at" => Time.current.iso8601
-    }
-    
-    # Clear memoized profile data since we're updating it
-    clear_profile_memoization
-    
-    save!
   end
 
   private
