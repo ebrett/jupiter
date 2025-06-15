@@ -1,5 +1,6 @@
 # Base class for all recovery strategies
-class BaseRecoveryStrategy
+module RecoveryStrategies
+  class BaseRecoveryStrategy
   attr_reader :user, :error, :context, :logger
 
   def initialize(user:, error:, context: {}, logger: Rails.logger)
@@ -48,5 +49,6 @@ class BaseRecoveryStrategy
 
   def notification_service
     @notification_service ||= NationbuilderNotificationService.new(logger: logger)
+  end
   end
 end

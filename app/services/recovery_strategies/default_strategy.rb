@@ -1,6 +1,7 @@
 require_relative "base_recovery_strategy"
 
-class DefaultStrategy < BaseRecoveryStrategy
+module RecoveryStrategies
+  class DefaultStrategy < BaseRecoveryStrategy
   def self.can_handle?(error)
     # This strategy handles any error not handled by other strategies
     true
@@ -78,5 +79,6 @@ class DefaultStrategy < BaseRecoveryStrategy
     else
       "An unexpected error occurred. Please try again later."
     end
+  end
   end
 end

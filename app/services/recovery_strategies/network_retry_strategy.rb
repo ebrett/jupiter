@@ -1,6 +1,7 @@
 require_relative "base_recovery_strategy"
 
-class NetworkRetryStrategy < BaseRecoveryStrategy
+module RecoveryStrategies
+  class NetworkRetryStrategy < BaseRecoveryStrategy
   MAX_RETRIES = 3
   BASE_DELAY = 2 # seconds
 
@@ -80,5 +81,6 @@ class NetworkRetryStrategy < BaseRecoveryStrategy
 
     # Cap at 5 minutes
     [ delay, 300 ].min
+  end
   end
 end

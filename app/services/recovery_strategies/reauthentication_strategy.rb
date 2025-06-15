@@ -1,6 +1,7 @@
 require_relative "base_recovery_strategy"
 
-class ReauthenticationStrategy < BaseRecoveryStrategy
+module RecoveryStrategies
+  class ReauthenticationStrategy < BaseRecoveryStrategy
   def self.can_handle?(error)
     error.is_a?(NationbuilderOauthErrors::InvalidRefreshTokenError) ||
       error.is_a?(NationbuilderOauthErrors::AccessRevokedError) ||
@@ -89,5 +90,6 @@ class ReauthenticationStrategy < BaseRecoveryStrategy
     else
       "/auth/nationbuilder"
     end
+  end
   end
 end

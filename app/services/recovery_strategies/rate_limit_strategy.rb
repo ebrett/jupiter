@@ -1,6 +1,7 @@
 require_relative "base_recovery_strategy"
 
-class RateLimitStrategy < BaseRecoveryStrategy
+module RecoveryStrategies
+  class RateLimitStrategy < BaseRecoveryStrategy
   def self.can_handle?(error)
     error.is_a?(NationbuilderOauthErrors::RateLimitError)
   end
@@ -81,5 +82,6 @@ class RateLimitStrategy < BaseRecoveryStrategy
       retry_delay: retry_delay,
       endpoint: context[:path]
     }, expires_in: retry_delay)
+  end
   end
 end

@@ -1,6 +1,7 @@
 require_relative "base_recovery_strategy"
 
-class TokenRefreshStrategy < BaseRecoveryStrategy
+module RecoveryStrategies
+  class TokenRefreshStrategy < BaseRecoveryStrategy
   def self.can_handle?(error)
     error.is_a?(NationbuilderOauthErrors::InvalidAccessTokenError) ||
       (error.respond_to?(:can_retry_with_refresh?) && error.can_retry_with_refresh?)
@@ -75,10 +76,11 @@ class TokenRefreshStrategy < BaseRecoveryStrategy
       error_description: "Unable to refresh access token"
     )
 
-    ReauthenticationStrategy.new(
+    RecoveryStrategies::ReauthenticationStrategy.new(
       user: user,
       error: reauth_error,
       context: context.merge(original_error: error)
     ).execute
+  end
   end
 end

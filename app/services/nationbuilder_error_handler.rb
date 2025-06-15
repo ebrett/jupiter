@@ -56,7 +56,7 @@ class NationbuilderErrorHandler
     strategy_class = find_strategy_for_error(error)
 
     # Default strategy means we don't have a specific recovery path
-    strategy_class != DefaultStrategy
+    strategy_class != RecoveryStrategies::DefaultStrategy
   end
 
   # Get recovery metadata for an error
@@ -75,16 +75,16 @@ class NationbuilderErrorHandler
 
   def default_strategies
     [
-      TokenRefreshStrategy,
-      ReauthenticationStrategy,
-      RateLimitStrategy,
-      NetworkRetryStrategy,
-      DefaultStrategy # Must be last as it handles everything
+      RecoveryStrategies::TokenRefreshStrategy,
+      RecoveryStrategies::ReauthenticationStrategy,
+      RecoveryStrategies::RateLimitStrategy,
+      RecoveryStrategies::NetworkRetryStrategy,
+      RecoveryStrategies::DefaultStrategy # Must be last as it handles everything
     ]
   end
 
   def find_strategy_for_error(error)
-    strategies.find { |strategy| strategy.can_handle?(error) } || DefaultStrategy
+    strategies.find { |strategy| strategy.can_handle?(error) } || RecoveryStrategies::DefaultStrategy
   end
 
   def can_retry?(error)
