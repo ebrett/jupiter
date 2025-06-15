@@ -23,5 +23,9 @@ module Jupiter
     #
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
+
+    # Add middleware to clean up NationBuilder connections
+    # config.autoload_paths << Rails.root.join("app", "middleware")
+    # config.middleware.use "NationbuilderConnectionCleanup"
   end
 end

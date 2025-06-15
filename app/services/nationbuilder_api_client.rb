@@ -12,14 +12,20 @@ class NationbuilderApiClient
   class AuthenticationError < ApiError; end
   class TokenRefreshError < ApiError; end
 
+  # Connection pool configuration
+  CONNECTION_POOL_SIZE = 10
+  CONNECTION_TIMEOUT = 5
+  KEEP_ALIVE_TIMEOUT = 30
+  READ_TIMEOUT = 30
+
   def initialize(user:)
     @user = user
     @nation_slug = ENV["NATIONBUILDER_NATION_SLUG"]
-    @refresh_mutex = Mutex.new
-    @pending_requests = Queue.new
-    @refreshing = false
     @error_handler = NationbuilderErrorHandler.new(user: user)
     @audit_logger = NationbuilderAuditLogger.new
+    @current_token = nil
+    @token_cache_expires_at = nil
+    @refresh_mutex = Mutex.new
 
     raise ConfigurationError, "NATIONBUILDER_NATION_SLUG environment variable is not set" if @nation_slug.nil? || @nation_slug.strip.empty?
     raise ArgumentError, "User must have a nationbuilder_token" unless current_token
@@ -44,9 +50,6 @@ class NationbuilderApiClient
     )
 
     begin
-      # If a refresh is in progress, wait for it to complete
-      wait_for_refresh_if_needed
-
       # Check if token needs refresh before making request
       ensure_valid_token!
 
@@ -121,14 +124,28 @@ class NationbuilderApiClient
     request(method: :delete, path: path, params: params, headers: headers)
   end
 
+  # Cached API requests for frequently accessed data
+  def get_with_cache(path, params: {}, cache_options: {})
+    cache_key = "nationbuilder:#{@user.id}:#{path}:#{params.to_json}"
+    expires_in = cache_options[:expires_in] || 5.minutes
+
+    Rails.cache.fetch(cache_key, expires_in: expires_in) do
+      get(path, params: params)
+    end
+  end
+
   private
 
   def current_token(reload: false)
-    if reload
-      @user.reload.nationbuilder_tokens.order(created_at: :desc).first
-    else
-      @user.nationbuilder_tokens.order(created_at: :desc).first
+    # Use cached token if available and not expired
+    if !reload && @current_token && @token_cache_expires_at && @token_cache_expires_at > Time.current
+      return @current_token
     end
+
+    # Reload from database
+    @current_token = @user.reload.nationbuilder_tokens.order(created_at: :desc).first
+    @token_cache_expires_at = 30.seconds.from_now
+    @current_token
   end
 
   def ensure_valid_token!
@@ -136,31 +153,58 @@ class NationbuilderApiClient
 
     if token.needs_refresh?
       Rails.logger.info "Token needs refresh for user #{@user.id}, attempting refresh"
-      refresh_token_if_needed
+      refresh_token_with_lock
     end
   end
 
-  def refresh_token_if_needed
-    @refresh_mutex.synchronize do
-      # Double-check if token still needs refresh (another thread might have refreshed it)
-      token = current_token(reload: true)
-      return unless token.needs_refresh?
+  def refresh_token_with_lock
+    lock_key = "nationbuilder_token_refresh:#{@user.id}"
 
-      # Mark that we're refreshing to queue subsequent requests
-      @refreshing = true
-
+    # Use database advisory lock for distributed locking
+    if ActiveRecord::Base.connection.respond_to?(:with_advisory_lock)
       begin
-        success = token.refresh!
-
-        unless success
-          Rails.logger.error "Failed to refresh token for user #{@user.id}"
-          raise TokenRefreshError, "Unable to refresh access token"
+        ActiveRecord::Base.connection.with_advisory_lock(lock_key, timeout_seconds: 30) do
+          perform_token_refresh
         end
-
-        Rails.logger.info "Token refresh successful for user #{@user.id}"
-      ensure
-        @refreshing = false
+      rescue => e
+        # Handle any advisory lock errors
+        Rails.logger.error "Failed to acquire lock for token refresh: #{e.message}"
+        # Check if another process already refreshed the token
+        token = current_token(reload: true)
+        unless token.needs_refresh?
+          Rails.logger.info "Token was refreshed by another process"
+          return
+        end
+        raise TokenRefreshError, "Unable to acquire lock for token refresh"
       end
+    else
+      # Fallback to mutex for test environment or databases without advisory locks
+      @refresh_mutex ||= Mutex.new
+      @refresh_mutex.synchronize { perform_token_refresh }
+    end
+  end
+
+  def perform_token_refresh
+    # Double-check if token still needs refresh after acquiring lock
+    token = current_token(reload: true)
+    return unless token.needs_refresh?
+
+    begin
+      success = token.refresh!
+
+      unless success
+        Rails.logger.error "Failed to refresh token for user #{@user.id}"
+        raise TokenRefreshError, "Unable to refresh access token"
+      end
+
+      # Clear cached token after refresh
+      @current_token = nil
+      @token_cache_expires_at = nil
+
+      Rails.logger.info "Token refresh successful for user #{@user.id}"
+    rescue => e
+      Rails.logger.error "Token refresh failed for user #{@user.id}: #{e.message}"
+      raise
     end
   end
 
@@ -173,9 +217,36 @@ class NationbuilderApiClient
     request = build_http_request(method: method, uri: uri, params: params, headers: headers)
     request["Authorization"] = "Bearer #{token.access_token}"
 
-    http = Net::HTTP.new(uri.host, uri.port)
-    http.use_ssl = true
-    http.request(request)
+    # Use persistent HTTP connection from pool
+    response = nil
+    http_connection_for(uri) do |http|
+      response = http.request(request)
+    end
+
+    response
+  end
+
+  def http_connection_for(uri)
+    # Simple connection pooling using thread-local storage
+    thread_key = "nationbuilder_http_#{uri.host}:#{uri.port}"
+    http = Thread.current[thread_key]
+
+    if http.nil? || !http.started?
+      http = Net::HTTP.new(uri.host, uri.port)
+      http.use_ssl = true
+      http.keep_alive_timeout = KEEP_ALIVE_TIMEOUT
+      http.open_timeout = CONNECTION_TIMEOUT
+      http.read_timeout = READ_TIMEOUT
+      http.start
+      Thread.current[thread_key] = http
+    end
+
+    yield http
+  rescue => e
+    # Close connection on error and remove from thread storage
+    http&.finish rescue nil
+    Thread.current[thread_key] = nil
+    raise e
   end
 
   def build_uri(path)
@@ -299,35 +370,6 @@ class NationbuilderApiClient
     error.message.downcase.include?("token")
   end
 
-  def refresh_token_and_retry(method:, path:, params:, headers:)
-    # Legacy method - now uses the error handler
-    refresh_token_if_needed
-    # Retry the request without auth failure retry to prevent infinite loops
-    request(method: method, path: path, params: params, headers: headers, retry_on_auth_failure: false)
-  end
-
-  def wait_for_refresh_if_needed
-    # If a refresh is currently in progress, wait for it to complete
-    if @refreshing
-      Rails.logger.debug "Waiting for token refresh to complete for user #{@user.id}"
-
-      # Simple polling with exponential backoff
-      wait_time = 0.1
-      max_wait = 30 # seconds
-      total_waited = 0
-
-      while @refreshing && total_waited < max_wait
-        sleep(wait_time)
-        total_waited += wait_time
-        wait_time = [ wait_time * 1.5, 2.0 ].min # Cap at 2 seconds
-      end
-
-      if @refreshing
-        Rails.logger.warn "Token refresh taking too long for user #{@user.id}, proceeding anyway"
-      end
-    end
-  end
-
   def log_request(method, path, params, correlation_id = nil)
     Rails.logger.debug "NationBuilder API Request [#{correlation_id}]: #{method.upcase} #{path} with params: #{params.inspect}"
   end
@@ -338,5 +380,14 @@ class NationbuilderApiClient
 
   def generate_correlation_id
     "api_#{SecureRandom.hex(6)}"
+  end
+
+  # Class method to clean up connections at the end of requests
+  def self.cleanup_connections
+    Thread.current.keys.select { |k| k.to_s.start_with?("nationbuilder_http_") }.each do |key|
+      http = Thread.current[key]
+      http&.finish rescue nil
+      Thread.current[key] = nil
+    end
   end
 end
