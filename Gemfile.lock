@@ -107,6 +107,8 @@ GEM
       irb (~> 1.10)
       reline (>= 0.3.8)
     diff-lcs (1.6.2)
+    dockerfile-rails (1.7.9)
+      rails (>= 3.0.0)
     dotenv (3.1.8)
     dotenv-rails (3.1.8)
       dotenv (= 3.1.8)
@@ -441,6 +443,7 @@ DEPENDENCIES
   brakeman
   capybara
   debug
+  dockerfile-rails (>= 1.7)
   dotenv-rails
   factory_bot_rails
   importmap-rails
