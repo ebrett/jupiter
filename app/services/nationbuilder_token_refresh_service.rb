@@ -1,9 +1,15 @@
 require "net/http"
 require "uri"
 require "json"
+require_relative "concerns/circuit_breaker"
 
 class NationbuilderTokenRefreshService
+  include CircuitBreaker
+
   class TokenRefreshError < StandardError; end
+  class TokenExpiredError < TokenRefreshError; end
+  class InvalidGrantError < TokenRefreshError; end
+  class RateLimitError < TokenRefreshError; end
 
   def initialize(client_id:, client_secret:)
     @client_id = client_id
@@ -12,18 +18,23 @@ class NationbuilderTokenRefreshService
     raise "NATIONBUILDER_NATION_SLUG environment variable is not set" if @nation_slug.nil? || @nation_slug.strip.empty?
   end
 
+
   def refresh_token(nationbuilder_token)
     return false if nationbuilder_token.refresh_token.blank?
 
-    attempt_refresh(nationbuilder_token)
-  rescue TokenRefreshError => e
-    Rails.logger.error "Token refresh failed for user #{nationbuilder_token.user_id}: #{e.message}"
-    trigger_refresh_failed_hook(nationbuilder_token, e)
-    false
-  rescue StandardError => e
-    Rails.logger.error "Unexpected error during token refresh for user #{nationbuilder_token.user_id}: #{e.message}"
-    trigger_refresh_failed_hook(nationbuilder_token, e)
-    false
+    start_time = Time.current
+
+    begin
+      attempt_refresh(nationbuilder_token)
+    rescue TokenRefreshError => e
+      log_refresh_failure(nationbuilder_token, e, Time.current - start_time)
+      trigger_refresh_failed_hook(nationbuilder_token, e)
+      false
+    rescue StandardError => e
+      log_refresh_failure(nationbuilder_token, e, Time.current - start_time)
+      trigger_refresh_failed_hook(nationbuilder_token, e)
+      false
+    end
   end
 
   private
@@ -37,6 +48,9 @@ class NationbuilderTokenRefreshService
       update_token_with_response(nationbuilder_token, token_data)
       trigger_refresh_success_hook(nationbuilder_token)
       true
+    rescue CircuitBreaker::CircuitOpenError => e
+      Rails.logger.error "Circuit breaker open for token refresh: #{e.message}"
+      raise TokenRefreshError, "Token refresh service temporarily unavailable"
     rescue TokenRefreshError => e
       retry_count += 1
       if retry_count <= max_retries && should_retry?(e)
@@ -50,6 +64,12 @@ class NationbuilderTokenRefreshService
 
   def make_refresh_request(refresh_token)
     uri = URI.parse("https://#{@nation_slug}.nationbuilder.com/oauth/token")
+
+    http = Net::HTTP.new(uri.host, uri.port)
+    http.use_ssl = true
+    http.open_timeout = 5
+    http.read_timeout = 30
+
     req = Net::HTTP::Post.new(uri)
     req.set_form_data(
       client_id: @client_id,
@@ -58,11 +78,8 @@ class NationbuilderTokenRefreshService
       grant_type: "refresh_token"
     )
 
-    res = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) do |http|
-      http.request(req)
-    end
-
-    handle_refresh_response(res)
+    response = http.request(req)
+    handle_refresh_response(response)
   end
 
   def handle_refresh_response(response)
@@ -70,13 +87,40 @@ class NationbuilderTokenRefreshService
     when Net::HTTPSuccess
       JSON.parse(response.body, symbolize_names: true)
     when Net::HTTPUnauthorized, Net::HTTPForbidden
-      raise TokenRefreshError, "Invalid refresh token: #{response.code} - #{response.body}"
+      error_data = parse_error_response(response)
+      raise_classified_error(error_data, response.code)
     when Net::HTTPBadRequest
-      error_data = JSON.parse(response.body) rescue {}
-      error_description = error_data["error_description"] || error_data["error"] || "Bad request"
-      raise TokenRefreshError, "Token refresh failed: #{error_description}"
+      error_data = parse_error_response(response)
+      raise_classified_error(error_data, response.code)
+    when Net::HTTPTooManyRequests
+      retry_after = response["Retry-After"]&.to_i || 60
+      raise RateLimitError, "Rate limit exceeded. Retry after #{retry_after} seconds"
+    when Net::HTTPServerError
+      raise TokenRefreshError, "Server error during token refresh: #{response.code}"
     else
       raise TokenRefreshError, "HTTP error during token refresh: #{response.code} - #{response.body}"
+    end
+  end
+
+  def parse_error_response(response)
+    JSON.parse(response.body, symbolize_names: true)
+  rescue JSON::ParserError
+    { error: "unknown_error", error_description: response.body }
+  end
+
+  def raise_classified_error(error_data, status_code)
+    error_type = error_data[:error] || "unknown_error"
+    error_description = error_data[:error_description] || error_data[:error] || "Unknown error"
+
+    case error_type
+    when "invalid_grant"
+      raise InvalidGrantError, "Invalid refresh token: #{error_description}"
+    when "expired_token"
+      raise TokenExpiredError, "Refresh token expired: #{error_description}"
+    when "invalid_client"
+      raise TokenRefreshError, "Invalid client credentials: #{error_description}"
+    else
+      raise TokenRefreshError, "Token refresh failed (#{status_code}): #{error_description}"
     end
   end
 
@@ -91,10 +135,17 @@ class NationbuilderTokenRefreshService
   end
 
   def should_retry?(error)
-    # Retry on network errors, server errors, but not on auth errors
-    error.message.include?("HTTP error") &&
-      !error.message.include?("401") &&
-      !error.message.include?("403")
+    case error
+    when Net::HTTPServerError, Net::ReadTimeout, Net::OpenTimeout
+      true
+    when RateLimitError
+      true
+    when TokenRefreshError
+      # Don't retry on authentication/authorization errors
+      !error.message.match?(/401|403|invalid_grant|expired_token|invalid_client/)
+    else
+      false
+    end
   end
 
   def exponential_backoff_delay(retry_count)
@@ -111,14 +162,49 @@ class NationbuilderTokenRefreshService
   def trigger_refresh_success_hook(nationbuilder_token)
     Rails.logger.info "Token refresh successful for user #{nationbuilder_token.user_id}"
 
-    # Future: Add event system or webhook notifications here
-    # Example: EventBus.publish(:token_refreshed, { user_id: nationbuilder_token.user_id })
+    # Audit log the success
+    if defined?(NationbuilderAuditLogger)
+      audit_logger = NationbuilderAuditLogger.new
+      audit_logger.log_token_event(:token_refreshed,
+        user: nationbuilder_token.user,
+        details: {
+          token_id: nationbuilder_token.id,
+          expires_at: nationbuilder_token.expires_at
+        }
+      )
+    end
   end
 
   def trigger_refresh_failed_hook(nationbuilder_token, error)
     Rails.logger.error "Token refresh failed for user #{nationbuilder_token.user_id}: #{error.message}"
 
-    # Future: Add event system, notifications, or admin alerts here
-    # Example: EventBus.publish(:token_refresh_failed, { user_id: nationbuilder_token.user_id, error: error.message })
+    # Audit log the failure
+    if defined?(NationbuilderAuditLogger)
+      audit_logger = NationbuilderAuditLogger.new
+      audit_logger.log_token_event(:token_refresh_failed,
+        user: nationbuilder_token.user,
+        details: {
+          token_id: nationbuilder_token.id,
+          error: error.class.name,
+          error_message: error.message
+        }
+      )
+    end
   end
+
+  def log_refresh_failure(nationbuilder_token, error, duration)
+    Rails.logger.error "Token refresh failed for user #{nationbuilder_token.user_id} after #{duration.round(2)}s: #{error.class.name} - #{error.message}"
+  end
+
+  # Fallback method when circuit is open
+  def handle_circuit_open(refresh_token)
+    Rails.logger.error "Circuit breaker is open for token refresh service"
+    raise TokenRefreshError, "Token refresh service is temporarily unavailable due to repeated failures"
+  end
+
+  # Circuit breaker configuration - must be after method definitions
+  circuit_breaker :make_refresh_request,
+    failure_threshold: 3,
+    timeout: 30.seconds,
+    fallback: :handle_circuit_open
 end
