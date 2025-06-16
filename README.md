@@ -141,6 +141,81 @@ To test OAuth functionality:
 
 The application includes comprehensive error handling and graceful degradation for OAuth failures.
 
+## Deployment
+
+### Fly.io Deployment
+
+The application is configured for deployment on Fly.io. Follow these steps to deploy:
+
+1. **Install Fly CLI**:
+   ```bash
+   curl -L https://fly.io/install.sh | sh
+   ```
+
+2. **Authenticate with Fly**:
+   ```bash
+   fly auth login
+   ```
+
+3. **Deploy the application**:
+   ```bash
+   fly deploy
+   ```
+
+### Connecting NationBuilder to Your Fly Deployment
+
+To enable NationBuilder OAuth authentication on your Fly deployment:
+
+1. **Register your application with NationBuilder**:
+   - Log in to your NationBuilder nation's control panel
+   - Navigate to Settings → Developer → OAuth Applications
+   - Click "Register a new application"
+   - Fill in the application details:
+     - **Name**: Jupiter (or your preferred name)
+     - **Redirect URI**: `https://your-app-name.fly.dev/auth/nationbuilder/callback`
+     - Save the application
+
+2. **Note your OAuth credentials**:
+   - **Client ID**: Displayed after registration
+   - **Client Secret**: Displayed after registration
+   - **Nation Slug**: Your NationBuilder nation's subdomain (e.g., `yournation` from `yournation.nationbuilder.com`)
+
+3. **Set Fly.io secrets**:
+   ```bash
+   fly secrets set NATIONBUILDER_CLIENT_ID="your_client_id"
+   fly secrets set NATIONBUILDER_CLIENT_SECRET="your_client_secret"
+   fly secrets set NATIONBUILDER_REDIRECT_URI="https://your-app-name.fly.dev/auth/nationbuilder/callback"
+   fly secrets set NATIONBUILDER_NATION_SLUG="your_nation_slug"
+   ```
+
+4. **Set additional required secrets**:
+   ```bash
+   # Generate a secure secret key base
+   fly secrets set SECRET_KEY_BASE="$(openssl rand -hex 64)"
+   
+   # Set Rails master key (from config/master.key)
+   fly secrets set RAILS_MASTER_KEY="your_master_key_content"
+   ```
+
+5. **Deploy with the new configuration**:
+   ```bash
+   fly deploy
+   ```
+
+6. **Verify the integration**:
+   - Visit `https://your-app-name.fly.dev`
+   - Click "Sign in with NationBuilder"
+   - You should be redirected to NationBuilder's authorization page
+   - After authorizing, you'll be redirected back to your Jupiter app
+
+### Troubleshooting Deployment
+
+- **Check logs**: `fly logs`
+- **SSH into container**: `fly ssh console`
+- **Check secrets**: `fly secrets list`
+- **Database issues**: Ensure `DATABASE_URL` is properly set by Fly
+- **OAuth errors**: Verify redirect URI matches exactly between NationBuilder and your Fly secrets
+
 ## Development Setup
 
 1. Install dependencies:
