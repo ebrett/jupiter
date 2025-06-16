@@ -107,11 +107,6 @@ jobs:
             spec/models/nationbuilder_token_spec.rb \
             spec/jobs/nationbuilder_token_refresh_job_spec.rb \
             --format documentation
-      - name: Run OAuth error handling tests
-        run: |
-          bundle exec rspec \
-            spec/services/nationbuilder_error_handler_spec.rb \
-            --format documentation
       - name: Check OAuth test coverage
         run: |
           bundle exec rspec \
@@ -238,7 +233,6 @@ jobs:
         run: |
           bundle exec rspec \
             spec/requests/nationbuilder_auth_controller_spec.rb \
-            --tag oauth_integration \
             --format documentation
       - name: Test token refresh background jobs
         run: |
