@@ -37,7 +37,8 @@
       "Bash(curl:*)",
       "Bash(git push:*)",
       "Bash(mv:*)",
-      "Bash(pkill:*)"
+      "Bash(pkill:*)",
+      "Bash(fly logs:*)"
     ],
     "deny": []
   },
