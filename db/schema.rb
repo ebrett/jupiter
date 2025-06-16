@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_06_12_121700) do
+ActiveRecord::Schema[8.0].define(version: 2025_06_16_114000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -23,7 +23,18 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_12_121700) do
     t.jsonb "raw_response"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "rotated_at"
+    t.integer "version"
     t.index ["user_id"], name: "index_nationbuilder_tokens_on_user_id"
+  end
+
+  create_table "rails_sessions", force: :cascade do |t|
+    t.string "session_id", null: false
+    t.text "data"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["session_id"], name: "index_rails_sessions_on_session_id", unique: true
+    t.index ["updated_at"], name: "index_rails_sessions_on_updated_at"
   end
 
   create_table "roles", force: :cascade do |t|
@@ -42,6 +53,29 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_12_121700) do
     t.datetime "updated_at", null: false
     t.boolean "remember_me", default: false, null: false
     t.index ["user_id"], name: "index_sessions_on_user_id"
+  end
+
+  create_table "setup_wizard_steps", force: :cascade do |t|
+    t.bigint "setup_wizard_id", null: false
+    t.string "name", null: false
+    t.string "status", default: "pending", null: false
+    t.text "error_message"
+    t.datetime "completed_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["setup_wizard_id", "name"], name: "index_setup_wizard_steps_on_setup_wizard_id_and_name", unique: true
+    t.index ["setup_wizard_id"], name: "index_setup_wizard_steps_on_setup_wizard_id"
+  end
+
+  create_table "setup_wizards", force: :cascade do |t|
+    t.datetime "completed_at"
+    t.string "current_step", null: false
+    t.jsonb "nationbuilder_config", default: {}, null: false
+    t.jsonb "admin_users", default: {}, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["completed_at"], name: "index_setup_wizards_on_completed_at"
+    t.index ["current_step"], name: "index_setup_wizards_on_current_step"
   end
 
   create_table "user_roles", force: :cascade do |t|
@@ -73,6 +107,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_12_121700) do
 
   add_foreign_key "nationbuilder_tokens", "users"
   add_foreign_key "sessions", "users"
+  add_foreign_key "setup_wizard_steps", "setup_wizards"
   add_foreign_key "user_roles", "roles"
   add_foreign_key "user_roles", "users"
 end
