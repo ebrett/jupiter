@@ -28,20 +28,40 @@ class NationbuilderAuthController < ApplicationController
       authenticate_with_nationbuilder
     end
   rescue NationbuilderTokenExchangeService::TokenExchangeError => e
-    oauth_error_flash("authentication_error", "NationBuilder authentication failed: #{e.message}")
+    Rails.logger.error "NationBuilder OAuth: TokenExchangeError - #{e.message}"
+
+    # Provide user-friendly error messages based on the error
+    user_message = case e.message
+    when /invalid_grant/
+      "The authorization code has expired or is invalid. Please try signing in again."
+    when /redirect_uri_mismatch/
+      "Configuration error: The redirect URL doesn't match. Please contact support."
+    when /invalid_client/
+      "Configuration error: Invalid client credentials. Please contact support."
+    when /cloudflare_challenge/
+      "NationBuilder OAuth is currently blocked by Cloudflare security. Please contact the NationBuilder site administrator to whitelist OAuth API endpoints."
+    else
+      "Unable to complete sign-in with NationBuilder. Please try again."
+    end
+
+    flash[:alert] = user_message
     redirect_to new_session_path
   rescue NationbuilderUserService::UserCreationError => e
-    oauth_error_flash("permissions_error", "Unable to create account: #{e.message}")
+    Rails.logger.error "NationBuilder OAuth: UserCreationError - #{e.message}"
+    flash[:alert] = "Unable to create your account. Please try again or contact support."
     redirect_to new_session_path
   rescue NationbuilderOauthErrors::NetworkError => e
-    oauth_error_flash("network_error", "Connection to NationBuilder failed. Please check your internet connection and try again.")
+    Rails.logger.error "NationBuilder OAuth: NetworkError - #{e.message}"
+    flash[:alert] = "Unable to connect to NationBuilder. Please check your connection and try again."
     redirect_to new_session_path
   rescue NationbuilderOauthErrors::RateLimitError => e
-    oauth_error_flash("rate_limit_error", "Too many requests. Please wait a moment and try again.", can_retry: false)
+    Rails.logger.error "NationBuilder OAuth: RateLimitError - #{e.message}"
+    flash[:alert] = "Too many sign-in attempts. Please wait a few minutes and try again."
     redirect_to new_session_path
   rescue => e
-    Rails.logger.error "OAuth callback error: #{e.message}\n#{e.backtrace.join("\n")}"
-    oauth_error_flash("general", "Authentication failed. Please try again.")
+    Rails.logger.error "OAuth callback error: #{e.class.name} - #{e.message}"
+    Rails.logger.error e.backtrace.join("\n")
+    flash[:alert] = "An unexpected error occurred during sign-in. Please try again."
     redirect_to new_session_path
   end
 

@@ -42,3 +42,6 @@
 .taskmaster
 .aider*
 
+# Claude Code settings
+.claude/
+
