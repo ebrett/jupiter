@@ -38,10 +38,12 @@
 
 /config/credentials/development.key
 
-/scripts/*
 .taskmaster
 .aider*
 
 # Claude Code settings
 .claude/
+
+# Scripts folder for Claude reference (not committed)
+scripts/
 

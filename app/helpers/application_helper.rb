@@ -4,9 +4,6 @@ module ApplicationHelper
 
     safe_join(
       flash.map do |type, message|
-        # Skip special flash keys that aren't meant to be displayed
-        next if type.to_s == 'oauth_error_data'
-        
         variant = case type.to_sym
         when :notice
                     :success

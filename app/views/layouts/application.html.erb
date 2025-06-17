@@ -32,7 +32,6 @@
       </main>
       <%= render 'shared/footer' if lookup_context.exists?('shared/footer') %>
     </div>
-    <%= render 'shared/oauth_error_modal' %>
     <%= render AuthModalComponent.new(mode: :login) %>
   </body>
 </html>
