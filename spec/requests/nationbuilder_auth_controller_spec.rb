@@ -87,7 +87,7 @@ RSpec.describe 'NationbuilderAuthController', type: :request do
           headers: { 'Cookie' => "session_id=#{Rails.application.message_verifier('signed cookie').generate(session_record.id)}" }
       expect(response).to redirect_to(new_session_path)
       follow_redirect!
-      expect(response.body).to include('NationBuilder authentication failed:')
+      expect(response.body).to include('The authorization code has expired or is invalid')
     end
 
     it 'creates new user and session when not authenticated' do

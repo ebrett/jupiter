@@ -29,7 +29,7 @@ class NationbuilderAuthController < ApplicationController
     end
   rescue NationbuilderTokenExchangeService::TokenExchangeError => e
     Rails.logger.error "NationBuilder OAuth: TokenExchangeError - #{e.message}"
-    
+
     # Provide user-friendly error messages based on the error
     user_message = case e.message
     when /invalid_grant/
@@ -43,7 +43,7 @@ class NationbuilderAuthController < ApplicationController
     else
       "Unable to complete sign-in with NationBuilder. Please try again."
     end
-    
+
     flash[:alert] = user_message
     redirect_to new_session_path
   rescue NationbuilderUserService::UserCreationError => e
