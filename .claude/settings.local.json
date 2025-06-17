@@ -38,7 +38,11 @@
       "Bash(git push:*)",
       "Bash(mv:*)",
       "Bash(pkill:*)",
-      "Bash(fly logs:*)"
+      "Bash(fly logs:*)",
+      "Bash(fly ssh console:*)",
+      "Bash(fly machine start:*)",
+      "Bash(bin/rake:*)",
+      "Bash(fly secrets:*)"
     ],
     "deny": []
   },
