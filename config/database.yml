@@ -1,3 +1,6 @@
+# Load database URL helper
+<% require_relative 'database_url_helper' %>
+
 # PostgreSQL. Versions 9.3 and up are supported.
 #
 # Install the pg driver:
@@ -89,14 +92,14 @@ production:
     <<: *primary_production
     database: jupiter_production_cache
     migrations_paths: db/cache_migrate
-    url: <%= URI.parse(ENV["DATABASE_URL"]).tap { |url| url.path += "_cache" } if ENV["DATABASE_URL"] %>
+    url: <%= database_url_with_suffix("cache") %>
   queue:
     <<: *primary_production
     database: jupiter_production_queue
     migrations_paths: db/queue_migrate
-    url: <%= URI.parse(ENV["DATABASE_URL"]).tap { |url| url.path += "_queue" } if ENV["DATABASE_URL"] %>
+    url: <%= database_url_with_suffix("queue") %>
   cable:
     <<: *primary_production
     database: jupiter_production_cable
     migrations_paths: db/cable_migrate
-    url: <%= URI.parse(ENV["DATABASE_URL"]).tap { |url| url.path += "_cable" } if ENV["DATABASE_URL"] %>
+    url: <%= database_url_with_suffix("cable") %>
