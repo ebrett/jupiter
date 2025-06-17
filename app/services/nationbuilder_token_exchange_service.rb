@@ -20,6 +20,12 @@ class NationbuilderTokenExchangeService
     Rails.logger.info "NationBuilder OAuth: Redirect URI: #{@redirect_uri}"
     
     req = Net::HTTP::Post.new(uri)
+    
+    # Set headers that might help bypass Cloudflare challenges
+    req["User-Agent"] = "Jupiter OAuth Client/1.0"
+    req["Accept"] = "application/json"
+    req["Content-Type"] = "application/x-www-form-urlencoded"
+    
     req.set_form_data(
       client_id: @client_id,
       client_secret: @client_secret,
@@ -35,7 +41,12 @@ class NationbuilderTokenExchangeService
     unless res.is_a?(Net::HTTPSuccess)
       Rails.logger.error "NationBuilder OAuth: Token exchange failed"
       Rails.logger.error "NationBuilder OAuth: Response code: #{res.code}"
-      Rails.logger.error "NationBuilder OAuth: Response body: #{res.body}"
+      Rails.logger.error "NationBuilder OAuth: Response body: #{res.body[0..500]}..." # Truncate for readability
+      
+      # Check if this is a Cloudflare challenge
+      if res.code == "403" && res.body.include?("Just a moment...")
+        raise TokenExchangeError, "cloudflare_challenge"
+      end
       
       error_data = JSON.parse(res.body) rescue {}
       error_message = error_data["error_description"] || error_data["error"] || "Unknown error"

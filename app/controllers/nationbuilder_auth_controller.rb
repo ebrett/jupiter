@@ -38,6 +38,8 @@ class NationbuilderAuthController < ApplicationController
       "Configuration error: The redirect URL doesn't match. Please contact support."
     when /invalid_client/
       "Configuration error: Invalid client credentials. Please contact support."
+    when /cloudflare_challenge/
+      "NationBuilder OAuth is currently blocked by Cloudflare security. Please contact the NationBuilder site administrator to whitelist OAuth API endpoints."
     else
       "Unable to complete sign-in with NationBuilder. Please try again."
     end
