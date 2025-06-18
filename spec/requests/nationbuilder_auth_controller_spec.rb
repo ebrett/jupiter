@@ -12,6 +12,12 @@ RSpec.describe 'NationbuilderAuthController', type: :request do
     ENV['NATIONBUILDER_CLIENT_SECRET'] = 'dummy_secret'
     @original_redirect_uri = ENV['NATIONBUILDER_REDIRECT_URI']
     ENV['NATIONBUILDER_REDIRECT_URI'] = 'http://localhost:3000/auth/nationbuilder/callback'
+
+    # Enable NationBuilder feature flag for tests
+    @feature_flag = FeatureFlag.find_or_create_by!(name: 'nationbuilder_signin') do |flag|
+      flag.description = 'Test flag for NationBuilder OAuth'
+      flag.enabled = true
+    end
   end
 
   after do
@@ -24,6 +30,11 @@ RSpec.describe 'NationbuilderAuthController', type: :request do
   describe 'GET /auth/nationbuilder/callback' do
     let(:user) { User.create!(email_address: 'test@example.com', password: 'password', password_confirmation: 'password') }
     let(:session_record) { user.sessions.create!(user_agent: 'test', ip_address: '127.0.0.1') }
+
+    before do
+      # Assign feature flag to test user to allow OAuth access
+      FeatureFlagAssignment.create!(feature_flag: @feature_flag, assignable: user)
+    end
 
     it 'redirects to root with alert if error param is present' do
       get '/auth/nationbuilder/callback', params: { error: 'access_denied', error_description: 'User denied access' },

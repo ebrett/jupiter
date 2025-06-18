@@ -1,6 +1,14 @@
 require 'rails_helper'
 
 RSpec.describe "NationBuilder Profile Sync", type: :request do
+  before do
+    # Enable NationBuilder feature flag for tests
+    FeatureFlag.find_or_create_by!(name: 'nationbuilder_signin') do |flag|
+      flag.description = 'Test flag for NationBuilder OAuth'
+      flag.enabled = true
+    end
+  end
+
   describe "automatic sync on login" do
     context "when using NationBuilder OAuth login" do
       it "triggers sync job after successful authentication" do

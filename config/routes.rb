@@ -34,6 +34,19 @@ Rails.application.routes.draw do
   # Admin dashboard (can be renamed or left as is)
   get "admin", to: "admin#index"
 
+  # Admin namespace for feature flags
+  namespace :admin do
+    resources :feature_flags do
+      member do
+        post :toggle
+      end
+      collection do
+        post :clear_cache
+      end
+      resources :feature_flag_assignments, only: [ :create, :destroy ]
+    end
+  end
+
   # Flattened user and role management
   resources :users, except: [ :new, :create ] do
     member do

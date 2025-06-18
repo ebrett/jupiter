@@ -212,3 +212,27 @@ if current_config[:verbose_output]
 else
   puts "Seeding completed for #{Rails.env} environment"
 end
+
+# Create feature flags
+feature_flags_data = [
+  {
+    name: 'nationbuilder_signin',
+    description: 'Enable NationBuilder OAuth sign-in functionality. When disabled, users can only sign in with email/password.',
+    enabled: false
+  }
+]
+
+feature_flags_data.each do |flag_attrs|
+  FeatureFlag.find_or_create_by!(name: flag_attrs[:name]) do |flag|
+    flag.description = flag_attrs[:description]
+    flag.enabled = flag_attrs[:enabled]
+  end
+end
+
+if current_config[:verbose_output]
+  puts "\n🚩 Feature flags created:"
+  FeatureFlag.all.each do |flag|
+    status = flag.enabled? ? "✅ enabled" : "❌ disabled"
+    puts "  - #{flag.name}: #{status}"
+  end
+end
