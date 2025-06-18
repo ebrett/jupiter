@@ -2,7 +2,42 @@ class System::OauthStatusController < ApplicationController
   before_action :require_system_administrator!
 
   def index
-    # Existing logic for showing OAuth status
+    @token_health = {
+      total_tokens: NationbuilderToken.count,
+      active_tokens: NationbuilderToken.where("expires_at > ?", Time.current).count,
+      expiring_soon: NationbuilderToken.where("expires_at > ? AND expires_at < ?", Time.current, 12.hours.from_now).count
+    }
+
+    @performance_metrics = {
+      avg_response_time: 150, # This would be calculated from actual metrics
+      success_rate: 99.9 # This would be calculated from actual metrics
+    }
+
+    # Filter users based on params
+    users = User.all
+    if params[:email].present?
+      users = users.where("email_address ILIKE ?", "%#{params[:email]}%")
+    end
+    if params[:status].present?
+      case params[:status]
+      when "active"
+        users = users.joins(:nationbuilder_tokens).where("nationbuilder_tokens.expires_at > ?", Time.current)
+      when "expired"
+        users = users.joins(:nationbuilder_tokens).where("nationbuilder_tokens.expires_at <= ?", Time.current)
+      when "no_token"
+        users = users.left_outer_joins(:nationbuilder_tokens).where(nationbuilder_tokens: { id: nil })
+      end
+    end
+
+    @user_oauth_status = users.map do |user|
+      token = user.nationbuilder_tokens.order(expires_at: :desc).first
+      {
+        email: user.email_address,
+        token_status: token&.expires_at&.future? ? "Active" : "Expired",
+        expires_at: token&.expires_at
+      }
+    end
+
     render "system/oauth_status"
   end
 

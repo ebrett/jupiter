@@ -1,89 +1,126 @@
-<% content_for(:page_title, "OAuth Status") %>
+<% content_for(:page_title, "System Status") %>
 
-<div class="bg-white shadow rounded-lg p-6 mb-6">
-  <h2 class="text-xl font-semibold text-gray-900 mb-4">OAuth System Status</h2>
-  
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-    <div class="bg-blue-50 p-4 rounded-lg">
-      <div class="text-2xl font-bold text-blue-600"><%= @token_health[:total_tokens] %></div>
-      <div class="text-sm text-blue-800">Total Tokens</div>
-    </div>
-    
-    <div class="bg-green-50 p-4 rounded-lg">
-      <div class="text-2xl font-bold text-green-600"><%= @token_health[:active_tokens] %></div>
-      <div class="text-sm text-green-800">Active Tokens</div>
-    </div>
-    
-    <div class="bg-yellow-50 p-4 rounded-lg">
-      <div class="text-2xl font-bold text-yellow-600"><%= @token_health[:expiring_soon] %></div>
-      <div class="text-sm text-yellow-800">Expiring Soon</div>
+<div class="container mx-auto px-4 py-8">
+  <h1 class="text-2xl font-bold mb-6">System Status</h1>
+
+  <!-- Token Health Section -->
+  <div class="bg-white shadow rounded-lg p-6 mb-6">
+    <h2 class="text-xl font-semibold mb-4">Token Health</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="bg-gray-50 p-4 rounded">
+        <h3 class="text-sm font-medium text-gray-500">Total Tokens</h3>
+        <p class="text-2xl font-bold"><%= @token_health[:total_tokens] %></p>
+      </div>
+      <div class="bg-gray-50 p-4 rounded">
+        <h3 class="text-sm font-medium text-gray-500">Active Tokens</h3>
+        <p class="text-2xl font-bold"><%= @token_health[:active_tokens] %></p>
+      </div>
+      <div class="bg-gray-50 p-4 rounded">
+        <h3 class="text-sm font-medium text-gray-500">Expiring Soon</h3>
+        <p class="text-2xl font-bold"><%= @token_health[:expiring_soon] %></p>
+      </div>
     </div>
   </div>
 
-  <div class="mb-6">
-    <h3 class="text-lg font-medium text-gray-900 mb-3">Performance Metrics</h3>
+  <!-- Performance Metrics Section -->
+  <div class="bg-white shadow rounded-lg p-6 mb-6">
+    <h2 class="text-xl font-semibold mb-4">Performance Metrics</h2>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div class="bg-gray-50 p-4 rounded">
-        <div class="text-sm text-gray-600">Avg Response Time</div>
-        <div class="text-lg font-semibold"><%= @performance_metrics[:avg_response_time] %>ms</div>
+        <h3 class="text-sm font-medium text-gray-500">Average Response Time</h3>
+        <p class="text-2xl font-bold"><%= @performance_metrics[:avg_response_time] %>ms</p>
       </div>
       <div class="bg-gray-50 p-4 rounded">
-        <div class="text-sm text-gray-600">Success Rate</div>
-        <div class="text-lg font-semibold"><%= @performance_metrics[:success_rate] %>%</div>
+        <h3 class="text-sm font-medium text-gray-500">Success Rate</h3>
+        <p class="text-2xl font-bold"><%= @performance_metrics[:success_rate] %>%</p>
       </div>
     </div>
   </div>
 
-  <div>
-    <h3 class="text-lg font-medium text-gray-900 mb-3">User OAuth Status</h3>
-    <div class="overflow-x-auto">
-      <table class="min-w-full divide-y divide-gray-200">
-        <thead class="bg-gray-50">
-          <tr>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Login</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Token Expires</th>
-          </tr>
-        </thead>
-        <tbody class="bg-white divide-y divide-gray-200">
-          <% @user_oauth_status.each do |user_status| %>
-            <tr>
-              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                <%= user_status[:email] %>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full 
-                  <%= user_status[:status] == 'connected' ? 'bg-green-100 text-green-800' : 
-                      user_status[:status] == 'expired' ? 'bg-red-100 text-red-800' :
-                      user_status[:status].nil? ? 'bg-gray-100 text-gray-800' :
-                      'bg-yellow-100 text-yellow-800' %>">
-                  <%= user_status[:status]&.humanize || 'Not Connected' %>
-                </span>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                <%= user_status[:last_login]&.strftime("%m/%d/%Y %I:%M %p") || 'Never' %>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                <%= user_status[:token_expires]&.strftime("%m/%d/%Y %I:%M %p") || 'N/A' %>
-              </td>
-            </tr>
-          <% end %>
-        </tbody>
-      </table>
+  <!-- User Status Section -->
+  <div class="bg-white shadow rounded-lg p-6">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-xl font-semibold">User Status</h2>
+      <div class="space-x-2">
+        <%= link_to "Export JSON", export_system_oauth_status_index_path(format: :json),
+                    class: "inline-block px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 text-sm font-medium" %>
+        <%= link_to "Export CSV", export_system_oauth_status_index_path(format: :csv),
+                    class: "inline-block px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 text-sm font-medium" %>
+      </div>
     </div>
-  </div>
-</div>
 
-<div class="bg-white shadow rounded-lg p-6">
-  <div class="flex justify-between items-center mb-4">
-    <h3 class="text-lg font-medium text-gray-900">Export OAuth Data</h3>
-    <div class="space-x-2">
-      <%= link_to "Export JSON", export_system_oauth_status_index_path(format: :json),
-                  class: "inline-block px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 text-sm font-medium ml-2" %>
-      <%= link_to "Export CSV", export_system_oauth_status_index_path(format: :csv),
-                  class: "inline-block px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 text-sm font-medium ml-2" %>
+    <!-- Filter Form -->
+    <div class="mb-6 bg-gray-50 p-4 rounded" data-controller="filter">
+      <%= form_tag system_oauth_status_index_path, 
+                  method: :get, 
+                  class: "flex flex-wrap gap-4",
+                  data: { 
+                    filter_target: "form",
+                    turbo_frame: "user_status_table"
+                  } do %>
+        <div class="flex-1 min-w-[200px]">
+          <%= label_tag :email, "Email", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= text_field_tag :email, 
+              params[:email], 
+              class: "w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500", 
+              placeholder: "Filter by email...",
+              data: { 
+                filter_target: "email",
+                action: "input->filter#filter"
+              } %>
+        </div>
+        <div class="flex-1 min-w-[200px]">
+          <%= label_tag :status, "Status", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= select_tag :status, 
+              options_for_select([
+                ['All Statuses', ''],
+                ['Active', 'active'],
+                ['Expired', 'expired'],
+                ['No Token', 'no_token']
+              ], params[:status]),
+              class: "w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500",
+              data: { 
+                filter_target: "status",
+                action: "change->filter#filter"
+              } %>
+        </div>
+        <div class="flex items-end">
+          <%= link_to "Clear", system_oauth_status_index_path, 
+              class: "text-gray-600 hover:text-gray-800",
+              data: { turbo_frame: "user_status_table" } %>
+        </div>
+      <% end %>
     </div>
+
+    <%= turbo_frame_tag "user_status_table" do %>
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Expires At</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <% @user_oauth_status.each do |user_status| %>
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                  <%= user_status[:email] %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                  <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full <%= user_status[:token_status] == 'Active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' %>">
+                    <%= user_status[:token_status] %>
+                  </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <%= user_status[:expires_at]&.strftime("%Y-%m-%d %H:%M:%S") || 'N/A' %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% end %>
   </div>
-  <p class="text-sm text-gray-600">Export OAuth data for analysis and reporting.</p>
 </div>

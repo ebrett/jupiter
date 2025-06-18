@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe System::HealthController, type: :controller do
+RSpec.describe System::OauthStatusController, type: :controller do
   let(:system_administrator) { create(:user, :with_system_administrator_role) }
 
   before do
@@ -10,27 +10,33 @@ RSpec.describe System::HealthController, type: :controller do
   end
 
   describe "GET #index" do
+    let!(:active_token) { create(:nationbuilder_token, expires_at: 1.hour.from_now) }
+    let!(:expiring_token) { create(:nationbuilder_token, expires_at: 12.hours.from_now) }
+    let!(:expired_token) { create(:nationbuilder_token, expires_at: 1.hour.ago) }
+
     it "returns successful response" do
       get :index
       expect(response).to have_http_status(:success)
     end
 
-    it "assigns health check data" do
+    it "assigns token health data" do
       get :index
-      expect(assigns(:health_check)).to be_a(Hash)
-      expect(assigns(:health_check)[:checks]).to be_a(Hash)
-      expect(assigns(:health_check)[:checks].keys).to include(:database, :redis, :oauth)
+      expect(assigns(:token_health)).to be_a(Hash)
+      expect(assigns(:token_health)[:total_tokens]).to eq(3)
+      expect(assigns(:token_health)[:active_tokens]).to eq(2)
+      expect(assigns(:token_health)[:expiring_soon]).to eq(2)
     end
 
-    it "assigns configuration status data" do
+    it "assigns performance metrics data" do
       get :index
-      expect(assigns(:configuration_status)).to be_a(Hash)
-      expect(assigns(:configuration_status).keys).to include(:environment, :database)
+      expect(assigns(:performance_metrics)).to be_a(Hash)
+      expect(assigns(:performance_metrics)[:avg_response_time]).to be_a(Numeric)
+      expect(assigns(:performance_metrics)[:success_rate]).to be_a(Numeric)
     end
 
     it "renders the correct template" do
       get :index
-      expect(response).to render_template("system/health")
+      expect(response).to render_template("system/oauth_status")
     end
 
     context "when user is not a system administrator" do
