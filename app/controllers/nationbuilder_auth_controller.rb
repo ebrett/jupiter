@@ -31,42 +31,37 @@ class NationbuilderAuthController < ApplicationController
     Rails.logger.error "NationBuilder OAuth: TokenExchangeError - #{e.message}"
 
     # Provide user-friendly error messages based on the error
-    error_type, user_message = case e.message
+    user_message = case e.message
     when /invalid_grant/
-      [ "authentication_error", "The authorization code has expired or is invalid. Please try signing in again." ]
+      "The authorization code has expired or is invalid. Please try signing in again."
     when /redirect_uri_mismatch/
-      [ "authentication_error", "Configuration error: The redirect URL doesn't match. Please contact support." ]
+      "Configuration error: The redirect URL doesn't match. Please contact support."
     when /invalid_client/
-      [ "authentication_error", "Configuration error: Invalid client credentials. Please contact support." ]
+      "Configuration error: Invalid client credentials. Please contact support."
     when /cloudflare_challenge/
-      [ "network_error", "NationBuilder OAuth is currently blocked by Cloudflare security. Please contact the NationBuilder site administrator to whitelist OAuth API endpoints." ]
+      "NationBuilder OAuth is currently blocked by Cloudflare security. Please contact the NationBuilder site administrator to whitelist OAuth API endpoints."
     else
-      [ "authentication_error", "Unable to complete sign-in with NationBuilder. Please try again." ]
+      "Unable to complete sign-in with NationBuilder. Please try again."
     end
 
-    alert_options = oauth_error_alert_options(error_type, user_message)
-    flash[:alert] = render_to_string(Catalyst::AlertComponent.new(**alert_options))
+    flash[:alert] = user_message
     redirect_to new_session_path
   rescue NationbuilderUserService::UserCreationError => e
     Rails.logger.error "NationBuilder OAuth: UserCreationError - #{e.message}"
-    alert_options = oauth_error_alert_options("authentication_error", "Unable to create your account. Please try again or contact support.")
-    flash[:alert] = render_to_string(Catalyst::AlertComponent.new(**alert_options))
+    flash[:alert] = "Unable to create your account. Please try again or contact support."
     redirect_to new_session_path
   rescue NationbuilderOauthErrors::NetworkError => e
     Rails.logger.error "NationBuilder OAuth: NetworkError - #{e.message}"
-    alert_options = oauth_error_alert_options("network_error", "Unable to connect to NationBuilder. Please check your connection and try again.")
-    flash[:alert] = render_to_string(Catalyst::AlertComponent.new(**alert_options))
+    flash[:alert] = "Unable to connect to NationBuilder. Please check your connection and try again."
     redirect_to new_session_path
   rescue NationbuilderOauthErrors::RateLimitError => e
     Rails.logger.error "NationBuilder OAuth: RateLimitError - #{e.message}"
-    alert_options = oauth_error_alert_options("rate_limit_error", "Too many sign-in attempts. Please wait a few minutes and try again.")
-    flash[:alert] = render_to_string(Catalyst::AlertComponent.new(**alert_options))
+    flash[:alert] = "Too many sign-in attempts. Please wait a few minutes and try again."
     redirect_to new_session_path
   rescue => e
     Rails.logger.error "OAuth callback error: #{e.class.name} - #{e.message}"
     Rails.logger.error e.backtrace.join("\n")
-    alert_options = oauth_error_alert_options("server_error", "An unexpected error occurred during sign-in. Please try again.")
-    flash[:alert] = render_to_string(Catalyst::AlertComponent.new(**alert_options))
+    flash[:alert] = "An unexpected error occurred during sign-in. Please try again."
     redirect_to new_session_path
   end
 
