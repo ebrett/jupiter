@@ -1,0 +1,56 @@
+<div class="<%= alert_classes %>" <%= alert_attributes.map { |k, v| "#{k}=\"#{v}\"" }.join(' ').html_safe %>>
+  <div class="flex">
+    <% if should_show_icon? %>
+      <div class="flex-shrink-0">
+        <svg class="<%= icon_classes %>" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="<%= icon_path %>" />
+        </svg>
+      </div>
+    <% end %>
+
+    <div class="<%= text_content_classes %>">
+      <% if title.present? %>
+        <h3 class="<%= title_classes %>"><%= title %></h3>
+      <% end %>
+
+      <% if message.present? %>
+        <div class="<%= message_classes %>">
+          <% if message.is_a?(String) %>
+            <p><%= message %></p>
+          <% else %>
+            <%= message %>
+          <% end %>
+        </div>
+      <% end %>
+
+      <% if should_show_actions? %>
+        <div class="<%= actions_container_classes %>">
+          <% actions.each do |action| %>
+            <% if action[:url] %>
+              <%= link_to action[:url], class: action_classes(action[:style] || :primary) do %>
+                <%= action[:text] %>
+              <% end %>
+            <% elsif action[:onclick] %>
+              <button type="button" class="<%= action_classes(action[:style] || :primary) %>" onclick="<%= action[:onclick] %>">
+                <%= action[:text] %>
+              </button>
+            <% end %>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+
+    <% if dismissible %>
+      <div class="ml-auto pl-3">
+        <div class="-mx-1.5 -my-1.5">
+          <button type="button" class="<%= dismiss_button_classes %>" data-action="click->alert#dismiss">
+            <span class="sr-only">Dismiss</span>
+            <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

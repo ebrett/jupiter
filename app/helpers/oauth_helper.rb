@@ -1,15 +1,25 @@
 module OauthHelper
-  def oauth_error_flash(error_type, message, title = nil, can_retry: true)
+  def oauth_error_alert_options(error_type, message, title = nil, can_retry: true)
     title ||= default_oauth_error_title(error_type)
 
-    # Store error data in flash for JavaScript to pick up
-    flash[:alert] = message
-    flash[:oauth_error_data] = {
+    actions = []
+    if can_retry
+      actions << {
+        text: "Try Again",
+        url: oauth_retry_url(error_type),
+        style: :primary
+      }
+    end
+
+    variant = error_variant_for_type(error_type)
+
+    {
       title: title,
       message: message,
-      error_type: error_type,
-      can_retry: can_retry
-    }.to_json
+      variant: variant,
+      dismissible: true,
+      actions: actions
+    }
   end
 
   def oauth_status_badge(user)
@@ -48,6 +58,28 @@ module OauthHelper
       link_to text, request.fullpath, class: css_class
     else
       link_to text, "/auth/nationbuilder", class: css_class
+    end
+  end
+
+  def oauth_retry_url(error_type)
+    case error_type.to_s
+    when "authentication_error", "token_expired", "permissions_error"
+      "/auth/nationbuilder"
+    when "network_error"
+      request.fullpath
+    else
+      "/auth/nationbuilder"
+    end
+  end
+
+  def error_variant_for_type(error_type)
+    case error_type.to_s
+    when "authentication_error", "permissions_error", "token_expired"
+      :error
+    when "network_error", "rate_limit_error", "server_error"
+      :warning
+    else
+      :error
     end
   end
 
