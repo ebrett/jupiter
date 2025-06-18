@@ -31,9 +31,18 @@ class System::OauthStatusController < ApplicationController
 
     @user_oauth_status = users.map do |user|
       token = user.nationbuilder_tokens.order(expires_at: :desc).first
+
+      token_status = if token.nil?
+        "No Token"
+      elsif token.expires_at&.future?
+        "Active"
+      else
+        "Expired"
+      end
+
       {
         email: user.email_address,
-        token_status: token&.expires_at&.future? ? "Active" : "Expired",
+        token_status: token_status,
         expires_at: token&.expires_at
       }
     end

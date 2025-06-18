@@ -4,6 +4,19 @@ class RolesController < ApplicationController
   def index
     @roles = policy_scope(Role)
     authorize Role, :index?
+
+    # Calculate role statistics
+    total_users = User.count
+    @role_stats = {}
+
+    @roles.each do |role|
+      user_count = role.users.count
+      percentage = total_users > 0 ? (user_count.to_f / total_users * 100).round(1) : 0
+      @role_stats[role.name] = {
+        user_count: user_count,
+        percentage: percentage
+      }
+    end
   end
 
   def show

@@ -109,7 +109,16 @@
                   <%= user_status[:email] %>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm">
-                  <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full <%= user_status[:token_status] == 'Active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' %>">
+                  <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full <%= 
+                    case user_status[:token_status]
+                    when 'Active'
+                      'bg-green-100 text-green-800'
+                    when 'Expired'
+                      'bg-red-100 text-red-800'
+                    when 'No Token'
+                      'bg-gray-100 text-gray-800'
+                    end
+                  %>">
                     <%= user_status[:token_status] %>
                   </span>
                 </td>
