@@ -2,12 +2,14 @@ class Admin::FeatureFlagsController < AdminController
   before_action :set_feature_flag, only: [ :show, :edit, :update, :destroy, :toggle ]
 
   def index
-    @feature_flags = FeatureFlag.includes(:created_by, :updated_by, :feature_flag_assignments)
-                                .order(:name)
-                                .page(params[:page])
+    authorize FeatureFlag
+    @feature_flags = policy_scope(FeatureFlag).includes(:created_by, :updated_by, :feature_flag_assignments)
+                                              .order(:name)
+                                              .page(params[:page])
   end
 
   def show
+    authorize @feature_flag
     @assignments = @feature_flag.feature_flag_assignments
                                 .includes(:assignable)
                                 .order(:assignable_type, :created_at)
@@ -15,10 +17,13 @@ class Admin::FeatureFlagsController < AdminController
 
   def new
     @feature_flag = FeatureFlag.new
+    authorize @feature_flag
   end
 
   def create
     @feature_flag = FeatureFlag.new(feature_flag_params)
+    authorize @feature_flag
+
     @feature_flag.created_by = current_user
     @feature_flag.updated_by = current_user
 
@@ -30,9 +35,11 @@ class Admin::FeatureFlagsController < AdminController
   end
 
   def edit
+    authorize @feature_flag
   end
 
   def update
+    authorize @feature_flag
     @feature_flag.updated_by = current_user
 
     if @feature_flag.update(feature_flag_params)
@@ -44,6 +51,7 @@ class Admin::FeatureFlagsController < AdminController
   end
 
   def destroy
+    authorize @feature_flag
     flag_name = @feature_flag.name
     @feature_flag.destroy
     FeatureFlagService.clear_cache(flag_name)
@@ -51,6 +59,7 @@ class Admin::FeatureFlagsController < AdminController
   end
 
   def toggle
+    authorize @feature_flag
     @feature_flag.toggle!
     @feature_flag.update!(updated_by: current_user)
     FeatureFlagService.clear_cache(@feature_flag.name)
@@ -62,6 +71,7 @@ class Admin::FeatureFlagsController < AdminController
   end
 
   def clear_cache
+    authorize FeatureFlag, :clear_cache?
     FeatureFlagService.clear_cache
     redirect_to admin_feature_flags_path, notice: "Feature flag cache cleared successfully."
   end

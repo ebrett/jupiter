@@ -1,6 +1,12 @@
 class AuthModalComponent < ViewComponent::Base
+  include FeatureFlagHelper
+
   def initialize(mode: :login)
     @mode = mode.to_sym
+  end
+
+  def current_user
+    Current.user
   end
 
   private
@@ -38,6 +44,10 @@ class AuthModalComponent < ViewComponent::Base
   def nationbuilder_button_text
     nation_name = nation_display_name
     login_mode? ? "Sign in with #{nation_name}" : "Sign up with #{nation_name}"
+  end
+
+  def form_path
+    login_mode? ? session_path : users_path
   end
 
   private

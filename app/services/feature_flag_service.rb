@@ -50,6 +50,11 @@ class FeatureFlagService
   def enabled?
     return false unless feature_flag_exists?
     return false unless globally_enabled?
+
+    # Special case: if no user is provided, check if this is a global feature
+    # For features like nationbuilder_signin, no user assignment means anyone can use it when enabled
+    return true if @user.nil? && global_feature?
+
     return true if user_has_assignment? || user_has_role_assignment?
 
     false
@@ -178,5 +183,11 @@ class FeatureFlagService
 
   def clear_flag_cache
     self.class.clear_cache(@flag_name)
+  end
+
+  def global_feature?
+    # Features that should be available to all users when enabled (no assignments needed)
+    global_features = %w[nationbuilder_signin]
+    global_features.include?(@flag_name)
   end
 end

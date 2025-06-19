@@ -3,6 +3,8 @@ class Admin::FeatureFlagAssignmentsController < AdminController
   before_action :set_assignment, only: [ :destroy ]
 
   def create
+    authorize FeatureFlagAssignment
+
     if params[:user_id].present?
       create_user_assignment
     elsif params[:role_id].present?
@@ -13,6 +15,7 @@ class Admin::FeatureFlagAssignmentsController < AdminController
   end
 
   def destroy
+    authorize @assignment
     flag_name = @feature_flag.name
     @assignment.destroy
     FeatureFlagService.clear_cache(flag_name)
