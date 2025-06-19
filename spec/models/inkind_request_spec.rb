@@ -3,27 +3,27 @@ require 'rails_helper'
 RSpec.describe InkindRequest, type: :model do
   describe 'validations' do
     it 'validates request_type is inkind' do
-      request = InkindRequest.new(request_type: 'reimbursement')
+      request = described_class.new(request_type: 'reimbursement')
       request.valid?
-      
+
       expect(request.errors[:request_type]).to include('is not included in the list')
     end
 
     it 'validates required form_data fields' do
-      request = InkindRequest.new(
+      request = described_class.new(
         request_type: 'inkind',
         amount_requested: 100.0,
         form_data: {}
       )
       request.valid?
-      
+
       expect(request.errors[:form_data]).to include('Donor name is required')
       expect(request.errors[:form_data]).to include('Donor email is required')
       expect(request.errors[:form_data]).to include('Donor address is required')
     end
 
     it 'validates email format' do
-      request = InkindRequest.new(
+      request = described_class.new(
         request_type: 'inkind',
         amount_requested: 100.0,
         form_data: {
@@ -40,12 +40,12 @@ RSpec.describe InkindRequest, type: :model do
         }
       )
       request.valid?
-      
+
       expect(request.errors[:form_data]).to include('Donor email must be a valid email address')
     end
 
     it 'validates donation_type is valid' do
-      request = InkindRequest.new(
+      request = described_class.new(
         request_type: 'inkind',
         amount_requested: 100.0,
         form_data: {
@@ -62,12 +62,12 @@ RSpec.describe InkindRequest, type: :model do
         }
       )
       request.valid?
-      
+
       expect(request.errors[:form_data]).to include('Donation type must be one of: Goods, Services')
     end
 
     it 'validates donation_date is not in future' do
-      request = InkindRequest.new(
+      request = described_class.new(
         request_type: 'inkind',
         amount_requested: 100.0,
         form_data: {
@@ -84,14 +84,14 @@ RSpec.describe InkindRequest, type: :model do
         }
       )
       request.valid?
-      
+
       expect(request.errors[:form_data]).to include('Donation date cannot be in the future')
     end
   end
 
   describe 'accessor methods' do
     let(:request) do
-      InkindRequest.new(
+      described_class.new(
         request_type: 'inkind',
         amount_requested: 150.50,
         form_data: {
@@ -125,7 +125,7 @@ RSpec.describe InkindRequest, type: :model do
 
   describe '#to_csv_row' do
     let(:request) do
-      InkindRequest.create!(
+      described_class.create!(
         request_type: 'inkind',
         amount_requested: 150.50,
         currency_code: 'USD',
@@ -146,27 +146,52 @@ RSpec.describe InkindRequest, type: :model do
       )
     end
 
-    it 'generates correct CSV row structure' do
+    it 'generates CSV row as array with correct length' do
       row = request.to_csv_row
-      
+
       expect(row).to be_an(Array)
       expect(row.length).to eq(21) # All CSV columns
+    end
+
+    it 'includes submitter information in CSV row' do
+      row = request.to_csv_row
+
       expect(row[0]).to eq(request.created_at.iso8601) # Timestamp
       expect(row[1]).to eq('submitter@example.com') # Email Address
       expect(row[2]).to eq('Test Submitter') # Name
       expect(row[3]).to eq('US') # Country
+    end
+
+    it 'includes donor information in CSV row' do
+      row = request.to_csv_row
+
       expect(row[4]).to eq('John Doe') # Donor Name
       expect(row[5]).to eq('john@example.com') # Donor Email
       expect(row[6]).to eq('123 Main St') # Donor Address
+    end
+
+    it 'includes donation details in CSV row' do
+      row = request.to_csv_row
+
       expect(row[7]).to eq('Services') # Donation Type
       expect(row[8]).to eq('Legal consultation') # Item Description
       expect(row[9]).to eq('LEGAL_CONSULTING') # QuickBooks Coding
+    end
+
+    it 'includes financial information in CSV row' do
+      row = request.to_csv_row
+
       expect(row[10]).to eq(150.50) # Fair Market Value
       expect(row[11]).to eq('USD') # Currency
       expect(row[12]).to eq(150.50) # Amount (USD)
       expect(row[13]).to eq(1.0) # Exchange Rate
+    end
+
+    it 'includes status information in CSV row' do
+      row = request.to_csv_row
+
       expect(row[14]).to eq(Date.parse('2024-01-15').iso8601) # Donation Date
-      expect(row[15]).to eq(false) # Acknowledgment Sent
+      expect(row[15]).to be(false) # Acknowledgment Sent
       expect(row[16]).to eq('Submitted') # Status
     end
   end

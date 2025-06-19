@@ -1,9 +1,9 @@
 class InkindDonationsController < ApplicationController
   include Authentication
-  require 'csv'
-  
+  require "csv"
+
   before_action :require_authentication
-  before_action :set_inkind_request, only: [:show]
+  before_action :set_inkind_request, only: [ :show ]
 
   def index
     @inkind_requests = policy_scope(InkindRequest).recent
@@ -15,7 +15,7 @@ class InkindDonationsController < ApplicationController
   end
 
   def new
-    @inkind_request = InkindRequest.new(request_type: 'inkind')
+    @inkind_request = InkindRequest.new(request_type: "inkind")
     authorize @inkind_request
     @expense_categories = ExpenseCategory.options_for_select
   end
@@ -26,14 +26,14 @@ class InkindDonationsController < ApplicationController
 
     # Set auto-generated fields
     @inkind_request.form_data = @inkind_request.form_data.merge(
-      'submitter_email' => Current.user.email_address,
-      'submitter_name' => "#{Current.user.first_name} #{Current.user.last_name}".strip,
-      'country' => 'US' # TODO: Make this configurable or derive from user profile
+      "submitter_email" => Current.user.email_address,
+      "submitter_name" => "#{Current.user.first_name} #{Current.user.last_name}".strip,
+      "country" => "US" # TODO: Make this configurable or derive from user profile
     )
-    @inkind_request.request_type = 'inkind'
+    @inkind_request.request_type = "inkind"
 
     if @inkind_request.save
-      redirect_to inkind_donations_path, notice: 'In-kind donation submitted successfully.'
+      redirect_to inkind_donations_path, notice: "In-kind donation submitted successfully."
     else
       @expense_categories = ExpenseCategory.options_for_select
       render :new, status: :unprocessable_entity
@@ -42,19 +42,19 @@ class InkindDonationsController < ApplicationController
 
   def export
     authorize InkindRequest, :export?
-    
+
     @inkind_requests = policy_scope(InkindRequest)
-    
+
     respond_to do |format|
       format.csv do
         csv_data = generate_csv(@inkind_requests)
-        timestamp = Time.current.strftime('%Y%m%d_%H%M%S')
+        timestamp = Time.current.strftime("%Y%m%d_%H%M%S")
         filename = "inkind_donations_#{timestamp}.csv"
-        
-        send_data csv_data, 
+
+        send_data csv_data,
                   filename: filename,
-                  type: 'text/csv',
-                  disposition: 'attachment'
+                  type: "text/csv",
+                  disposition: "attachment"
       end
     end
   end
@@ -79,7 +79,7 @@ class InkindDonationsController < ApplicationController
   def generate_csv(requests)
     CSV.generate(headers: true) do |csv|
       csv << InkindRequest.csv_headers
-      
+
       requests.each do |request|
         csv << request.to_csv_row
       end
@@ -89,9 +89,9 @@ class InkindDonationsController < ApplicationController
   def handle_authorization_error
     if request.format.html?
       if Current.user.nil?
-        redirect_to new_session_path, alert: 'Please sign in to access this page.'
+        redirect_to new_session_path, alert: "Please sign in to access this page."
       else
-        redirect_to root_path, alert: 'You are not authorized to access this page. Please contact an administrator if you need the submitter role.'
+        redirect_to root_path, alert: "You are not authorized to access this page. Please contact an administrator if you need the submitter role."
       end
     else
       head :forbidden
