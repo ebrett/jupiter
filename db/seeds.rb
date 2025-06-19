@@ -179,6 +179,48 @@ users_data.concat(admin_users) if current_config[:create_admin_users]
 users_data.concat(test_users) if current_config[:create_test_users]
 users_data.concat(edge_case_users) if current_config[:create_edge_case_users]
 
+# Create expense categories
+expense_categories_data = [
+  # Top-level categories
+  { code: 'DONATIONS', name: 'DONATIONS', parent: nil },
+  { code: 'FUNDRAISING', name: 'FUNDRAISING COSTS', parent: nil },
+  { code: 'LEGAL', name: 'LEGAL & PROFESSIONAL SERVICES', parent: nil },
+  { code: 'MEETINGS', name: 'MEETINGS, EVENTS & TRAVEL', parent: nil },
+  { code: 'OPERATIONAL', name: 'OPERATIONAL COSTS', parent: nil },
+  { code: 'PROGRAM', name: 'PROGRAM EXPENSES', parent: nil },
+  { code: 'TECHNOLOGY', name: 'TECHNOLOGY', parent: nil },
+
+  # Sub-categories for common items
+  { code: 'DONATIONS_GENERAL', name: 'General Donations', parent: 'DONATIONS' },
+  { code: 'FUNDRAISING_EVENTS', name: 'Event Costs', parent: 'FUNDRAISING' },
+  { code: 'FUNDRAISING_MATERIALS', name: 'Marketing Materials', parent: 'FUNDRAISING' },
+  { code: 'LEGAL_CONSULTING', name: 'Legal Consulting', parent: 'LEGAL' },
+  { code: 'LEGAL_COMPLIANCE', name: 'Compliance Costs', parent: 'LEGAL' },
+  { code: 'MEETINGS_VENUE', name: 'Venue Rental', parent: 'MEETINGS' },
+  { code: 'MEETINGS_TRAVEL', name: 'Travel Expenses', parent: 'MEETINGS' },
+  { code: 'MEETINGS_CATERING', name: 'Catering & Food', parent: 'MEETINGS' },
+  { code: 'OPERATIONAL_OFFICE', name: 'Office Supplies', parent: 'OPERATIONAL' },
+  { code: 'OPERATIONAL_UTILITIES', name: 'Utilities', parent: 'OPERATIONAL' },
+  { code: 'OPERATIONAL_INSURANCE', name: 'Insurance', parent: 'OPERATIONAL' },
+  { code: 'PROGRAM_OUTREACH', name: 'Outreach Activities', parent: 'PROGRAM' },
+  { code: 'PROGRAM_EDUCATION', name: 'Educational Materials', parent: 'PROGRAM' },
+  { code: 'TECHNOLOGY_SOFTWARE', name: 'Software & Licenses', parent: 'TECHNOLOGY' },
+  { code: 'TECHNOLOGY_HARDWARE', name: 'Hardware & Equipment', parent: 'TECHNOLOGY' },
+  { code: 'TECHNOLOGY_HOSTING', name: 'Web Hosting & Services', parent: 'TECHNOLOGY' }
+]
+
+expense_categories_data.each do |cat_attrs|
+  parent_category = nil
+  if cat_attrs[:parent]
+    parent_category = ExpenseCategory.find_by(code: cat_attrs[:parent])
+  end
+
+  ExpenseCategory.find_or_create_by!(code: cat_attrs[:code]) do |category|
+    category.name = cat_attrs[:name]
+    category.parent = parent_category
+  end
+end
+
 users_data.each do |user_attrs|
   user = User.find_or_create_by!(email_address: user_attrs[:email_address]) do |u|
     u.password = user_attrs[:password]
@@ -198,6 +240,7 @@ if current_config[:verbose_output]
   puts "🌱 Seeding completed successfully!"
   puts "Environment: #{Rails.env}"
   puts "Created/verified #{Role.count} roles: #{Role.pluck(:name).join(', ')}"
+  puts "Created/verified #{ExpenseCategory.count} expense categories (#{ExpenseCategory.top_level.count} top-level)"
   puts "Created/verified #{User.count} users with the following distribution:"
   Role.all.each do |role|
     count = role.users.count

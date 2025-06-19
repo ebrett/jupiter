@@ -73,6 +73,11 @@ class User < ApplicationRecord
     has_role?(:treasury_team_admin) || has_role?(:system_administrator)
   end
 
+  # Check if user can submit requests
+  def can_submit_requests?
+    has_role?(:submitter) || admin?
+  end
+
   # Authentication methods
   def nationbuilder_user?
     nationbuilder_uid.present?
