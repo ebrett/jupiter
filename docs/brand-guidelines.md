@@ -1,7 +1,6 @@
-# Democrats Abroad Brand Guidelines for Rails/Tailwind Implementation
+# Brand Guidelines
 
-## Overview
-This document extracts key brand elements from the Democrats Abroad 2024 Brand Guidelines for implementation in a Rails application using Tailwind CSS.
+This document outlines the Democrats Abroad brand standards for consistent implementation throughout Jupiter's interface.
 
 ## Logo Usage
 
@@ -97,11 +96,36 @@ app/
 ```
 
 ### Tailwind Configuration
-The custom Tailwind config includes:
-- All brand colors as custom color classes
-- Font family definitions
-- Custom spacing for logo clear space
+
+The custom Tailwind config should include:
+- All brand colors as custom color classes (`da-navy`, `da-blue`, etc.)
+- Font family definitions for Overpass and Oswald
+- Custom spacing for logo clear space (10px minimum)
 - Background gradients using brand colors
+
+Example configuration:
+```javascript
+// tailwind.config.js
+module.exports = {
+  theme: {
+    extend: {
+      colors: {
+        'da-navy': '#1F1646',
+        'da-blue-dark': '#003087',
+        'da-blue-electric': '#00A9E0',
+        'da-blue-light': '#9EADE5',
+        'da-red': '#B2292E',
+        'da-gray': '#AFB5BF',
+        // ... additional brand colors
+      },
+      fontFamily: {
+        'overpass': ['Overpass', 'sans-serif'],
+        'oswald': ['Oswald', 'sans-serif'],
+      }
+    }
+  }
+}
+```
 
 ## Content Types
 The brand guidelines mention creating graphics for:
