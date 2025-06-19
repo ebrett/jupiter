@@ -13,6 +13,9 @@ require 'rspec/rails'
 # ViewComponent testing support
 require "view_component/test_helpers"
 
+# Capybara and system testing support
+require 'capybara/rails'
+
 # Requires supporting ruby files with custom matchers and macros, etc, in
 # spec/support/ and its subdirectories. Files matching `spec/**/*_spec.rb` are
 # run as spec files by default. This means that files in spec/support that end
@@ -101,4 +104,27 @@ RSpec.configure do |config|
   config.include FactoryBot::Syntax::Methods
   config.include ActiveSupport::Testing::TimeHelpers
   config.include ViewComponent::TestHelpers, type: :component
+
+  # System test configuration
+  config.before(:each, type: :system) do
+    # Default to headless Chrome for system tests
+    driven_by :selenium_chrome_headless
+  end
+
+  # Allow JavaScript tests to run in headed mode for debugging
+  config.before(:each, :js, type: :system) do
+    driven_by ENV['HEADED'] ? :selenium_chrome : :selenium_chrome_headless
+  end
+
+  # System test specific configuration
+  config.around(:each, type: :system) do |example|
+    # Set server host for system tests to match Capybara configuration
+    original_host = Rails.application.config.action_mailer.default_url_options[:host]
+    Rails.application.config.action_mailer.default_url_options[:host] = 'localhost:9887'
+
+    example.run
+
+    # Restore original host
+    Rails.application.config.action_mailer.default_url_options[:host] = original_host
+  end
 end

@@ -8,6 +8,26 @@ export default class extends Controller {
     this.updateFormAction()
   }
 
+  openLogin() {
+    this.modeValue = "login"
+    this.openModal()
+    // Ensure form action is updated after modal is open
+    setTimeout(() => {
+      this.updateFormAction()
+      this.updateModalContent()
+    }, 10)
+  }
+
+  openRegister() {
+    this.modeValue = "register"
+    this.openModal()
+    // Ensure form action is updated after modal is open
+    setTimeout(() => {
+      this.updateFormAction()
+      this.updateModalContent()
+    }, 10)
+  }
+
   switchToLogin() {
     this.modeValue = "login"
     this.updateFormAction()
@@ -18,6 +38,19 @@ export default class extends Controller {
     this.modeValue = "register"
     this.updateFormAction()
     this.updateModalContent()
+  }
+
+  openModal() {
+    const modal = document.getElementById("auth-modal")
+    if (modal) {
+      // Trigger the modal's open method via Stimulus
+      const event = new CustomEvent('modal:open')
+      modal.dispatchEvent(event)
+      
+      // Directly call the modal controller's open method
+      modal.style.display = "flex"
+      document.body.style.overflow = "hidden"
+    }
   }
 
   updateFormAction() {
