@@ -10,9 +10,46 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_06_16_114000) do
+ActiveRecord::Schema[8.0].define(version: 2025_06_18_095803) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "expense_categories", force: :cascade do |t|
+    t.string "code", null: false
+    t.string "name", null: false
+    t.bigint "parent_id"
+    t.string "qb_account_id"
+    t.boolean "active", default: true
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["code"], name: "index_expense_categories_on_code", unique: true
+    t.index ["parent_id"], name: "index_expense_categories_on_parent_id"
+  end
+
+  create_table "feature_flag_assignments", force: :cascade do |t|
+    t.bigint "feature_flag_id", null: false
+    t.string "assignable_type", null: false
+    t.bigint "assignable_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["assignable_type", "assignable_id"], name: "idx_on_assignable_type_assignable_id_7b2ecc96c8"
+    t.index ["assignable_type", "assignable_id"], name: "index_feature_flag_assignments_on_assignable"
+    t.index ["feature_flag_id", "assignable_type", "assignable_id"], name: "index_feature_flag_assignments_unique", unique: true
+    t.index ["feature_flag_id"], name: "index_feature_flag_assignments_on_feature_flag_id"
+  end
+
+  create_table "feature_flags", force: :cascade do |t|
+    t.string "name"
+    t.text "description"
+    t.boolean "enabled", default: false, null: false
+    t.bigint "created_by_id"
+    t.bigint "updated_by_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_by_id"], name: "index_feature_flags_on_created_by_id"
+    t.index ["name"], name: "index_feature_flags_on_name", unique: true
+    t.index ["updated_by_id"], name: "index_feature_flags_on_updated_by_id"
+  end
 
   create_table "nationbuilder_tokens", force: :cascade do |t|
     t.bigint "user_id", null: false
@@ -35,6 +72,22 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_16_114000) do
     t.datetime "updated_at", null: false
     t.index ["session_id"], name: "index_rails_sessions_on_session_id", unique: true
     t.index ["updated_at"], name: "index_rails_sessions_on_updated_at"
+  end
+
+  create_table "requests", force: :cascade do |t|
+    t.string "request_type", null: false
+    t.string "request_number", null: false
+    t.integer "status", default: 0
+    t.decimal "amount_requested", precision: 10, scale: 2
+    t.string "currency_code", default: "USD"
+    t.decimal "amount_usd", precision: 10, scale: 2
+    t.decimal "exchange_rate", precision: 10, scale: 6, default: "1.0"
+    t.jsonb "form_data", null: false
+    t.jsonb "metadata"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["request_number"], name: "index_requests_on_request_number", unique: true
+    t.index ["request_type"], name: "index_requests_on_request_type"
   end
 
   create_table "roles", force: :cascade do |t|
@@ -105,6 +158,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_16_114000) do
     t.index ["verification_token"], name: "index_users_on_verification_token", unique: true
   end
 
+  add_foreign_key "expense_categories", "expense_categories", column: "parent_id"
+  add_foreign_key "feature_flag_assignments", "feature_flags"
+  add_foreign_key "feature_flags", "users", column: "created_by_id"
+  add_foreign_key "feature_flags", "users", column: "updated_by_id"
   add_foreign_key "nationbuilder_tokens", "users"
   add_foreign_key "sessions", "users"
   add_foreign_key "setup_wizard_steps", "setup_wizards"

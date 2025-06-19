@@ -1,0 +1,169 @@
+<div class="max-w-4xl mx-auto p-6">
+  <%= form_with(model: inkind_request, url: inkind_donations_path, local: true, class: "space-y-8", data: { controller: "inkind-form" }) do |form| %>
+    
+    <!-- Error Summary -->
+    <% if inkind_request.errors.any? %>
+      <div class="rounded-md bg-red-50 p-4">
+        <div class="flex">
+          <div class="flex-shrink-0">
+            <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd" />
+            </svg>
+          </div>
+          <div class="ml-3">
+            <h3 class="text-sm font-medium text-red-800">Please correct the following errors:</h3>
+            <div class="mt-2 text-sm text-red-700">
+              <ul class="list-disc space-y-1 pl-5">
+                <% inkind_request.errors.full_messages.each do |message| %>
+                  <li><%= message %></li>
+                <% end %>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% end %>
+
+    <!-- Donor Information Section -->
+    <div class="bg-white shadow-sm ring-1 ring-gray-900/5 rounded-lg p-6">
+      <h2 class="text-lg font-semibold text-gray-900 mb-6">Donor Information</h2>
+      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+        <!-- Donor Name -->
+        <div>
+          <%= label_tag "inkind_request[form_data][donor_name]", class: label_classes do %>
+            Donor Name <%= required_asterisk %>
+          <% end %>
+          <%= text_field_tag "inkind_request[form_data][donor_name]", 
+                form_data['donor_name'], 
+                class: input_class_for_field('donor_name'),
+                maxlength: 255,
+                required: true,
+                data: { action: "input->inkind-form#validateField" } %>
+          <%= field_error('donor_name') %>
+        </div>
+
+        <!-- Donor Email -->
+        <div>
+          <%= label_tag "inkind_request[form_data][donor_email]", class: label_classes do %>
+            Donor Email <%= required_asterisk %>
+          <% end %>
+          <%= email_field_tag "inkind_request[form_data][donor_email]", 
+                form_data['donor_email'], 
+                class: input_class_for_field('donor_email'),
+                required: true,
+                data: { action: "input->inkind-form#validateField" } %>
+          <%= field_error('donor_email') %>
+        </div>
+
+        <!-- Donor Address -->
+        <div class="sm:col-span-2">
+          <%= label_tag "inkind_request[form_data][donor_address]", class: label_classes do %>
+            Donor Address <%= required_asterisk %>
+          <% end %>
+          <%= text_area_tag "inkind_request[form_data][donor_address]", 
+                form_data['donor_address'], 
+                class: input_class_for_field('donor_address'),
+                rows: 3,
+                maxlength: 500,
+                required: true,
+                data: { action: "input->inkind-form#validateField" } %>
+          <%= field_error('donor_address') %>
+          <p class="mt-1 text-sm text-gray-500">Include full mailing address for tax receipt purposes</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Donation Details Section -->
+    <div class="bg-white shadow-sm ring-1 ring-gray-900/5 rounded-lg p-6">
+      <h2 class="text-lg font-semibold text-gray-900 mb-6">Donation Details</h2>
+      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+        <!-- Donation Type -->
+        <div>
+          <%= label_tag "inkind_request[form_data][donation_type]", class: label_classes do %>
+            Donation Type <%= required_asterisk %>
+          <% end %>
+          <%= select_tag "inkind_request[form_data][donation_type]", 
+                options_for_select([['Select type...', '']] + donation_type_options, form_data['donation_type']), 
+                class: input_class_for_field('donation_type'),
+                required: true,
+                data: { action: "change->inkind-form#validateField" } %>
+          <%= field_error('donation_type') %>
+        </div>
+
+        <!-- Expense Category -->
+        <div>
+          <%= label_tag "inkind_request[form_data][expense_category_code]", class: label_classes do %>
+            Expense Category <%= required_asterisk %>
+          <% end %>
+          <%= select_tag "inkind_request[form_data][expense_category_code]", 
+                options_for_select([['Select category...', '']] + expense_categories, form_data['expense_category_code']), 
+                class: input_class_for_field('expense_category_code'),
+                required: true,
+                data: { action: "change->inkind-form#validateField" } %>
+          <%= field_error('expense_category_code') %>
+        </div>
+
+        <!-- Fair Market Value -->
+        <div>
+          <%= label_tag "inkind_request[amount_requested]", class: label_classes do %>
+            Fair Market Value (USD) <%= required_asterisk %>
+          <% end %>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <span class="text-gray-500 sm:text-sm">$</span>
+            </div>
+            <%= number_field_tag "inkind_request[amount_requested]", 
+                  inkind_request.amount_requested, 
+                  class: input_class_for_field('amount_requested') + " pl-7",
+                  step: 0.01,
+                  min: 0.01,
+                  required: true,
+                  data: { action: "input->inkind-form#validateField" } %>
+          </div>
+          <%= field_error('amount_requested') %>
+          <p class="mt-1 text-sm text-gray-500">Estimated value of goods or services donated</p>
+        </div>
+
+        <!-- Donation Date -->
+        <div>
+          <%= label_tag "inkind_request[form_data][donation_date]", class: label_classes do %>
+            Donation Date <%= required_asterisk %>
+          <% end %>
+          <%= date_field_tag "inkind_request[form_data][donation_date]", 
+                form_data['donation_date'], 
+                class: input_class_for_field('donation_date'),
+                max: Date.current,
+                required: true,
+                data: { action: "change->inkind-form#validateField" } %>
+          <%= field_error('donation_date') %>
+        </div>
+
+        <!-- Item Description -->
+        <div class="sm:col-span-2">
+          <%= label_tag "inkind_request[form_data][item_description]", class: label_classes do %>
+            Item Description <%= required_asterisk %>
+          <% end %>
+          <%= text_area_tag "inkind_request[form_data][item_description]", 
+                form_data['item_description'], 
+                class: input_class_for_field('item_description'),
+                rows: 4,
+                maxlength: 1000,
+                required: true,
+                data: { action: "input->inkind-form#validateField" } %>
+          <%= field_error('item_description') %>
+          <p class="mt-1 text-sm text-gray-500">Detailed description of what was donated (goods or services)</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Form Actions -->
+    <div class="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200">
+      <%= link_to "Cancel", inkind_donations_path, 
+            class: "inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2" %>
+      
+      <%= form.submit "Submit Donation", 
+            class: "inline-flex justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2",
+            data: { action: "click->inkind-form#validateForm" } %>
+    </div>
+  <% end %>
+</div>
