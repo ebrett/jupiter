@@ -13,7 +13,7 @@ class InkindDonationFormComponent < ViewComponent::Base
   end
 
   def donation_type_options
-    InkindRequest::DONATION_TYPES.map { |type| [type, type] }
+    InkindRequest::DONATION_TYPES.map { |type| [ type, type ] }
   end
 
   def input_classes
@@ -39,17 +39,17 @@ class InkindDonationFormComponent < ViewComponent::Base
   def field_error(field_name)
     errors = inkind_request.errors[:form_data]
     return nil if errors.blank?
-    
+
     error_message = errors.find { |error| error.include?(field_name.to_s.humanize) }
     return nil unless error_message
-    
+
     content_tag(:p, error_message, class: error_message_classes)
   end
 
   def field_has_error?(field_name)
     errors = inkind_request.errors[:form_data]
     return false if errors.blank?
-    
+
     errors.any? { |error| error.include?(field_name.to_s.humanize) }
   end
 

@@ -14,7 +14,7 @@ RSpec.describe InkindDonationsController, type: :controller do
     it 'requires authentication for all actions' do
       get :index
       expect(response).to redirect_to(new_session_path)
-      
+
       get :new
       expect(response).to redirect_to(new_session_path)
     end
@@ -55,7 +55,7 @@ RSpec.describe InkindDonationsController, type: :controller do
           'submitter_name' => 'Test User'
         }
       )
-      
+
       get :index
       expect(assigns(:inkind_requests)).to include(inkind_request)
     end
@@ -78,7 +78,7 @@ RSpec.describe InkindDonationsController, type: :controller do
     it 'assigns @expense_categories' do
       category = ExpenseCategory.create!(code: 'TEST', name: 'Test Category')
       get :new
-      expect(assigns(:expense_categories)).to include(['Test Category', 'TEST'])
+      expect(assigns(:expense_categories)).to include([ 'Test Category', 'TEST' ])
     end
   end
 
@@ -110,7 +110,7 @@ RSpec.describe InkindDonationsController, type: :controller do
 
     it 'sets auto-generated fields' do
       post :create, params: valid_params
-      
+
       request = InkindRequest.last
       expect(request).to be_present
       expect(request.submitter_email).to eq(submitter_user.email_address)
@@ -128,7 +128,7 @@ RSpec.describe InkindDonationsController, type: :controller do
     it 'renders new template on validation failure' do
       invalid_params = valid_params.deep_dup
       invalid_params[:inkind_request][:form_data][:donor_email] = 'invalid-email'
-      
+
       post :create, params: invalid_params
       expect(response).to have_http_status(:unprocessable_entity)
       expect(response).to render_template(:new)
@@ -192,7 +192,7 @@ RSpec.describe InkindDonationsController, type: :controller do
 
     it 'generates CSV export' do
       get :export, format: :csv
-      
+
       expect(response).to have_http_status(:success)
       expect(response.content_type).to eq('text/csv')
       expect(response.headers['Content-Disposition']).to include('attachment')
@@ -201,11 +201,11 @@ RSpec.describe InkindDonationsController, type: :controller do
 
     it 'includes correct CSV headers' do
       get :export, format: :csv
-      
+
       csv_content = response.body
       lines = csv_content.split("\n")
       headers = lines.first.split(',')
-      
+
       expect(headers).to include('Timestamp', 'Donor Name', 'Fair Market Value')
     end
   end

@@ -7,9 +7,9 @@ class Request < ApplicationRecord
   }
 
   enum :request_type, {
-    reimbursement: 'R',
-    vendor: 'V',
-    inkind: 'I'
+    reimbursement: "R",
+    vendor: "V",
+    inkind: "I"
   }
 
   validates :request_number, presence: true, uniqueness: true
@@ -30,22 +30,22 @@ class Request < ApplicationRecord
 
   def generate_request_number
     return if request_number.present?
-    
+
     prefix = case request_type
-             when 'inkind' then 'IK'
-             when 'reimbursement' then 'RB'
-             when 'vendor' then 'VP'
-             else 'REQ'
-             end
-    
+    when "inkind" then "IK"
+    when "reimbursement" then "RB"
+    when "vendor" then "VP"
+    else "REQ"
+    end
+
     year = Date.current.year
     sequence = Request.where("request_number LIKE ?", "#{prefix}-#{year}-%").count + 1
     self.request_number = "#{prefix}-#{year}-#{sequence.to_s.rjust(3, '0')}"
   end
 
   def set_defaults
-    self.currency_code ||= 'USD'
+    self.currency_code ||= "USD"
     self.exchange_rate ||= 1.0
-    self.amount_usd ||= amount_requested if currency_code == 'USD'
+    self.amount_usd ||= amount_requested if currency_code == "USD"
   end
 end
