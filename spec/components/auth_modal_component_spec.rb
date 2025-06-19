@@ -57,7 +57,7 @@ RSpec.describe AuthModalComponent, type: :component do
       expect(rendered_content).to include('name="last_name"')
       expect(rendered_content).to include('name="password_confirmation"')
       expect(rendered_content).to include("Terms of Service")
-      
+
       # Check they have the correct data attribute and are hidden
       expect(rendered_content).to include('data-auth-field="register" style="display: none;"')
     end
@@ -124,7 +124,7 @@ RSpec.describe AuthModalComponent, type: :component do
       # Fields are present but hidden with display: none
       expect(rendered_content).to include('name="remember_me"')
       expect(rendered_content).to include("Forgot password?")
-      
+
       # Check they have the correct data attribute and are hidden
       expect(rendered_content).to include('data-auth-field="login" style="display: none;"')
     end
