@@ -10,83 +10,100 @@ export default class extends Controller {
 
   switchToLogin() {
     this.modeValue = "login"
-    this.updateModal()
+    this.updateFormAction()
+    this.updateModalContent()
   }
 
   switchToRegister() {
     this.modeValue = "register"
-    this.updateModal()
-  }
-
-  updateModal() {
-    // Close current modal
-    const modal = document.getElementById("auth-modal")
-    const modalController = this.application.getControllerForElementAndIdentifier(modal, "modal")
-    modalController.close()
-
-    // Update modal content based on mode
     this.updateFormAction()
-    
-    // Reopen modal with new content
-    setTimeout(() => {
-      modalController.open()
-    }, 100)
+    this.updateModalContent()
   }
 
   updateFormAction() {
     if (this.hasFormTarget) {
       const isLogin = this.modeValue === "login"
       const action = isLogin ? "/session" : "/users"
-      const method = isLogin ? "post" : "post"
       
       this.formTarget.action = action
-      this.formTarget.method = method
     }
   }
 
-  openLogin() {
-    this.modeValue = "login"
-    this.openModal()
-  }
-
-  openRegister() {
-    this.modeValue = "register"
-    this.openModal()
-  }
-
-  openModal() {
+  updateModalContent() {
     const modal = document.getElementById("auth-modal")
-    if (modal) {
-      this.updateFormAction()
-      // Directly show the modal and prevent body scrolling
-      modal.style.display = "flex"
-      document.body.style.overflow = "hidden"
-      
-      // Add event listeners for closing
-      const closeButton = modal.querySelector('[data-action*="modal#close"]')
-      if (closeButton) {
-        closeButton.addEventListener('click', () => this.closeModal())
+    if (!modal) return
+    
+    const isLogin = this.modeValue === "login"
+    
+    // Update title
+    const title = modal.querySelector('h3')
+    if (title) {
+      title.textContent = isLogin ? 'Sign in to Jupiter' : 'Create your Jupiter account'
+    }
+    
+    // Update NationBuilder button text if present
+    const oauthButton = modal.querySelector('a[href="/auth/nationbuilder"]')
+    if (oauthButton) {
+      const nationName = this.getNationDisplayName()
+      const buttonText = isLogin ? `Sign in with ${nationName}` : `Sign up with ${nationName}`
+      // Update the text content, preserving the SVG
+      const textContent = oauthButton.querySelector('svg') ? 
+        oauthButton.innerHTML.replace(/Sign (in|up) with .+$/, buttonText) :
+        buttonText
+      if (oauthButton.querySelector('svg')) {
+        // Keep SVG, just update text after it
+        const svg = oauthButton.querySelector('svg').outerHTML
+        oauthButton.innerHTML = svg + buttonText
+      } else {
+        oauthButton.textContent = buttonText
       }
-      
-      // Close on escape
-      document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') this.closeModal()
-      })
-      
-      // Close on backdrop click
-      modal.addEventListener('click', (e) => {
-        if (e.target === modal) this.closeModal()
-      })
+    }
+    
+    // Update primary button text
+    const submitButton = modal.querySelector('input[type="submit"]')
+    if (submitButton) {
+      submitButton.value = isLogin ? 'Sign in' : 'Create account'
+    }
+    
+    // Toggle fields based on mode using data attributes
+    const loginFields = modal.querySelectorAll('[data-auth-field="login"]')
+    const registerFields = modal.querySelectorAll('[data-auth-field="register"]')
+    
+    if (isLogin) {
+      // Login mode - hide registration fields, show login fields
+      registerFields.forEach(field => field.style.display = 'none')
+      loginFields.forEach(field => field.style.display = 'flex')
     } else {
-      console.error("Auth modal not found")
+      // Register mode - show registration fields, hide login fields  
+      registerFields.forEach(field => field.style.display = 'block')
+      loginFields.forEach(field => field.style.display = 'none')
+    }
+    
+    // Update switch mode text
+    const switchTextContainer = modal.querySelector('.text-sm.text-gray-600')
+    if (switchTextContainer) {
+      const switchButton = switchTextContainer.querySelector('.font-medium.text-blue-600')
+      if (switchButton) {
+        const newText = isLogin ? "Don't have an account?" : "Already have an account?"
+        const linkText = isLogin ? 'Sign up' : 'Sign in'
+        
+        // Update the text content
+        switchTextContainer.innerHTML = `${newText} <button type="button" class="font-medium text-blue-600 hover:text-blue-500" data-action="click->${isLogin ? 'auth#switchToRegister' : 'auth#switchToLogin'}">${linkText}</button>`
+      }
     }
   }
 
-  closeModal() {
-    const modal = document.getElementById("auth-modal")
-    if (modal) {
-      modal.style.display = "none"
-      document.body.style.overflow = ""
-    }
+  getNationDisplayName() {
+    const slug = this.getNationSlug()
+    if (!slug) return "NationBuilder"
+    
+    return slug.split("-").map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(" ")
+  }
+
+  getNationSlug() {
+    const metaTag = document.querySelector('meta[name="nationbuilder-slug"]')
+    if (metaTag) return metaTag.content
+    
+    return "nationbuilder"
   }
 }
