@@ -163,3 +163,92 @@ The application implements a service-oriented architecture within Rails conventi
 - RuboCop with rails-omakase preset for consistent styling
 - Brakeman for security scanning
 - Comprehensive test coverage with RSpec and FactoryBot
+
+## RuboCop Guidelines
+
+**CRITICAL**: Always run RuboCop after making code changes to maintain code quality and prevent build failures.
+
+### Required Commands
+```bash
+# Always run these commands after making changes:
+bin/rubocop                          # Check for style violations
+bin/rubocop --autocorrect            # Auto-fix correctable violations
+bin/rspec                            # Run tests to ensure functionality
+```
+
+### RuboCop Rules and Exceptions
+
+**Auto-correctable Issues**: These should always be fixed automatically:
+- `Layout/TrailingWhitespace` - Remove trailing spaces
+- `Layout/TrailingEmptyLines` - Ensure single final newline
+- `Layout/EmptyLinesAroundBlockBody` - Proper spacing around blocks
+- `RSpec/EmptyHook` - Remove empty before/after blocks
+
+**Acceptable Violations** (require manual review):
+- `RSpec/MultipleExpectations` - Allowed in comprehensive system tests and component tests
+  - System tests often need 10+ expectations to verify complex user flows
+  - Component tests may need multiple expectations to verify HTML structure
+  - **Guideline**: Keep under 15 expectations per test, break into smaller tests if possible
+
+**Breaking Changes to Avoid**:
+1. **Never change method signatures** without updating all callers
+2. **Never remove public methods** without deprecation
+3. **Never change database column types** without proper migration
+4. **Never modify test helper methods** without verifying all usages
+5. **Never change class names** without updating all references
+
+### Pre-commit Checklist
+Before committing code changes:
+1. ✅ `bin/rubocop --autocorrect` - Fix style issues
+2. ✅ `bin/rspec` - Ensure all tests pass  
+3. ✅ `bin/brakeman` - Check security issues
+4. ✅ Review any remaining RuboCop violations for acceptability
+5. ✅ Verify no breaking changes to public APIs
+
+### Common RuboCop Violations and Fixes
+
+**Trailing Whitespace**:
+```ruby
+# Bad
+def method_name  
+  # code with trailing spaces
+end
+
+# Good  
+def method_name
+  # clean code
+end
+```
+
+**Multiple Expectations in Tests**:
+```ruby
+# Acceptable for comprehensive tests
+it "renders correct form structure for registration mode" do
+  render_inline(described_class.new(mode: :register))
+  
+  # Multiple expectations are OK for structure verification
+  expect(rendered_content).to include('<form')
+  expect(rendered_content).to include('action="/users"')
+  expect(rendered_content).to include('method="post"')
+  # ... up to ~15 expectations for comprehensive validation
+end
+```
+
+**Empty Hooks**:
+```ruby
+# Bad
+before do
+  # empty hook
+end
+
+# Good - remove empty hooks or add actual setup
+before do
+  @user = create(:user)
+end
+```
+
+### Testing Quality Standards
+- **System tests**: Focus on user workflows, multiple expectations acceptable
+- **Unit tests**: Single responsibility, fewer expectations preferred  
+- **Component tests**: Structure verification may require multiple expectations
+- **Integration tests**: End-to-end flows, comprehensive assertions needed

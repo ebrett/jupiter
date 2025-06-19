@@ -16,6 +16,10 @@
 !/log/.keep
 !/tmp/.keep
 
+# Ignore Capybara screenshots and HTML dumps
+/tmp/capybara/*.png
+/tmp/capybara/*.html
+
 # Ignore pidfiles, but keep the directory.
 /tmp/pids/*
 !/tmp/pids/
