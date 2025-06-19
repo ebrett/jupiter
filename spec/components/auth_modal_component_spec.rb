@@ -2,12 +2,31 @@ require "rails_helper"
 
 RSpec.describe AuthModalComponent, type: :component do
   describe "login mode" do
-    it "renders login form title and oauth link" do
-      render_inline(described_class.new(mode: :login))
+    context "when nationbuilder_signin feature flag is disabled" do
+      it "renders login form title without oauth link" do
+        render_inline(described_class.new(mode: :login))
 
-      expect(rendered_content).to include("Sign in to Jupiter")
-      expect(rendered_content).to include('href="/auth/nationbuilder"')
-      expect(rendered_content).to include("Sign in with") # Dynamic nation name
+        expect(rendered_content).to include("Sign in to Jupiter")
+        expect(rendered_content).not_to include('href="/auth/nationbuilder"')
+        expect(rendered_content).not_to include("Sign in with")
+      end
+    end
+
+    context "when nationbuilder_signin feature flag is enabled" do
+      before do
+        FeatureFlag.find_or_create_by!(name: 'nationbuilder_signin') do |f|
+          f.description = 'Test flag'
+          f.enabled = true
+        end
+      end
+
+      it "renders login form title and oauth link" do
+        render_inline(described_class.new(mode: :login))
+
+        expect(rendered_content).to include("Sign in to Jupiter")
+        expect(rendered_content).to include('href="/auth/nationbuilder"')
+        expect(rendered_content).to include("Sign in with") # Dynamic nation name
+      end
     end
 
     it "renders login form input fields" do
@@ -30,13 +49,17 @@ RSpec.describe AuthModalComponent, type: :component do
       expect(rendered_content).to include("Sign up")
     end
 
-    it "does not show registration-only fields" do
+    it "hides registration-only fields" do
       render_inline(described_class.new(mode: :login))
 
-      expect(rendered_content).not_to include('name="first_name"')
-      expect(rendered_content).not_to include('name="last_name"')
-      expect(rendered_content).not_to include('name="password_confirmation"')
-      expect(rendered_content).not_to include("Terms of Service")
+      # Fields are present but hidden with display: none
+      expect(rendered_content).to include('name="first_name"')
+      expect(rendered_content).to include('name="last_name"')
+      expect(rendered_content).to include('name="password_confirmation"')
+      expect(rendered_content).to include("Terms of Service")
+
+      # Check they have the correct data attribute and are hidden
+      expect(rendered_content).to include('data-auth-field="register" style="display: none;"')
     end
 
     it "sets form action to session path" do
@@ -47,12 +70,31 @@ RSpec.describe AuthModalComponent, type: :component do
   end
 
   describe "register mode" do
-    it "renders registration form title and oauth link" do
-      render_inline(described_class.new(mode: :register))
+    context "when nationbuilder_signin feature flag is disabled" do
+      it "renders registration form title without oauth link" do
+        render_inline(described_class.new(mode: :register))
 
-      expect(rendered_content).to include("Create your Jupiter account")
-      expect(rendered_content).to include('href="/auth/nationbuilder"')
-      expect(rendered_content).to include("Sign up with") # Dynamic nation name
+        expect(rendered_content).to include("Create your Jupiter account")
+        expect(rendered_content).not_to include('href="/auth/nationbuilder"')
+        expect(rendered_content).not_to include("Sign up with")
+      end
+    end
+
+    context "when nationbuilder_signin feature flag is enabled" do
+      before do
+        flag = FeatureFlag.find_or_create_by!(name: 'nationbuilder_signin') do |f|
+          f.description = 'Test flag'
+          f.enabled = true
+        end
+      end
+
+      it "renders registration form title and oauth link" do
+        render_inline(described_class.new(mode: :register))
+
+        expect(rendered_content).to include("Create your Jupiter account")
+        expect(rendered_content).to include('href="/auth/nationbuilder"')
+        expect(rendered_content).to include("Sign up with") # Dynamic nation name
+      end
     end
 
     it "renders registration form input fields" do
@@ -76,17 +118,21 @@ RSpec.describe AuthModalComponent, type: :component do
       expect(rendered_content).to include("Terms of Service")
     end
 
-    it "does not show login-only fields" do
+    it "hides login-only fields" do
       render_inline(described_class.new(mode: :register))
 
-      expect(rendered_content).not_to include('name="remember_me"')
-      expect(rendered_content).not_to include("Forgot password?")
+      # Fields are present but hidden with display: none
+      expect(rendered_content).to include('name="remember_me"')
+      expect(rendered_content).to include("Forgot password?")
+
+      # Check they have the correct data attribute and are hidden
+      expect(rendered_content).to include('data-auth-field="login" style="display: none;"')
     end
 
-    it "sets form action to session path" do
+    it "sets form action to users path" do
       render_inline(described_class.new(mode: :register))
 
-      expect(rendered_content).to include('action="/session"')
+      expect(rendered_content).to include('action="/users"')
     end
   end
 

@@ -1,9 +1,11 @@
 class NationbuilderAuthController < ApplicationController
   include OauthHelper
+  include FeatureFlaggable
 
   allow_unauthenticated_access only: [ :redirect, :callback ]
 
   before_action :resume_session
+  before_action :check_nationbuilder_feature_flag
 
   def redirect
     client = Oauth2Client.new(
@@ -66,6 +68,25 @@ class NationbuilderAuthController < ApplicationController
   end
 
   private
+
+  def check_nationbuilder_feature_flag
+    # For OAuth flows, we check if the feature is globally enabled
+    # If user is logged in, we also check if they have access to the feature
+    flag = FeatureFlag.find_by(name: "nationbuilder_signin")
+
+    unless flag&.enabled?
+      redirect_to new_session_path, alert: "NationBuilder sign-in is currently unavailable."
+      return false
+    end
+
+    # If user is logged in, check if they have access to the feature
+    if current_user && !feature_enabled?("nationbuilder_signin")
+      redirect_to new_session_path, alert: "NationBuilder sign-in is currently unavailable."
+      return false
+    end
+
+    true
+  end
 
   def handle_oauth_error
     error_message = params[:error_description] || params[:error]

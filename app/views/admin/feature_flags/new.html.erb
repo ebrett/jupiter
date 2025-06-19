@@ -1,0 +1,10 @@
+<% content_for(:page_title, "New Feature Flag") %>
+
+<div class="bg-white shadow rounded-lg p-6">
+  <div class="mb-6">
+    <h2 class="text-xl font-semibold text-gray-900">Create New Feature Flag</h2>
+    <p class="text-gray-600 mt-1">Feature flags allow you to control access to features for specific users or roles.</p>
+  </div>
+
+  <%= render 'form', feature_flag: @feature_flag %>
+</div>

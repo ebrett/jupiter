@@ -1,0 +1,10 @@
+<% content_for(:page_title, "Edit Feature Flag: #{@feature_flag.name}") %>
+
+<div class="bg-white shadow rounded-lg p-6">
+  <div class="mb-6">
+    <h2 class="text-xl font-semibold text-gray-900">Edit Feature Flag</h2>
+    <p class="text-gray-600 mt-1">Update the description and status of the feature flag.</p>
+  </div>
+
+  <%= render 'form', feature_flag: @feature_flag %>
+</div>
