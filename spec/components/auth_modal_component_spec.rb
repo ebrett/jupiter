@@ -49,13 +49,17 @@ RSpec.describe AuthModalComponent, type: :component do
       expect(rendered_content).to include("Sign up")
     end
 
-    it "does not show registration-only fields" do
+    it "hides registration-only fields" do
       render_inline(described_class.new(mode: :login))
 
-      expect(rendered_content).not_to include('name="first_name"')
-      expect(rendered_content).not_to include('name="last_name"')
-      expect(rendered_content).not_to include('name="password_confirmation"')
-      expect(rendered_content).not_to include("Terms of Service")
+      # Fields are present but hidden with display: none
+      expect(rendered_content).to include('name="first_name"')
+      expect(rendered_content).to include('name="last_name"')
+      expect(rendered_content).to include('name="password_confirmation"')
+      expect(rendered_content).to include("Terms of Service")
+      
+      # Check they have the correct data attribute and are hidden
+      expect(rendered_content).to include('data-auth-field="register" style="display: none;"')
     end
 
     it "sets form action to session path" do
@@ -114,11 +118,15 @@ RSpec.describe AuthModalComponent, type: :component do
       expect(rendered_content).to include("Terms of Service")
     end
 
-    it "does not show login-only fields" do
+    it "hides login-only fields" do
       render_inline(described_class.new(mode: :register))
 
-      expect(rendered_content).not_to include('name="remember_me"')
-      expect(rendered_content).not_to include("Forgot password?")
+      # Fields are present but hidden with display: none
+      expect(rendered_content).to include('name="remember_me"')
+      expect(rendered_content).to include("Forgot password?")
+      
+      # Check they have the correct data attribute and are hidden
+      expect(rendered_content).to include('data-auth-field="login" style="display: none;"')
     end
 
     it "sets form action to users path" do
