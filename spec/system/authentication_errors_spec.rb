@@ -250,11 +250,11 @@ RSpec.describe "Authentication Errors", type: :system do
         click_button "Sign up"
       end
 
-      # Attempt registration with invalid email format
+      # Attempt registration with empty email
       within "#auth-modal" do
         fill_in "first_name", with: "Test"
         fill_in "last_name", with: "User"
-        fill_in "email_address", with: "invalid-email"
+        fill_in "email_address", with: ""
         fill_in "password", with: "password123"
         fill_in "password_confirmation", with: "password123"
 
@@ -263,10 +263,9 @@ RSpec.describe "Authentication Errors", type: :system do
         click_button "Create account"
       end
 
-      # Should show email format error
+      # Should show validation error on the same page
       expect(page).to have_current_path(root_path)
-      expect(page).to have_content("Registration failed:")
-      # May show "Email address is invalid" or similar message
+      expect(page).to have_content("Registration failed: Email address can't be blank")
     end
   end
 
@@ -391,15 +390,17 @@ RSpec.describe "Authentication Errors", type: :system do
         click_button "Create account"
       end
 
-      # Should get error
-      expect(page).to have_content("Registration failed:")
+      # Should show error on the same page
+      expect(page).to have_current_path(root_path)
+      expect(page).to have_content("Registration failed: Password is too short")
 
-      # Try again with valid data
-      click_button "Create account"
+      # Try again with valid data - need to reopen modal by clicking "Sign in"
+      click_button "Sign in"
       within "#auth-modal" do
+        click_button "Sign up"
         fill_in "first_name", with: "Test"
         fill_in "last_name", with: "User"
-        fill_in "email_address", with: "test@example.com"
+        fill_in "email_address", with: "newuser@example.com"
         fill_in "password", with: "password123"
         fill_in "password_confirmation", with: "password123"
         click_button "Create account"
