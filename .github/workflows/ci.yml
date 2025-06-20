@@ -96,6 +96,13 @@ jobs:
             bundle exec rails runner 'Role.initialize_all'
           fi
           
+      # Compile assets for system tests
+      - name: Compile assets
+        if: matrix.test_group == 'system'
+        run: bundle exec rails assets:precompile
+        env:
+          RAILS_ENV: test
+          
       # Run different test groups in parallel
       - name: Run unit tests
         if: matrix.test_group == 'unit'
