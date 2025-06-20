@@ -11,7 +11,7 @@ class AuthModalComponent < ViewComponent::Base
 
   # Override feature_enabled? to handle global features for unauthenticated users
   def feature_enabled?(flag_name)
-    FeatureFlagService.enabled?(flag_name, nil) # Always pass nil for global feature check
+    FeatureFlagService.enabled?(flag_name, current_user)
   end
 
   private
