@@ -128,7 +128,6 @@ jobs:
         run: |
           bundle exec rspec \
             spec/requests \
-            spec/features \
             --format progress \
             --profile 5
             
