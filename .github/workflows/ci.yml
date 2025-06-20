@@ -96,9 +96,9 @@ jobs:
             bundle exec rails runner 'Role.initialize_all'
           fi
           
-      # Compile assets for system tests (includes TailwindCSS build)
+      # Compile assets for system and integration tests (includes TailwindCSS build)
       - name: Compile assets
-        if: matrix.test_group == 'system'
+        if: matrix.test_group == 'system' || matrix.test_group == 'integration'
         run: bundle exec rails assets:precompile
         env:
           RAILS_ENV: test

@@ -25,6 +25,7 @@
 
     <!-- Email/Password Form -->
     <%= form_with url: form_path, local: true, class: "space-y-4", data: { auth_target: "form" } do |form| %>
+      <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
       <!-- Name fields - always rendered but hidden for login mode -->
       <div class="grid grid-cols-2 gap-4" data-auth-field="register" style="<%= 'display: none;' if login_mode? %>">
         <div>
