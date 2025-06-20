@@ -6,8 +6,13 @@ on:
 
 jobs:
   test:
-    name: General Test Suite
+    name: Test Suite
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # Split tests into parallel jobs for faster execution
+        test_group: [unit, system, integration]
     services:
       postgres:
         image: postgres:15
@@ -26,47 +31,123 @@ jobs:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       DATABASE_URL: postgres://postgres:postgres@localhost:5432/jupiter_test
+      # Performance optimizations
+      RUBY_GC_HEAP_GROWTH_FACTOR: 1.1
+      RUBY_GC_MALLOC_LIMIT: 4000000
+      RUBY_GC_OLDMALLOC_LIMIT: 4000000
+    steps:
+      - uses: actions/checkout@v4
+      
+      # Cache Ruby gems for faster builds
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.4.1
+          bundler-cache: true
+          
+      # Cache Chrome installation for system tests
+      - name: Cache Chrome
+        if: matrix.test_group == 'system'
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/google-chrome
+            /opt/google/chrome
+          key: chrome-${{ runner.os }}-stable
+          restore-keys: |
+            chrome-${{ runner.os }}-
+            
+      - name: Setup Chrome for system tests
+        if: matrix.test_group == 'system'
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: stable
+          
+      - name: Setup ChromeDriver
+        if: matrix.test_group == 'system'
+        uses: nanasess/setup-chromedriver@v2
+        
+      # Cache database setup
+      - name: Cache database setup
+        uses: actions/cache@v4
+        with:
+          path: |
+            db/schema.rb
+            tmp/db_setup_complete
+          key: db-setup-${{ hashFiles('db/migrate/*.rb', 'db/seeds.rb') }}
+          restore-keys: |
+            db-setup-
+            
+      - name: Install dependencies
+        run: bundle install --jobs 4 --retry 3
+        
+      - name: Copy database config
+        run: cp config/database.yml.github config/database.yml
+        
+      - name: Setup database
+        run: |
+          if [ ! -f tmp/db_setup_complete ]; then
+            bundle exec rails db:create
+            bundle exec rails db:migrate
+            bundle exec rails runner 'Role.initialize_all'
+            touch tmp/db_setup_complete
+          else
+            bundle exec rails db:create
+            bundle exec rails db:schema:load
+            bundle exec rails runner 'Role.initialize_all'
+          fi
+          
+      # Run different test groups in parallel
+      - name: Run unit tests
+        if: matrix.test_group == 'unit'
+        run: |
+          bundle exec rspec \
+            --exclude-pattern "spec/system/**/*_spec.rb,spec/requests/**/*_spec.rb,spec/features/**/*_spec.rb" \
+            --format progress \
+            --profile 5
+            
+      - name: Run system tests
+        if: matrix.test_group == 'system'
+        run: |
+          bundle exec rspec spec/system \
+            --format progress \
+            --profile 5
+        env:
+          HEADED: false
+          # Optimize Chrome for CI performance
+          CHROME_OPTS: '--disable-dev-shm-usage --no-sandbox --disable-gpu --disable-extensions'
+          
+      - name: Run integration tests
+        if: matrix.test_group == 'integration'
+        run: |
+          bundle exec rspec \
+            spec/requests \
+            spec/features \
+            --format progress \
+            --profile 5
+            
+      - name: Upload screenshots on failure
+        uses: actions/upload-artifact@v4
+        if: failure() && matrix.test_group == 'system'
+        with:
+          name: system-test-screenshots-${{ github.run_id }}
+          path: tmp/capybara/
+          retention-days: 7
+          
+  rubocop:
+    name: Code Quality
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: 3.4.1
           bundler-cache: true
-      - name: Setup Chrome for system tests
-        uses: browser-actions/setup-chrome@v1
-        with:
-          chrome-version: stable
-      - name: Setup ChromeDriver
-        uses: nanasess/setup-chromedriver@v2
-      - name: Install dependencies
-        run: bundle install --jobs 4 --retry 3
-      - name: Copy database config
-        run: cp config/database.yml.github config/database.yml
-      - name: Setup database
-        run: |
-          bundle exec rails db:create
-          bundle exec rails db:migrate
-          bundle exec rails runner 'Role.initialize_all'
-      - name: Run tests (excluding system tests)
-        run: bundle exec rspec --exclude-pattern "spec/system/**/*_spec.rb" --format documentation
-      - name: Run system tests
-        run: bundle exec rspec spec/system --format documentation
-        env:
-          # Ensure headless mode for CI
-          HEADED: false
-      - name: Upload screenshots on failure
-        uses: actions/upload-artifact@v4
-        if: failure()
-        with:
-          name: system-test-screenshots
-          path: tmp/capybara/
-          retention-days: 7
-      - run: bundle exec rubocop
+      - run: bundle exec rubocop --parallel
 
   oauth:
     name: OAuth2 Checks
     runs-on: ubuntu-latest
-    needs: test
+    needs: [test, rubocop]
     if: |
       github.event.pull_request.head_ref != null &&
       (contains(join(github.event.pull_request.changed_files.*.filename, ','), 'app/services/nationbuilder_') ||
@@ -272,19 +353,21 @@ jobs:
   notify_results:
     name: Notify CI Results
     runs-on: ubuntu-latest
-    needs: [test, oauth]
+    needs: [test, rubocop, oauth]
     if: always()
     steps:
       - name: Notify success
-        if: ${{ needs.test.result == 'success' && (needs.oauth.result == 'success' || needs.oauth.result == 'skipped') }}
+        if: ${{ needs.test.result == 'success' && needs.rubocop.result == 'success' && (needs.oauth.result == 'success' || needs.oauth.result == 'skipped') }}
         run: |
           echo "✅ All CI checks passed successfully!"
-          echo "- General test suite: PASSED"
+          echo "- Test suite: PASSED"
+          echo "- Code quality: PASSED"
           echo "- OAuth checks: ${{ needs.oauth.result }}"
       - name: Notify failure
-        if: ${{ needs.test.result == 'failure' || needs.oauth.result == 'failure' }}
+        if: ${{ needs.test.result == 'failure' || needs.rubocop.result == 'failure' || needs.oauth.result == 'failure' }}
         run: |
           echo "❌ CI checks failed!"
-          echo "- General test suite: ${{ needs.test.result }}"
+          echo "- Test suite: ${{ needs.test.result }}"
+          echo "- Code quality: ${{ needs.rubocop.result }}"
           echo "- OAuth checks: ${{ needs.oauth.result }}"
           exit 1

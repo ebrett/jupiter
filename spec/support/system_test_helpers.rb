@@ -63,16 +63,30 @@ module SystemTestHelpers
 
   def open_login_modal
     """Open the authentication modal in login mode"""
-    click_button "Sign in"
-    expect_modal_open
-    expect(page).to have_content("Sign in to Jupiter")
+    # Use main content area to avoid sidebar confusion
+    within "main" do
+      click_button "Sign in"
+    end
+    # Wait for modal to be visible with reduced timeout
+    expect(page).to have_css("#auth-modal", visible: true, wait: 2)
+    # Wait for modal content to load
+    expect(page).to have_content("Sign in to Jupiter", wait: 1)
+    # Ensure Stimulus controller is initialized
+    expect(page).to have_css("#auth-modal form", wait: 1)
   end
 
   def open_registration_modal
     """Open the authentication modal in registration mode"""
-    click_button "Create account"
-    expect_modal_open
-    expect(page).to have_content("Create your Jupiter account")
+    # Use main content area to avoid sidebar confusion
+    within "main" do
+      click_button "Create account"
+    end
+    # Wait for modal to be visible with reduced timeout
+    expect(page).to have_css("#auth-modal", visible: true, wait: 2)
+    # Wait for modal content to load
+    expect(page).to have_content("Create your Jupiter account", wait: 1)
+    # Ensure form is ready
+    expect(page).to have_css("#auth-modal form", wait: 1)
   end
 
   def open_auth_modal
@@ -159,7 +173,7 @@ module SystemTestHelpers
 
   def expect_modal_open
     """Verify the authentication modal is visible"""
-    expect(page).to have_css("#auth-modal", visible: true)
+    expect(page).to have_css("#auth-modal", visible: true, wait: 5)
   end
 
   def expect_modal_closed

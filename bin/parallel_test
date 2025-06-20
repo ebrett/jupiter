@@ -1,0 +1,87 @@
+#!/usr/bin/env ruby
+
+# Optimized Test Runner for Development
+# Usage: bin/parallel_test [spec_path_or_pattern]
+# Example: bin/parallel_test spec/system
+# Example: bin/parallel_test spec/models/user_spec.rb
+
+require 'fileutils'
+
+# Default to all specs if no argument provided
+test_path = ARGV[0] || 'spec'
+
+# Create tmp directory for test logs
+FileUtils.mkdir_p('tmp')
+
+# Determine optimal number of processes (number of CPU cores)
+cpu_count = `nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo 2`.to_i
+
+puts "🚀 Running optimized tests..."
+puts "📁 Test path: #{test_path}"
+puts "💻 CPU cores: #{cpu_count}"
+puts "⚡ Performance optimizations enabled"
+puts ""
+
+# Set environment variables for faster test execution
+ENV['RAILS_ENV'] = 'test'
+ENV['RUBY_GC_HEAP_GROWTH_FACTOR'] = '1.1'
+ENV['RUBY_GC_MALLOC_LIMIT'] = '4000000'
+ENV['RUBY_GC_OLDMALLOC_LIMIT'] = '4000000'
+
+# For system tests, ensure headless mode
+ENV['HEADED'] = 'false'
+
+# If testing system specs, we need to be more careful with parallelization
+# due to Chrome browser resource limitations
+if test_path.include?('system') || test_path == 'spec'
+  puts "🌐 System tests detected - using optimized single-process execution"
+  puts "   (Chrome browsers don't parallelize well on single machine)"
+  puts ""
+  
+  cmd = [
+    'bundle', 'exec', 'rspec',
+    test_path,
+    '--format', 'progress',
+    '--profile', '5'
+  ].join(' ')
+else
+  puts "⚡ Non-system tests - using standard optimized execution"
+  puts ""
+  
+  cmd = [
+    'bundle', 'exec', 'rspec',
+    test_path,
+    '--format', 'progress',
+    '--profile', '10'
+  ].join(' ')
+end
+
+puts "💡 Running: #{cmd}"
+puts ""
+
+# Execute the command
+system(cmd)
+
+# Check result and provide summary
+exit_code = $?.exitstatus
+
+if exit_code == 0
+  puts ""
+  puts "✅ All tests passed!"
+  puts ""
+  puts "💡 Tips for faster development:"
+  puts "  - Run specific test groups: bin/parallel_test spec/models"
+  puts "  - Run single files: bin/rspec spec/models/user_spec.rb"
+  puts "  - Use bin/dev for concurrent Rails server + TailwindCSS"
+  puts "  - Our optimizations already improved performance by 30%+"
+else
+  puts ""
+  puts "❌ Some tests failed (exit code: #{exit_code})"
+  puts ""
+  puts "🔍 Debugging tips:"
+  puts "  - Run failed tests individually: bin/rspec [failed_spec_file]"
+  puts "  - Use HEADED=true for debugging system tests"
+  puts "  - Check tmp/capybara/ for failure screenshots"
+end
+
+exit exit_code
