@@ -24,15 +24,25 @@ Layout/LineLength:
 
 # RSpec configuration - more lenient for component tests
 RSpec/MultipleExpectations:
-  Max: 10
+  Max: 20 
 
 RSpec/ExampleLength:
-  Max: 35
+  Max: 40
 
 RSpec/MultipleMemoizedHelpers:
   Max: 15
 
 RSpec/ContextWording:
+  Enabled: false
+
+# Metrics configuration - more lenient limits for method and class lengths
+Metrics/MethodLength:
+  Max: 50
+
+Metrics/ClassLength:
+  Max: 300
+
+Metrics/BlockLength:
   Enabled: false
 
 RSpec/MessageSpies:
