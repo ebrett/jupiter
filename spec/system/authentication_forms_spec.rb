@@ -13,6 +13,7 @@ RSpec.describe "Authentication Forms", type: :system do
 
       # Open modal in login mode
       click_button "Sign in"
+      expect(page).to have_css("#auth-modal", visible: true)
       expect(page).to have_content("Sign in to Jupiter")
 
       # Verify form action points to session endpoint
