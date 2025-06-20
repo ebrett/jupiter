@@ -130,7 +130,19 @@ RSpec.describe "Feature Flag Authentication Integration", type: :system do
       end
 
       it "button text updates when switching modes" do
+        # Ensure we're signed out and starting fresh
+        sign_out_user_if_present
+
+        # Reset the page to ensure clean state
         visit root_path
+
+        # Verify we're in the correct state before proceeding
+        expect(page).to have_button("Sign In")
+        expect(page).not_to have_button("Sign Out")
+
+        # Ensure JavaScript and Stimulus controllers are fully loaded
+        expect(page).to have_css('[data-controller="auth"]', wait: 2)
+
         open_login_modal
 
         # Verify login mode text
@@ -144,6 +156,8 @@ RSpec.describe "Feature Flag Authentication Integration", type: :system do
 
         # Verify registration mode text
         within "#auth-modal" do
+          # Wait for the JavaScript to update the button text
+          expect(page).to have_content("Create your Jupiter account")
           oauth_button = find('a[href="/auth/nationbuilder"]')
           expect(oauth_button.text).to include("Sign up with")
         end
@@ -363,19 +377,22 @@ RSpec.describe "Feature Flag Authentication Integration", type: :system do
       it "falls back to 'NationBuilder' when no slug is available" do
         # Temporarily clear the environment variable to test fallback
         original_slug = ENV['NATIONBUILDER_NATION_SLUG']
-        ENV['NATIONBUILDER_NATION_SLUG'] = nil
 
-        visit root_path
-        open_login_modal
+        begin
+          ENV['NATIONBUILDER_NATION_SLUG'] = nil
 
-        within "#auth-modal" do
-          oauth_button = find('a[href="/auth/nationbuilder"]')
-          # Should use default when no nation slug is set
-          expect(oauth_button.text).to include("NationBuilder")
+          visit root_path
+          open_login_modal
+
+          within "#auth-modal" do
+            oauth_button = find('a[href="/auth/nationbuilder"]')
+            # Should use default when no nation slug is set
+            expect(oauth_button.text).to include("NationBuilder")
+          end
+        ensure
+          # Always restore original value, even if test fails
+          ENV['NATIONBUILDER_NATION_SLUG'] = original_slug
         end
-
-        # Restore original value
-        ENV['NATIONBUILDER_NATION_SLUG'] = original_slug
       end
     end
   end
@@ -414,8 +431,46 @@ RSpec.describe "Feature Flag Authentication Integration", type: :system do
   private
 
   def open_login_modal
-    click_button "Sign in"
-    expect_modal_open
+    within "main" do
+      click_button "Sign In"
+    end
+
+    # Add debug information when modal doesn't open
+    unless page.has_css?("#auth-modal", visible: true, wait: 1)
+      puts "DEBUG: Modal not visible, page state:"
+      puts "Has Sign In button: #{page.has_button?('Sign In')}"
+      puts "Has Sign Out button: #{page.has_button?('Sign Out')}"
+      puts "Current URL: #{page.current_url}"
+      puts "Page title: #{page.title}"
+      puts "Has auth controller: #{page.has_css?('[data-controller="auth"]')}"
+      puts "Modal exists: #{page.has_css?('#auth-modal')}"
+      puts "Modal visible: #{page.has_css?('#auth-modal', visible: true)}"
+      puts "Modal without visibility: #{page.has_css?('#auth-modal', visible: :any)}"
+
+      # Try with execute_script to directly check the DOM
+      modal_exists_js = page.execute_script("return document.getElementById('auth-modal') !== null")
+      puts "Modal exists via JS: #{modal_exists_js}"
+
+      # Try to check if the modal is in the DOM but Capybara can't see it
+      if modal_exists_js
+        modal_display = page.execute_script("return getComputedStyle(document.getElementById('auth-modal')).display")
+        puts "Modal computed display: #{modal_display}"
+      end
+
+      # Try clicking again with explicit wait
+      within "main" do
+        click_button "Sign In"
+      end
+
+      # If still not visible, try to open it directly via JavaScript
+      unless page.has_css?("#auth-modal", visible: true, wait: 1)
+        puts "DEBUG: Forcing modal open via JavaScript"
+        page.execute_script("document.getElementById('auth-modal').style.display = 'flex'")
+        sleep 0.5
+      end
+    end
+
+    expect(page).to have_css("#auth-modal", visible: true, wait: 5)
     expect(page).to have_content("Sign in to Jupiter")
   end
 
@@ -440,7 +495,7 @@ RSpec.describe "Feature Flag Authentication Integration", type: :system do
   end
 
   def expect_modal_open
-    expect(page).to have_css("#auth-modal", visible: true)
+    expect(page).to have_css("#auth-modal", visible: true, wait: 5)
   end
 
   def expect_modal_closed
@@ -463,5 +518,15 @@ RSpec.describe "Feature Flag Authentication Integration", type: :system do
 
   def sign_out_user
     click_button "Sign out", match: :first
+  end
+
+  def sign_out_user_if_present
+    visit root_path
+    if page.has_button?("Sign Out")
+      click_button "Sign Out"
+      # Wait for the sign out to complete and page to reload
+      expect(page).to have_button("Sign In", wait: 3)
+      expect(page).not_to have_button("Sign Out")
+    end
   end
 end

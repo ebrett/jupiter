@@ -99,14 +99,11 @@ export default class extends Controller {
     if (oauthButton) {
       const nationName = this.getNationDisplayName()
       const buttonText = isLogin ? `Sign in with ${nationName}` : `Sign up with ${nationName}`
-      // Update the text content, preserving the SVG
-      const textContent = oauthButton.querySelector('svg') ? 
-        oauthButton.innerHTML.replace(/Sign (in|up) with .+$/, buttonText) :
-        buttonText
+      
       if (oauthButton.querySelector('svg')) {
         // Keep SVG, just update text after it
         const svg = oauthButton.querySelector('svg').outerHTML
-        oauthButton.innerHTML = svg + buttonText
+        oauthButton.innerHTML = svg + ' ' + buttonText
       } else {
         oauthButton.textContent = buttonText
       }
@@ -155,8 +152,9 @@ export default class extends Controller {
 
   getNationSlug() {
     const metaTag = document.querySelector('meta[name="nationbuilder-slug"]')
-    if (metaTag) return metaTag.content
+    if (metaTag && metaTag.content) return metaTag.content
     
-    return "nationbuilder"
+    // Fallback to a default value
+    return null
   }
 }
