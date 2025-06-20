@@ -1,0 +1,12 @@
+# RSpec Optimized Test Configuration
+# Used by bin/parallel_test script for performance optimizations
+
+--format progress
+--profile 5
+--require rails_helper
+
+# Performance optimizations
+--order random
+
+# Enable profiling for performance monitoring
+--profile 10

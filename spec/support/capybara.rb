@@ -29,6 +29,22 @@ Capybara.register_driver :selenium_chrome_headless do |app|
   options.add_argument('--allow-running-insecure-content')
   options.add_argument('--disable-features=VizDisplayCompositor')
   options.add_argument('--window-size=1920,1080')
+
+  # Performance optimizations for faster startup
+  options.add_argument('--disable-extensions')
+  options.add_argument('--disable-plugins')
+  options.add_argument('--disable-images')
+  options.add_argument('--disable-default-apps')
+  options.add_argument('--disable-sync')
+  options.add_argument('--disable-translate')
+  options.add_argument('--hide-scrollbars')
+  options.add_argument('--metrics-recording-only')
+  options.add_argument('--mute-audio')
+  options.add_argument('--no-first-run')
+  options.add_argument('--safebrowsing-disable-auto-update')
+  options.add_argument('--disable-ipc-flooding-protection')
+  # Keep JavaScript enabled for tests to work
+
   # Disable macOS malware/security dialogs
   options.add_argument('--disable-background-timer-throttling')
   options.add_argument('--disable-backgrounding-occluded-windows')
@@ -49,12 +65,17 @@ end
 
 # Configure Capybara settings
 Capybara.configure do |config|
-  config.default_max_wait_time = 5
+  # Reduced wait time for faster tests (was 5s)
+  config.default_max_wait_time = 2
   config.ignore_hidden_elements = true
   config.server = :puma, { Silent: true }
   config.server_host = 'localhost'
   config.server_port = 9887 + ENV['TEST_ENV_NUMBER'].to_i
   config.app_host = "http://#{config.server_host}:#{config.server_port}"
+
+  # Performance optimizations
+  config.enable_aria_label = true
+  config.disable_animation = true if config.respond_to?(:disable_animation)
 end
 
 # Configure screenshot settings
