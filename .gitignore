@@ -45,8 +45,9 @@
 .taskmaster
 .aider*
 
-# Claude Code settings
-.claude/
+# Claude Code settings (but allow commands directory)
+.claude/*
+!.claude/commands/
 
 # Scripts folder for Claude reference (not committed)
 scripts/
