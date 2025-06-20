@@ -97,15 +97,10 @@ jobs:
           fi
           
       # Build TailwindCSS and compile assets for system tests
-      - name: Build TailwindCSS
-        if: matrix.test_group == 'system'
-        run: bundle exec rails tailwindcss:build
-        env:
-          RAILS_ENV: test
-          
-      - name: Compile assets
+      - name: Build assets
         if: matrix.test_group == 'system'
         run: |
+          bundle exec rails tailwindcss:build
           bundle exec rails assets:clobber
           bundle exec rails assets:precompile
         env:
