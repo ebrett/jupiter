@@ -100,8 +100,7 @@ jobs:
       - name: Build assets
         if: matrix.test_group == 'system'
         run: |
-          bundle exec rails tailwindcss:build
-          bundle exec rails assets:clobber
+          tailwindcss --input ./app/assets/stylesheets/application.css --output ./app/assets/builds/application.css
           bundle exec rails assets:precompile
         env:
           RAILS_ENV: test
