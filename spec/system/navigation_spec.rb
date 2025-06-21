@@ -9,14 +9,25 @@ RSpec.describe "Navigation", type: :system do
   end
 
   describe "Components navigation visibility" do
-    context "when user is an admin" do
+    context "when user is a system administrator" do
       before do
-        admin_user = create(:user, :admin, email_address: "admin@example.com")
-        sign_in_user(email: admin_user.email_address, password: "password123")
+        system_admin = create(:user, :system_administrator, email_address: "sysadmin@example.com")
+        sign_in_user(email: system_admin.email_address, password: "password123")
       end
 
       it "shows the Components navigation link in development", skip: !Rails.env.development? do
         expect(page).to have_link("Components", href: "/component_examples")
+      end
+    end
+
+    context "when user has other admin roles" do
+      before do
+        treasury_admin = create(:user, :treasury_team_admin, email_address: "treasury@example.com")
+        sign_in_user(email: treasury_admin.email_address, password: "password123")
+      end
+
+      it "does not show the Components navigation link" do
+        expect(page).not_to have_link("Components", href: "/component_examples")
       end
     end
 
