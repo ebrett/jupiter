@@ -16,7 +16,7 @@
         <% end %>
       </li>
       
-      <% if Rails.env.development? %>
+      <% if Rails.env.development? && authenticated? && current_user.admin? %>
         <li>
           <%= link_to "/component_examples", class: "flex items-center px-3 py-2 text-sm font-medium rounded-md #{current_page?("/component_examples") ? 'bg-gray-100 text-gray-900' : 'text-gray-700 hover:bg-gray-50'}" do %>
             <svg class="mr-3 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
