@@ -35,6 +35,9 @@ bin/rake seed:users                  # Create/update test users only
 bin/rake seed:stats                  # Show current user statistics and test credentials
 bin/rake seed:reset_users            # Remove and recreate all test users
 bin/rake seed:validate               # Validate seed data integrity
+
+# Development Environment with tmux
+bin/tmux-dev                         # Starts complete development environment
 ```
 
 ## Architecture Overview
@@ -147,7 +150,24 @@ The application implements a service-oriented architecture within Rails conventi
 - **Audit Logging**: `NationbuilderAuditLogger` tracks all OAuth events and performance metrics
 - **Graceful Degradation**: Service continues operating with reduced functionality during API failures
 
-## Development Patterns
+## Development Environment
+
+### tmux-dev Setup
+When using `bin/tmux-dev`, the development environment includes:
+- **Dev Server**: Rails server + TailwindCSS watcher
+- **Ngrok Tunnel**: Public HTTPS URL for testing webhooks/OAuth
+- **Continuous Testing**: Guard-rspec monitors file changes and auto-runs relevant tests
+- **Claude AI**: Dedicated workspace for AI-assisted development
+
+### Continuous Testing Workflow
+**Guard-rspec is running and monitoring your changes**:
+- File saves trigger automatic test runs for related specs
+- No need to manually run `bin/rspec` during development 
+- Tests run in background - check the "tests" tmux window for results
+- Focus on writing code; tests provide immediate feedback
+- Only run full test suite (`bin/rspec`) before commits or for comprehensive verification
+
+### Development Patterns
 
 ### Component Architecture
 - Use ViewComponent for reusable UI elements (located in `app/components/`)
