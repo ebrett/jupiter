@@ -16,6 +16,10 @@
 !/log/.keep
 !/tmp/.keep
 
+# Ignore Capybara screenshots and HTML dumps
+/tmp/capybara/*.png
+/tmp/capybara/*.html
+
 # Ignore pidfiles, but keep the directory.
 /tmp/pids/*
 !/tmp/pids/
@@ -41,8 +45,9 @@
 .taskmaster
 .aider*
 
-# Claude Code settings
-.claude/
+# Claude Code settings (but allow commands directory)
+.claude/*
+!.claude/commands/
 
 # Scripts folder for Claude reference (not committed)
 scripts/
