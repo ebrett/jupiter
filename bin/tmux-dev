@@ -257,4 +257,3 @@ echo "Attaching to session..."
 
 # Attach to the session
 tmux attach-session -t "$SESSION_NAME"
-
