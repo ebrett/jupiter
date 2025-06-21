@@ -52,5 +52,22 @@ FactoryBot.define do
         user.roles << role unless user.roles.include?(role)
       end
     end
+
+    # Convenience aliases for common role traits
+    trait :system_administrator do
+      with_system_administrator_role
+    end
+
+    trait :treasury_team_admin do
+      with_treasury_team_admin_role
+    end
+
+    trait :country_chapter_admin do
+      with_country_chapter_admin_role
+    end
+
+    trait :admin do
+      with_system_administrator_role
+    end
   end
 end
