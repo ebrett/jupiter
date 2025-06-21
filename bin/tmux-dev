@@ -27,6 +27,53 @@ check_port() {
     fi
 }
 
+# Function to handle Claude session
+select_claude_session() {
+    echo "Claude Session Options:"
+    echo "  1. Start new session"
+    echo "  2. Continue current session"
+    echo "  3. Resume previous session"
+    read -p "Choose an option (1-3): " choice
+    
+    case $choice in
+        1)
+            echo "Starting new Claude session..."
+            CLAUDE_COMMAND="claude"
+            ;;
+        2)
+            echo "Continuing current Claude session..."
+            CLAUDE_COMMAND="claude --continue"
+            ;;
+        3)
+            echo "Resuming previous Claude session..."
+            CLAUDE_COMMAND="claude --resume"
+            ;;
+        *)
+            echo "Invalid choice. Starting new Claude session..."
+            CLAUDE_COMMAND="claude"
+            ;;
+    esac
+}
+
+# Function to select layout (windows or panes)
+select_layout() {
+    echo "Layout Options:"
+    echo "  1. Separate windows (default)"
+    echo "  2. Split panes (side by side)"
+    read -p "Choose layout (1-2): " choice
+    
+    case $choice in
+        2)
+            echo "Using split panes layout..."
+            USE_PANES=true
+            ;;
+        *)
+            echo "Using separate windows layout (default)..."
+            USE_PANES=false
+            ;;
+    esac
+}
+
 # Check if session already exists
 if tmux has-session -t "$SESSION_NAME" 2>/dev/null; then
     echo "Session '$SESSION_NAME' already exists. Attaching..."
@@ -37,22 +84,63 @@ fi
 # Check for port conflicts before starting
 check_port
 
+# Select layout preference - this only happens when creating a new session
+# If attaching to an existing session, this selection is skipped
+select_layout
+
+# Get Claude session preference - this only happens when creating a new session
+# If attaching to an existing session, this selection is skipped
+select_claude_session
+
 echo "Creating new tmux session '$SESSION_NAME'..."
 
-# Create new session with first window for bin/dev
-tmux new-session -d -s "$SESSION_NAME" -n "dev"
-tmux send-keys -t "$SESSION_NAME":dev "bin/dev" Enter
-
-# Create second window for ngrok
-tmux new-window -t "$SESSION_NAME" -n "ngrok"
-tmux send-keys -t "$SESSION_NAME":ngrok "ngrok http --url=$NGROK_URL $PORT" Enter
-
-# Select the first window (dev)
-tmux select-window -t "$SESSION_NAME":dev
+if [ "$USE_PANES" = true ]; then
+    # Create new session with dev command in first pane
+    tmux new-session -d -s "$SESSION_NAME" "bin/dev"
+    
+    # Create second pane with ngrok
+    tmux split-window -h "ngrok http --url=$NGROK_URL $PORT"
+    
+    # Create third pane with claude
+    tmux split-window -h "$CLAUDE_COMMAND"
+    
+    # Set even horizontal layout
+    tmux select-layout even-horizontal
+    
+    # Add small delay to ensure session is ready
+    sleep 0.5
+    # Select the first pane using full target syntax
+    tmux select-pane -t "$SESSION_NAME:0.0"
+else
+    # Create new session with first window for bin/dev
+    tmux new-session -d -s "$SESSION_NAME" -n "dev"
+    tmux send-keys -t "$SESSION_NAME":dev "bin/dev" Enter
+    
+    # Create second window for ngrok
+    tmux new-window -t "$SESSION_NAME" -n "ngrok"
+    tmux send-keys -t "$SESSION_NAME":ngrok "ngrok http --url=$NGROK_URL $PORT" Enter
+    
+    # Create third window for Claude
+    tmux new-window -t "$SESSION_NAME" -n "claude"
+    tmux send-keys -t "$SESSION_NAME":claude "$CLAUDE_COMMAND" Enter
+    
+    # Select the first window (dev)
+    tmux select-window -t "$SESSION_NAME":dev
+fi
 
 echo "Session created with:"
-echo "  - Window 0 (dev): Running bin/dev"
-echo "  - Window 1 (ngrok): Running ngrok tunnel to $NGROK_URL"
+if [ "$USE_PANES" = true ]; then
+    echo "  - Pane 0: Running bin/dev"
+    echo "  - Pane 1: Running ngrok tunnel to $NGROK_URL"
+    echo "  - Pane 2: Running Claude AI"
+else
+    echo "  - Window 0 (dev): Running bin/dev"
+    echo "  - Window 1 (ngrok): Running ngrok tunnel to $NGROK_URL"
+    echo "  - Window 2 (claude): Running Claude AI"
+fi
+echo ""
+echo "Opening ngrok URL in browser..."
+open "https://$NGROK_URL"
 echo ""
 echo "Attaching to session..."
 
