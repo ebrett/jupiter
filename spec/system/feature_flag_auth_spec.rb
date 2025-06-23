@@ -364,13 +364,17 @@ RSpec.describe "Feature Flag Authentication Integration", type: :system do
       end
 
       it "displays formatted nation name in OAuth button" do
+        # Get expected formatted name from environment variable (same logic as component)
+        slug = ENV["NATIONBUILDER_NATION_SLUG"]
+        expected_formatted_name = slug.split("-").map(&:capitalize).join(" ")
+
         visit root_path
         open_login_modal
 
         within "#auth-modal" do
           oauth_button = find('a[href="/auth/nationbuilder"]')
-          # Should format "demsabroad" to "Demsabroad" (current environment setting)
-          expect(oauth_button.text).to include("Demsabroad")
+          # Should format the environment slug (e.g. "demsabroad" -> "Demsabroad", "testnation" -> "Testnation")
+          expect(oauth_button.text).to include(expected_formatted_name)
         end
       end
 
