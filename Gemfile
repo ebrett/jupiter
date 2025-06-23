@@ -83,3 +83,5 @@ gem "view_component", "~> 3.23"
 
 gem "dockerfile-rails", ">= 1.7", group: :development
 gem "activerecord-session_store"
+
+gem "guard-rspec", "~> 4.7"

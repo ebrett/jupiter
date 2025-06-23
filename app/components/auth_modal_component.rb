@@ -9,6 +9,11 @@ class AuthModalComponent < ViewComponent::Base
     Current.user
   end
 
+  # Override feature_enabled? to handle global features for unauthenticated users
+  def feature_enabled?(flag_name)
+    FeatureFlagService.enabled?(flag_name, current_user)
+  end
+
   private
 
   attr_reader :mode

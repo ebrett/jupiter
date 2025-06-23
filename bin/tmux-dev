@@ -7,6 +7,12 @@ SESSION_NAME="dev-session"
 NGROK_URL="rational-needlessly-buck.ngrok-free.app"
 PORT=3000
 
+# Default values
+USE_PANES=false
+CLAUDE_COMMAND="claude"
+OPEN_BROWSER=true
+NGROK_TIMEOUT=30
+
 # Function to check if port is in use
 check_port() {
     if lsof -i :$PORT >/dev/null 2>&1; then
@@ -27,6 +33,146 @@ check_port() {
     fi
 }
 
+# Function to select layout
+select_layout() {
+    echo "Layout Options:"
+    echo "  1. Separate windows (default)"
+    echo "  2. Mixed layout (dev/ngrok share window, Claude gets dedicated window)"
+    
+    while true; do
+        read -r -p "Choose layout (1-2): " layout_choice
+        case $layout_choice in
+            1)
+                echo "Using separate windows layout (default)..."
+                USE_PANES=false
+                break
+                ;;
+            2)
+                echo "Using mixed layout (dev/ngrok shared, Claude dedicated)..."
+                USE_PANES=true
+                break
+                ;;
+            "")
+                echo "Using separate windows layout (default)..."
+                USE_PANES=false
+                break
+                ;;
+            *)
+                echo "Please enter 1 or 2"
+                ;;
+        esac
+    done
+}
+
+# Function to select Claude session type
+select_claude_session() {
+    echo "Claude Session Options:"
+    echo "  1. Start new session"
+    echo "  2. Continue current session"
+    echo "  3. Resume previous session"
+    
+    while true; do
+        read -r -p "Choose an option (1-3): " claude_choice
+        case $claude_choice in
+            1)
+                echo "Starting new Claude session..."
+                CLAUDE_COMMAND="claude"
+                break
+                ;;
+            2)
+                echo "Continuing current Claude session..."
+                CLAUDE_COMMAND="claude --continue"
+                break
+                ;;
+            3)
+                echo "Resuming previous Claude session..."
+                CLAUDE_COMMAND="claude --resume"
+                break
+                ;;
+            "")
+                echo "Starting new Claude session (default)..."
+                CLAUDE_COMMAND="claude"
+                break
+                ;;
+            *)
+                echo "Please enter 1, 2, or 3"
+                ;;
+        esac
+    done
+}
+
+# Function to ask about browser opening
+select_browser_option() {
+    echo "Browser Options:"
+    echo "  1. Open browser when ngrok is ready (default)"
+    echo "  2. Skip opening browser"
+    
+    while true; do
+        read -r -p "Choose option (1-2): " browser_choice
+        case $browser_choice in
+            1)
+                echo "Will open browser when ngrok is ready..."
+                OPEN_BROWSER=true
+                break
+                ;;
+            2)
+                echo "Skipping browser opening..."
+                OPEN_BROWSER=false
+                break
+                ;;
+            "")
+                echo "Will open browser when ngrok is ready (default)..."
+                OPEN_BROWSER=true
+                break
+                ;;
+            *)
+                echo "Please enter 1 or 2"
+                ;;
+        esac
+    done
+}
+
+# Function to wait for ngrok tunnel to be ready
+wait_for_ngrok() {
+    if [ "$OPEN_BROWSER" = false ]; then
+        return 0
+    fi
+    
+    echo "Waiting for ngrok tunnel to be ready..."
+    local count=0
+    local max_attempts=$((NGROK_TIMEOUT))
+    
+    while [ $count -lt $max_attempts ]; do
+        # Check if ngrok API is responding and tunnel is active
+        if curl -s http://localhost:4040/api/tunnels 2>/dev/null | grep -q "https://$NGROK_URL"; then
+            echo "Ngrok tunnel is ready!"
+            return 0
+        fi
+        
+        # Also check if the actual URL is accessible
+        if curl -s --max-time 3 "https://$NGROK_URL" >/dev/null 2>&1; then
+            echo "Ngrok tunnel is ready and accessible!"
+            return 0
+        fi
+        
+        count=$((count + 1))
+        printf "."
+        sleep 1
+    done
+    
+    echo ""
+    echo "Warning: Ngrok tunnel not ready after ${NGROK_TIMEOUT} seconds."
+    echo "You may need to check the ngrok process manually."
+    
+    read -p "Open browser anyway? (y/N): " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
 # Check if session already exists
 if tmux has-session -t "$SESSION_NAME" 2>/dev/null; then
     echo "Session '$SESSION_NAME' already exists. Attaching..."
@@ -37,23 +183,76 @@ fi
 # Check for port conflicts before starting
 check_port
 
+# Get layout preference - this only happens when creating a new session
+select_layout
+
+# Get Claude session preference - this only happens when creating a new session
+select_claude_session
+
+# Get browser preference - this only happens when creating a new session
+select_browser_option
+
 echo "Creating new tmux session '$SESSION_NAME'..."
 
-# Create new session with first window for bin/dev
-tmux new-session -d -s "$SESSION_NAME" -n "dev"
-tmux send-keys -t "$SESSION_NAME":dev "bin/dev" Enter
-
-# Create second window for ngrok
-tmux new-window -t "$SESSION_NAME" -n "ngrok"
-tmux send-keys -t "$SESSION_NAME":ngrok "ngrok http --url=$NGROK_URL $PORT" Enter
-
-# Select the first window (dev)
-tmux select-window -t "$SESSION_NAME":dev
+if [ "$USE_PANES" = true ]; then
+    # Create new session with first window for bin/dev
+    tmux new-session -d -s "$SESSION_NAME" -n "dev"
+    tmux send-keys -t "$SESSION_NAME":dev "bin/dev" Enter
+    
+    # Split the dev window horizontally for ngrok (dev and ngrok share one window)
+    tmux split-window -h -t "$SESSION_NAME":dev "ngrok http --url=$NGROK_URL $PORT"
+    
+    # Create separate window for tests (continuous monitoring)
+    tmux new-window -t "$SESSION_NAME" -n "tests"
+    tmux send-keys -t "$SESSION_NAME":tests "echo 'Starting continuous test monitoring...'; echo 'Install guard-rspec: bundle add guard-rspec --group development'; echo 'Initialize: bundle exec guard init rspec'; echo 'Run: bundle exec guard'; echo 'Press Enter when ready to start guard...'; read; bundle exec guard" Enter
+    
+    # Create separate window for Claude (gets its own dedicated space)
+    tmux new-window -t "$SESSION_NAME" -n "claude"
+    tmux send-keys -t "$SESSION_NAME":claude "$CLAUDE_COMMAND" Enter
+    
+    # Select the first window (dev)
+    tmux select-window -t "$SESSION_NAME":dev
+else
+    # Create new session with first window for bin/dev
+    tmux new-session -d -s "$SESSION_NAME" -n "dev"
+    tmux send-keys -t "$SESSION_NAME":dev "bin/dev" Enter
+    
+    # Create second window for ngrok
+    tmux new-window -t "$SESSION_NAME" -n "ngrok"
+    tmux send-keys -t "$SESSION_NAME":ngrok "ngrok http --url=$NGROK_URL $PORT" Enter
+    
+    # Create third window for tests (continuous monitoring)
+    tmux new-window -t "$SESSION_NAME" -n "tests"
+    tmux send-keys -t "$SESSION_NAME":tests "echo 'Starting continuous test monitoring...'; echo 'Install guard-rspec: bundle add guard-rspec --group development'; echo 'Initialize: bundle exec guard init rspec'; echo 'Run: bundle exec guard'; echo 'Press Enter when ready to start guard...'; read; bundle exec guard" Enter
+    
+    # Create fourth window for Claude
+    tmux new-window -t "$SESSION_NAME" -n "claude"
+    tmux send-keys -t "$SESSION_NAME":claude "$CLAUDE_COMMAND" Enter
+    
+    # Select the first window (dev)
+    tmux select-window -t "$SESSION_NAME":dev
+fi
 
 echo "Session created with:"
-echo "  - Window 0 (dev): Running bin/dev"
-echo "  - Window 1 (ngrok): Running ngrok tunnel to $NGROK_URL"
+if [ "$USE_PANES" = true ]; then
+    echo "  - Window 0 (dev): Running bin/dev with ngrok in split pane"
+    echo "  - Window 1 (tests): Continuous test monitoring with guard-rspec"
+    echo "  - Window 2 (claude): Running Claude AI in dedicated window"
+else
+    echo "  - Window 0 (dev): Running bin/dev"
+    echo "  - Window 1 (ngrok): Running ngrok tunnel to $NGROK_URL"
+    echo "  - Window 2 (tests): Continuous test monitoring with guard-rspec"
+    echo "  - Window 3 (claude): Running Claude AI"
+fi
 echo ""
+
+# Wait for ngrok to be ready before opening browser
+if wait_for_ngrok; then
+    echo "Opening ngrok URL in browser..."
+    open "https://$NGROK_URL"
+    echo ""
+fi
+
 echo "Attaching to session..."
 
 # Attach to the session

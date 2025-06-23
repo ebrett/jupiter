@@ -8,6 +8,22 @@ export default class extends Controller {
     this.updateFormAction()
   }
 
+  openLogin() {
+    this.modeValue = "login"
+    this.openModal().then(() => {
+      this.updateFormAction()
+      this.updateModalContent()
+    })
+  }
+
+  openRegister() {
+    this.modeValue = "register"
+    this.openModal().then(() => {
+      this.updateFormAction()
+      this.updateModalContent()
+    })
+  }
+
   switchToLogin() {
     this.modeValue = "login"
     this.updateFormAction()
@@ -18,6 +34,43 @@ export default class extends Controller {
     this.modeValue = "register"
     this.updateFormAction()
     this.updateModalContent()
+  }
+
+  openModal() {
+    return new Promise((resolve) => {
+      const modal = document.getElementById("auth-modal")
+      if (modal) {
+        // Call the modal's open method properly through Stimulus
+        const modalElement = modal.closest('[data-controller*="modal"]') || modal
+        
+        // Dispatch a click event on the modal element to trigger the controller
+        modalElement.style.display = "flex"
+        document.addEventListener("keydown", this.handleEscape.bind(this))
+        document.body.style.overflow = "hidden"
+        
+        // Use requestAnimationFrame to ensure DOM updates are complete
+        requestAnimationFrame(() => {
+          resolve()
+        })
+      } else {
+        resolve()
+      }
+    })
+  }
+
+  handleEscape(event) {
+    if (event.key === "Escape") {
+      this.closeModal()
+    }
+  }
+
+  closeModal() {
+    const modal = document.getElementById("auth-modal")
+    if (modal) {
+      modal.style.display = "none"
+      document.removeEventListener("keydown", this.handleEscape.bind(this))
+      document.body.style.overflow = ""
+    }
   }
 
   updateFormAction() {
@@ -46,14 +99,11 @@ export default class extends Controller {
     if (oauthButton) {
       const nationName = this.getNationDisplayName()
       const buttonText = isLogin ? `Sign in with ${nationName}` : `Sign up with ${nationName}`
-      // Update the text content, preserving the SVG
-      const textContent = oauthButton.querySelector('svg') ? 
-        oauthButton.innerHTML.replace(/Sign (in|up) with .+$/, buttonText) :
-        buttonText
+      
       if (oauthButton.querySelector('svg')) {
         // Keep SVG, just update text after it
         const svg = oauthButton.querySelector('svg').outerHTML
-        oauthButton.innerHTML = svg + buttonText
+        oauthButton.innerHTML = svg + ' ' + buttonText
       } else {
         oauthButton.textContent = buttonText
       }
@@ -102,8 +152,9 @@ export default class extends Controller {
 
   getNationSlug() {
     const metaTag = document.querySelector('meta[name="nationbuilder-slug"]')
-    if (metaTag) return metaTag.content
+    if (metaTag && metaTag.content) return metaTag.content
     
-    return "nationbuilder"
+    // Fallback to a default value
+    return null
   }
 }
