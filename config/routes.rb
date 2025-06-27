@@ -76,6 +76,13 @@ Rails.application.routes.draw do
     end
   end
 
+  # In-kind donation routes
+  resources :inkind_donations, only: [ :index, :show, :new, :create ] do
+    collection do
+      get :export
+    end
+  end
+
   # OAuth routes
   get "/auth/nationbuilder", to: "nationbuilder_auth#redirect"
   get "/auth/nationbuilder/callback", to: "nationbuilder_auth#callback"
