@@ -1,4 +1,6 @@
 FactoryBot.define do
+  sequence :sequence_form_data
+
   factory :request do
     request_type { 'inkind' }
     amount_requested { 100.50 }
@@ -6,9 +8,10 @@ FactoryBot.define do
     amount_usd { amount_requested }
     exchange_rate { 1.0 }
     form_data do
+      n = FactoryBot.generate(:sequence_form_data)
       {
-        'donor_name' => 'Test Donor',
-        'donor_email' => 'donor@example.com',
+        'donor_name' => "Test Donor #{n}",
+        'donor_email' => "donor#{n}@example.com",
         'donor_address' => '123 Test Street, Test City, TC 12345',
         'donation_type' => 'Goods',
         'item_description' => 'Test donation item description',

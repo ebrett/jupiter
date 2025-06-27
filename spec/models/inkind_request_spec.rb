@@ -87,6 +87,151 @@ RSpec.describe InkindRequest, type: :model do
 
       expect(request.errors[:form_data]).to include('Donation date cannot be in the future')
     end
+
+    describe 'security validations' do
+      it 'handles Unicode characters in all text fields' do
+        request = described_class.new(
+          request_type: 'inkind',
+          amount_requested: 100.0,
+          form_data: {
+            'donor_name' => '测试捐赠者 🎁',
+            'donor_email' => 'unicode@example.com',
+            'donor_address' => '123 مرحبا Street, تست City',
+            'donation_type' => 'Goods',
+            'item_description' => 'Books with émojis 📚 and spëcial chars',
+            'expense_category_code' => 'TEST',
+            'donation_date' => '2024-01-01',
+            'country' => 'US',
+            'submitter_email' => 'test@example.com',
+            'submitter_name' => 'Test User'
+          }
+        )
+
+        expect(request).to be_valid
+        expect(request.donor_name).to eq('测试捐赠者 🎁')
+        expect(request.item_description).to include('📚')
+      end
+
+      it 'validates against extremely long field values' do
+        request = described_class.new(
+          request_type: 'inkind',
+          amount_requested: 100.0,
+          form_data: {
+            'donor_name' => 'A' * 256, # Over 255 character limit
+            'donor_email' => "#{'verylongemailaddresshere' * 10}@example.com", # Over 255 chars
+            'donor_address' => 'B' * 501, # Over 500 character limit
+            'donation_type' => 'Goods',
+            'item_description' => 'C' * 1001, # Over 1000 character limit
+            'expense_category_code' => 'TEST',
+            'donation_date' => '2024-01-01',
+            'country' => 'US',
+            'submitter_email' => 'test@example.com',
+            'submitter_name' => 'Test User'
+          }
+        )
+        request.valid?
+
+        expect(request.errors[:form_data]).to include('Donor name cannot exceed 255 characters')
+        expect(request.errors[:form_data]).to include('Donor address cannot exceed 500 characters')
+        expect(request.errors[:form_data]).to include('Item description cannot exceed 1000 characters')
+        # Email validation fails first due to format, so length validation doesn't run
+      end
+
+      it 'handles SQL injection attempts in form data' do
+        malicious_input = "'; DROP TABLE requests; --"
+        request = described_class.new(
+          request_type: 'inkind',
+          amount_requested: 100.0,
+          form_data: {
+            'donor_name' => malicious_input,
+            'donor_email' => 'test@example.com',
+            'donor_address' => malicious_input,
+            'donation_type' => 'Goods',
+            'item_description' => malicious_input,
+            'expense_category_code' => 'TEST',
+            'donation_date' => '2024-01-01',
+            'country' => 'US',
+            'submitter_email' => 'test@example.com',
+            'submitter_name' => 'Test User'
+          }
+        )
+
+        expect(request).to be_valid
+        expect(request.donor_name).to eq(malicious_input) # Stored as-is, ActiveRecord handles escaping
+      end
+
+      it 'validates email addresses with various formats' do
+        valid_emails = [
+          'test@example.com',
+          'user.name@domain.co.uk',
+          'user+tag@example.org',
+          'firstname-lastname@example.museum'
+        ]
+
+        invalid_emails = [
+          'plainaddress',
+          '@missinglocalpart.com',
+          'missing@.com',
+          'spaces @example.com',
+          'multiple@@domain.com'
+        ]
+
+        valid_emails.each do |email|
+          request = build_request_with_email(email)
+          expect(request).to be_valid, "Expected #{email} to be valid"
+        end
+
+        invalid_emails.each do |email|
+          request = build_request_with_email(email)
+          request.valid?
+          expect(request.errors[:form_data]).to include('Donor email must be a valid email address'),
+            "Expected #{email} to be invalid"
+        end
+      end
+
+      it 'handles null bytes and control characters' do
+        request = described_class.new(
+          request_type: 'inkind',
+          amount_requested: 100.0,
+          form_data: {
+            'donor_name' => "Test\x00Donor", # Null byte
+            'donor_email' => "test@example.com", # Keep email valid
+            'donor_address' => "123\x02Street", # Another control character
+            'donation_type' => 'Goods',
+            'item_description' => "Item\x03Description",
+            'expense_category_code' => 'TEST',
+            'donation_date' => '2024-01-01',
+            'country' => 'US',
+            'submitter_email' => 'test@example.com',
+            'submitter_name' => 'Test User'
+          }
+        )
+
+        # Should be valid (Rails handles this at the database level)
+        expect(request).to be_valid
+      end
+
+      private
+
+      def build_request_with_email(email)
+        described_class.new(
+          request_type: 'inkind',
+          amount_requested: 100.0,
+          form_data: {
+            'donor_name' => 'Test Donor',
+            'donor_email' => email,
+            'donor_address' => 'Test Address',
+            'donation_type' => 'Goods',
+            'item_description' => 'Test item',
+            'expense_category_code' => 'TEST',
+            'donation_date' => '2024-01-01',
+            'country' => 'US',
+            'submitter_email' => 'test@example.com',
+            'submitter_name' => 'Test User'
+          }
+        )
+      end
+    end
   end
 
   describe 'accessor methods' do

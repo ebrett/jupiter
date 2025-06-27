@@ -35,6 +35,5 @@ RSpec.describe System::OauthStatusController, type: :controller do
         }.not_to raise_error
       end
     end
-
   end
 end

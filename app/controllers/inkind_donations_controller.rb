@@ -25,7 +25,8 @@ class InkindDonationsController < ApplicationController
     authorize @inkind_request
 
     # Set auto-generated fields
-    @inkind_request.form_data = @inkind_request.form_data.merge(
+    form_data = @inkind_request.form_data || {}
+    @inkind_request.form_data = form_data.merge(
       "submitter_email" => Current.user.email_address,
       "submitter_name" => "#{Current.user.first_name} #{Current.user.last_name}".strip,
       "country" => "US" # TODO: Make this configurable or derive from user profile

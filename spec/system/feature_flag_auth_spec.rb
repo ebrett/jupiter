@@ -363,7 +363,7 @@ RSpec.describe "Feature Flag Authentication Integration", type: :system do
         )
       end
 
-      it "displays formatted nation name in OAuth button", pending: "Nation name formatting implementation needed" do
+      it "displays formatted nation name in OAuth button" do
         # Get expected formatted name from environment variable (same logic as component)
         slug = ENV["NATIONBUILDER_NATION_SLUG"]
         expected_formatted_name = slug.split("-").map(&:capitalize).join(" ")
