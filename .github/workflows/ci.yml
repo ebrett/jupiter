@@ -65,17 +65,6 @@ jobs:
       - name: Setup ChromeDriver
         if: matrix.test_group == 'system'
         uses: nanasess/setup-chromedriver@v2
-        
-      # Cache database setup
-      - name: Cache database setup
-        uses: actions/cache@v4
-        with:
-          path: |
-            db/schema.rb
-            tmp/db_setup_complete
-          key: db-setup-${{ hashFiles('db/migrate/*.rb', 'db/seeds.rb') }}
-          restore-keys: |
-            db-setup-
             
       - name: Install dependencies
         run: bundle install --jobs 4 --retry 3
@@ -85,16 +74,9 @@ jobs:
         
       - name: Setup database
         run: |
-          if [ ! -f tmp/db_setup_complete ]; then
-            bundle exec rails db:create
-            bundle exec rails db:migrate
-            bundle exec rails runner 'Role.initialize_all'
-            touch tmp/db_setup_complete
-          else
-            bundle exec rails db:create
-            bundle exec rails db:schema:load
-            bundle exec rails runner 'Role.initialize_all'
-          fi
+          bundle exec rails db:create
+          bundle exec rails db:migrate
+          bundle exec rails runner 'Role.initialize_all'
           
       # Compile assets for system and integration tests (includes TailwindCSS build)
       - name: Compile assets

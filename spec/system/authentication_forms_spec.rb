@@ -5,6 +5,19 @@ RSpec.describe "Authentication Forms", type: :system do
     # Ensure we start with a clean slate
     User.destroy_all
     Session.destroy_all
+
+    # Reset any modals that might be open from previous tests
+    visit root_path
+
+    # Ensure the auth modal is hidden before starting the test
+    # This prevents race conditions when multiple tests manipulate the modal
+    page.execute_script("
+      const modal = document.getElementById('auth-modal');
+      if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+      }
+    ") if page.driver.browser.respond_to?(:execute_script)
   end
 
   describe "Form Action Verification" do
@@ -13,7 +26,9 @@ RSpec.describe "Authentication Forms", type: :system do
 
       # Open modal in login mode
       click_button "Sign in"
-      expect(page).to have_css("#auth-modal", visible: true)
+
+      # Wait for modal to become visible with explicit wait
+      expect(page).to have_css("#auth-modal", visible: true, wait: 3)
       expect(page).to have_content("Sign in to Jupiter")
 
       # Verify form action points to session endpoint
