@@ -98,8 +98,8 @@ RSpec.describe "Authentication Modal", type: :system do
       # Open modal with more reliable wait conditions
       within "main" do
         # Ensure button is present and clickable
-        expect(page).to have_button("Sign in")
-        click_button "Sign in"
+        expect(page).to have_button("Sign In")
+        click_button "Sign In"
       end
 
       # Wait for modal to be fully visible and functional

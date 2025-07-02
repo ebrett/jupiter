@@ -31,11 +31,11 @@ RSpec.describe "Authentication Forms", type: :system do
       visit root_path
 
       # Debug: Check if the Sign In button is present
-      expect(page).to have_button("Sign in")
+      expect(page).to have_button("Sign In")
 
       # Open modal in login mode - be specific to avoid ambiguity with sidebar button
       within "main" do
-        click_button "Sign in"
+        click_button "Sign In"
       end
 
       # Wait for modal to become visible with explicit wait
