@@ -30,7 +30,7 @@ RSpec.describe "Authentication Forms", type: :system do
     it "uses correct form action for login mode" do
       visit root_path
 
-      # Debug: Check if the Sign in button is present
+      # Debug: Check if the Sign In button is present
       expect(page).to have_button("Sign in")
 
       # Open modal in login mode - be specific to avoid ambiguity with sidebar button

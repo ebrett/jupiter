@@ -71,7 +71,7 @@ RSpec.describe "Authentication Registration", type: :system do
         # Use the reliable approach: open login modal, then switch to registration
         # This tests the same end-user functionality with a working implementation
         within "main" do
-          click_button "Sign In"
+          click_button "Sign in"
         end
 
         expect(page).to have_css("#auth-modal", visible: true)

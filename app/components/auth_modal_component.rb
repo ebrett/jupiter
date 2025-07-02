@@ -48,7 +48,7 @@ class AuthModalComponent < ViewComponent::Base
 
   def nationbuilder_button_text
     nation_name = nation_display_name
-    login_mode? ? "Sign in with #{nation_name}" : "Sign up with #{nation_name}"
+    login_mode? ? "Sign In with #{nation_name}" : "Sign Up with #{nation_name}"
   end
 
   def form_path

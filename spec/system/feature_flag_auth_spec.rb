@@ -137,7 +137,7 @@ RSpec.describe "Feature Flag Authentication Integration", type: :system do
         visit root_path
 
         # Verify we're in the correct state before proceeding
-        expect(page).to have_button("Sign In")
+        expect(page).to have_button("Sign in")
         expect(page).not_to have_button("Sign Out")
 
         # Ensure JavaScript and Stimulus controllers are fully loaded
@@ -324,7 +324,7 @@ RSpec.describe "Feature Flag Authentication Integration", type: :system do
         # Test with flag disabled - use main page login
         visit root_path
         within "main" do
-          click_button "Sign In"
+          click_button "Sign in"
         end
         within "#auth-modal" do
           fill_in "email_address", with: user.email_address
@@ -343,7 +343,7 @@ RSpec.describe "Feature Flag Authentication Integration", type: :system do
 
         visit root_path
         within "main" do
-          click_button "Sign In"
+          click_button "Sign in"
         end
         within "#auth-modal" do
           fill_in "email_address", with: user.email_address
@@ -436,13 +436,13 @@ RSpec.describe "Feature Flag Authentication Integration", type: :system do
 
   def open_login_modal
     within "main" do
-      click_button "Sign In"
+      click_button "Sign in"
     end
 
     # Add debug information when modal doesn't open
     unless page.has_css?("#auth-modal", visible: true, wait: 1)
       puts "DEBUG: Modal not visible, page state:"
-      puts "Has Sign In button: #{page.has_button?('Sign In')}"
+      puts "Has Sign In button: #{page.has_button?('Sign in')}"
       puts "Has Sign Out button: #{page.has_button?('Sign Out')}"
       puts "Current URL: #{page.current_url}"
       puts "Page title: #{page.title}"
@@ -463,7 +463,7 @@ RSpec.describe "Feature Flag Authentication Integration", type: :system do
 
       # Try clicking again with explicit wait
       within "main" do
-        click_button "Sign In"
+        click_button "Sign in"
       end
 
       # If still not visible, try to open it directly via JavaScript

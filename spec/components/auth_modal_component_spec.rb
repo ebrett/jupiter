@@ -8,7 +8,7 @@ RSpec.describe AuthModalComponent, type: :component do
 
         expect(rendered_content).to include("Sign in to Jupiter")
         expect(rendered_content).not_to include('href="/auth/nationbuilder"')
-        expect(rendered_content).not_to include("Sign in with")
+        expect(rendered_content).not_to include("Sign In with")
       end
     end
 
@@ -25,7 +25,7 @@ RSpec.describe AuthModalComponent, type: :component do
 
         expect(rendered_content).to include("Sign in to Jupiter")
         expect(rendered_content).to include('href="/auth/nationbuilder"')
-        expect(rendered_content).to include("Sign in with") # Dynamic nation name
+        expect(rendered_content).to include("Sign In with") # Dynamic nation name
       end
     end
 
@@ -76,7 +76,7 @@ RSpec.describe AuthModalComponent, type: :component do
 
         expect(rendered_content).to include("Create your Jupiter account")
         expect(rendered_content).not_to include('href="/auth/nationbuilder"')
-        expect(rendered_content).not_to include("Sign up with")
+        expect(rendered_content).not_to include("Sign Up with")
       end
     end
 
@@ -93,7 +93,7 @@ RSpec.describe AuthModalComponent, type: :component do
 
         expect(rendered_content).to include("Create your Jupiter account")
         expect(rendered_content).to include('href="/auth/nationbuilder"')
-        expect(rendered_content).to include("Sign up with") # Dynamic nation name
+        expect(rendered_content).to include("Sign Up with") # Dynamic nation name
       end
     end
 

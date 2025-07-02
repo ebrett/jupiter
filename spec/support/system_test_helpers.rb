@@ -13,7 +13,7 @@ module SystemTestHelpers
       fill_in "email_address", with: email
       fill_in "password", with: password
       check "remember_me" if remember_me
-      click_button "Sign in"
+      find('input[type="submit"]').click
     end
   end
 
@@ -26,7 +26,7 @@ module SystemTestHelpers
       fill_in "email_address", with: email
       fill_in "password", with: password
       check "remember_me" if remember_me
-      click_button "Sign in"
+      find('input[type="submit"]').click
     end
   end
 
@@ -43,7 +43,7 @@ module SystemTestHelpers
       fill_in "email_address", with: email
       fill_in "password", with: password
       fill_in "password_confirmation", with: password_confirmation
-      click_button "Create account"
+      find('input[type="submit"]').click
     end
   end
 
@@ -65,7 +65,7 @@ module SystemTestHelpers
     """Open the authentication modal in login mode"""
     # Use main content area to avoid sidebar confusion
     within "main" do
-      click_button "Sign in"
+      click_button "Sign In"
     end
     # Wait for modal to be visible with reduced timeout
     expect(page).to have_css("#auth-modal", visible: true, wait: 2)
@@ -79,7 +79,7 @@ module SystemTestHelpers
     """Open the authentication modal in registration mode"""
     # Use main content area to avoid sidebar confusion
     within "main" do
-      click_button "Create account"
+      click_button "Create Account"
     end
     # Wait for modal to be visible with reduced timeout
     expect(page).to have_css("#auth-modal", visible: true, wait: 2)
@@ -145,14 +145,14 @@ module SystemTestHelpers
   def submit_login_form
     """Submit the login form"""
     within "#auth-modal" do
-      click_button "Sign in"
+      find('input[type="submit"]').click
     end
   end
 
   def submit_registration_form
     """Submit the registration form"""
     within "#auth-modal" do
-      click_button "Create account"
+      find('input[type="submit"]').click
     end
   end
 
@@ -161,13 +161,13 @@ module SystemTestHelpers
   def expect_to_be_signed_in
     """Verify user is signed in by checking for sign out button"""
     expect(page).to have_button("Sign out")
-    expect(page).not_to have_button("Sign in")
+    expect(page).not_to have_button("Sign In")
   end
 
   def expect_to_be_signed_out
     """Verify user is signed out by checking for sign in buttons"""
-    expect(page).to have_button("Sign in")
-    expect(page).to have_button("Create account")
+    expect(page).to have_button("Sign In")
+    expect(page).to have_button("Create Account")
     expect(page).not_to have_button("Sign out")
   end
 
