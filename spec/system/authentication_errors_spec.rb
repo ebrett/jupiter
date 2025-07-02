@@ -319,7 +319,7 @@ RSpec.describe "Authentication Errors", type: :system do
       end
 
       # After error, user should be able to access the form again
-      expect(page).to have_button("Create account") # Can retry registration
+      expect(page).to have_button("Create Account") # Can retry registration
     end
 
     it "clears previous error messages when modal is reopened" do
@@ -421,6 +421,6 @@ RSpec.describe "Authentication Errors", type: :system do
   def expect_to_be_signed_in
     # Helper method to verify user is signed in
     expect(page).to have_button("Sign out")
-    expect(page).not_to have_button("Sign in")
+    expect(page).not_to have_button("Sign In")
   end
 end

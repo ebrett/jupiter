@@ -285,7 +285,7 @@ RSpec.describe 'InKind Donation Form', type: :system do
     visit new_session_path
     fill_in 'login_page_email_address', with: user.email_address
     fill_in 'login_page_password', with: 'password123' # Factory default password
-    find('input[type="submit"][value="Sign in"]').click
+    find('input[type="submit"][value="Sign In"]').click
   end
 end
 # rubocop:enable RSpec/PendingWithoutReason

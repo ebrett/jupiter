@@ -97,7 +97,7 @@ RSpec.describe "Feature Flag Authentication Integration", type: :system do
         within "#auth-modal" do
           fill_in "email_address", with: user.email_address
           fill_in "password", with: "password123"
-          click_button "Sign in"
+          click_button "Sign In"
         end
 
         expect_to_be_signed_in
@@ -117,7 +117,7 @@ RSpec.describe "Feature Flag Authentication Integration", type: :system do
           fill_in "email_address", with: "newuser@example.com"
           fill_in "password", with: "password123"
           fill_in "password_confirmation", with: "password123"
-          click_button "Create account"
+          click_button "Create Account"
         end
 
         # Should create user successfully and redirect to home page
@@ -212,7 +212,7 @@ RSpec.describe "Feature Flag Authentication Integration", type: :system do
         within "#auth-modal" do
           fill_in "email_address", with: user.email_address
           fill_in "password", with: "password123"
-          click_button "Sign in"
+          click_button "Sign In"
         end
 
         expect_to_be_signed_in
@@ -232,7 +232,7 @@ RSpec.describe "Feature Flag Authentication Integration", type: :system do
           fill_in "email_address", with: "newuser@example.com"
           fill_in "password", with: "password123"
           fill_in "password_confirmation", with: "password123"
-          click_button "Create account"
+          click_button "Create Account"
         end
 
         # Should create user successfully and redirect to home page
@@ -329,7 +329,7 @@ RSpec.describe "Feature Flag Authentication Integration", type: :system do
         within "#auth-modal" do
           fill_in "email_address", with: user.email_address
           fill_in "password", with: "password123"
-          click_button "Sign in"
+          click_button "Sign In"
         end
         expect_to_be_signed_in
         sign_out_user
@@ -348,7 +348,7 @@ RSpec.describe "Feature Flag Authentication Integration", type: :system do
         within "#auth-modal" do
           fill_in "email_address", with: user.email_address
           fill_in "password", with: "password123"
-          click_button "Sign in"
+          click_button "Sign In"
         end
         expect_to_be_signed_in
       end
@@ -481,7 +481,7 @@ RSpec.describe "Feature Flag Authentication Integration", type: :system do
   def open_registration_modal
     # Open login modal first, then switch to registration mode
     # This ensures the JavaScript controller is properly initialized
-    click_button "Sign in"
+    click_button "Sign In"
     expect_modal_open
     within "#auth-modal" do
       click_button "Sign up"
@@ -508,7 +508,7 @@ RSpec.describe "Feature Flag Authentication Integration", type: :system do
 
   def expect_to_be_signed_in
     expect(page).to have_button("Sign out")
-    expect(page).not_to have_button("Sign in")
+    expect(page).not_to have_button("Sign In")
   end
 
   def sign_in_via_modal(email:, password:)
@@ -516,7 +516,7 @@ RSpec.describe "Feature Flag Authentication Integration", type: :system do
     within "#auth-modal" do
       fill_in "email_address", with: email
       fill_in "password", with: password
-      click_button "Sign in"
+      click_button "Sign In"
     end
   end
 

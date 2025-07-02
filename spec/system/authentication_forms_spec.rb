@@ -54,11 +54,11 @@ RSpec.describe "Authentication Forms", type: :system do
       # Open modal in login mode first, then switch to registration
       # This ensures the Stimulus controller properly updates the form action
       within "main" do
-        click_button "Sign in"
+        click_button "Sign In"
       end
 
       within "#auth-modal" do
-        click_button "Sign up"
+        click_button "Sign Up"
       end
 
       expect(page).to have_content("Create your Jupiter account")
@@ -74,13 +74,13 @@ RSpec.describe "Authentication Forms", type: :system do
 
       # Start in login mode
       within "main" do
-        click_button "Sign in"
+        click_button "Sign In"
       end
       expect(page.find("#auth-modal form")['action']).to end_with("/session")
 
       # Switch to registration mode
       within "#auth-modal" do
-        click_button "Sign up"
+        click_button "Sign Up"
       end
 
       # Verify form action changed
@@ -92,17 +92,17 @@ RSpec.describe "Authentication Forms", type: :system do
 
       # Start in login mode, switch to registration, then back to login
       within "main" do
-        click_button "Sign in"
+        click_button "Sign In"
       end
 
       within "#auth-modal" do
-        click_button "Sign up"
+        click_button "Sign Up"
       end
       expect(page.find("#auth-modal form")['action']).to end_with("/users")
 
       # Switch back to login mode
       within "#auth-modal" do
-        click_button "Sign in"
+        click_button "Sign In"
       end
 
       # Verify form action changed back
@@ -114,7 +114,7 @@ RSpec.describe "Authentication Forms", type: :system do
 
       # Open modal in login mode
       within "main" do
-        click_button "Sign in"
+        click_button "Sign In"
       end
 
       # Verify form action is for login
@@ -123,7 +123,7 @@ RSpec.describe "Authentication Forms", type: :system do
 
       # Switch to registration mode
       within "#auth-modal" do
-        click_button "Sign up"
+        click_button "Sign Up"
       end
 
       # Verify form action changed to registration
@@ -132,7 +132,7 @@ RSpec.describe "Authentication Forms", type: :system do
 
       # Switch back to login mode
       within "#auth-modal" do
-        click_button "Sign in"
+        click_button "Sign In"
       end
 
       # Verify form action changed back to login
@@ -149,10 +149,10 @@ RSpec.describe "Authentication Forms", type: :system do
 
       # Open modal and switch to registration
       within "main" do
-        click_button "Sign in"
+        click_button "Sign In"
       end
       within "#auth-modal" do
-        click_button "Sign up"
+        click_button "Sign Up"
       end
 
       # The critical test: form action must be /users for registration, not /session
@@ -174,14 +174,14 @@ RSpec.describe "Authentication Forms", type: :system do
 
       # Test login mode
       within "main" do
-        click_button "Sign in"
+        click_button "Sign In"
       end
       login_method = page.find("#auth-modal form")['method']
       expect(login_method).to eq("post")
 
       # Switch to registration mode
       within "#auth-modal" do
-        click_button "Sign up"
+        click_button "Sign Up"
       end
 
       # Test registration mode
@@ -194,7 +194,7 @@ RSpec.describe "Authentication Forms", type: :system do
 
       # Open modal
       within "main" do
-        click_button "Sign in"
+        click_button "Sign In"
       end
 
       # Verify form has auth target attribute for Stimulus
@@ -207,14 +207,14 @@ RSpec.describe "Authentication Forms", type: :system do
 
       # Open modal in login mode
       within "main" do
-        click_button "Sign in"
+        click_button "Sign In"
       end
       form = page.find("#auth-modal form")
       expect(form['data-auth-target']).to eq("form")
 
       # Switch to registration mode
       within "#auth-modal" do
-        click_button "Sign up"
+        click_button "Sign Up"
       end
 
       # Verify data attributes are maintained
@@ -227,18 +227,18 @@ RSpec.describe "Authentication Forms", type: :system do
 
       # Test login mode structure
       within "main" do
-        click_button "Sign in"
+        click_button "Sign In"
       end
       within "#auth-modal form" do
         expect(page).to have_field("email_address")
         expect(page).to have_field("password")
         expect(page).to have_field("remember_me")
-        expect(page).to have_button("Sign in")
+        expect(page).to have_button("Sign In")
       end
 
       # Switch to registration mode
       within "#auth-modal" do
-        click_button "Sign up"
+        click_button "Sign Up"
       end
 
       # Test registration mode structure
@@ -260,7 +260,7 @@ RSpec.describe "Authentication Forms", type: :system do
 
       # Open modal in login mode
       within "main" do
-        click_button "Sign in"
+        click_button "Sign In"
       end
 
       within "#auth-modal" do
@@ -282,10 +282,10 @@ RSpec.describe "Authentication Forms", type: :system do
 
       # Open modal and switch to registration
       within "main" do
-        click_button "Sign in"
+        click_button "Sign In"
       end
       within "#auth-modal" do
-        click_button "Sign up"
+        click_button "Sign Up"
       end
 
       within "#auth-modal" do
@@ -314,21 +314,21 @@ RSpec.describe "Authentication Forms", type: :system do
 
       # Start in login, verify attributes
       within "main" do
-        click_button "Sign in"
+        click_button "Sign In"
       end
       email_required_login = page.find('#auth-modal input[name="email_address"]')['required']
       expect(email_required_login).to eq("true")
 
       # Switch to registration, verify attributes maintained
       within "#auth-modal" do
-        click_button "Sign up"
+        click_button "Sign Up"
       end
       email_required_registration = page.find('#auth-modal input[name="email_address"]')['required']
       expect(email_required_registration).to eq("true")
 
       # Switch back to login, verify attributes still correct
       within "#auth-modal" do
-        click_button "Sign in"
+        click_button "Sign In"
       end
       email_required_back = page.find('#auth-modal input[name="email_address"]')['required']
       expect(email_required_back).to eq("true")
@@ -341,7 +341,7 @@ RSpec.describe "Authentication Forms", type: :system do
 
       # Open modal
       within "main" do
-        click_button "Sign in"
+        click_button "Sign In"
       end
 
       # Verify CSRF token is present
@@ -357,13 +357,13 @@ RSpec.describe "Authentication Forms", type: :system do
 
       # Open modal in login mode
       within "main" do
-        click_button "Sign in"
+        click_button "Sign In"
       end
       login_csrf = page.find('#auth-modal input[name="authenticity_token"]', visible: false).value
 
       # Switch to registration mode
       within "#auth-modal" do
-        click_button "Sign up"
+        click_button "Sign Up"
       end
       registration_csrf = page.find('#auth-modal input[name="authenticity_token"]', visible: false).value
 
@@ -378,7 +378,7 @@ RSpec.describe "Authentication Forms", type: :system do
 
       # Test login mode
       within "main" do
-        click_button "Sign in"
+        click_button "Sign In"
       end
       within "#auth-modal" do
         expect(page).to have_css('label[for="email_address"]')
@@ -388,7 +388,7 @@ RSpec.describe "Authentication Forms", type: :system do
 
       # Test registration mode
       within "#auth-modal" do
-        click_button "Sign up"
+        click_button "Sign Up"
       end
       within "#auth-modal" do
         expect(page).to have_css('label[for="first_name"]')
@@ -404,7 +404,7 @@ RSpec.describe "Authentication Forms", type: :system do
 
       # Open modal
       within "main" do
-        click_button "Sign in"
+        click_button "Sign In"
       end
 
       # Verify modal has proper aria attributes

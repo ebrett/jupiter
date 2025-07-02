@@ -105,7 +105,7 @@ module SystemTestHelpers
   def switch_to_login_mode
     """Switch the modal from registration to login mode"""
     within "#auth-modal" do
-      click_button "Sign in"
+      click_button "Sign In"
     end
     expect(page).to have_content("Sign in to Jupiter")
   end
@@ -184,7 +184,7 @@ module SystemTestHelpers
   def expect_login_mode
     """Verify modal is in login mode"""
     expect(page).to have_content("Sign in to Jupiter")
-    expect(page).to have_button("Sign in")
+    expect(page).to have_button("Sign In")
     within "#auth-modal" do
       expect(page).to have_field("remember_me", visible: true)
       expect(page).not_to have_field("first_name", visible: true)
@@ -195,7 +195,7 @@ module SystemTestHelpers
   def expect_registration_mode
     """Verify modal is in registration mode"""
     expect(page).to have_content("Create your Jupiter account")
-    expect(page).to have_button("Create account")
+    expect(page).to have_button("Create Account")
     within "#auth-modal" do
       expect(page).to have_field("first_name", visible: true)
       expect(page).to have_field("last_name", visible: true)

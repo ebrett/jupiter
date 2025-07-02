@@ -35,7 +35,7 @@ class AuthModalComponent < ViewComponent::Base
   end
 
   def switch_mode_link
-    login_mode? ? "Sign up" : "Sign in"
+    login_mode? ? "Sign Up" : "Sign In"
   end
 
   def switch_mode_action
@@ -43,7 +43,7 @@ class AuthModalComponent < ViewComponent::Base
   end
 
   def primary_button_text
-    login_mode? ? "Sign in" : "Create account"
+    login_mode? ? "Sign In" : "Create Account"
   end
 
   def nationbuilder_button_text

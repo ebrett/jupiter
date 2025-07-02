@@ -25,7 +25,7 @@ RSpec.describe "Authentication Registration", type: :system do
         visit root_path
 
         # Open modal (defaults to login mode)
-        click_button "Sign in"
+        click_button "Sign In"
         expect(page).to have_css("#auth-modal", visible: true)
         expect(page).to have_content("Sign in to Jupiter")
 
@@ -36,7 +36,7 @@ RSpec.describe "Authentication Registration", type: :system do
 
         # Verify modal switched to registration mode
         expect(page).to have_content("Create your Jupiter account")
-        expect(page).to have_button("Create account")
+        expect(page).to have_button("Create Account")
 
         # Fill in registration form
         within "#auth-modal" do
@@ -45,7 +45,7 @@ RSpec.describe "Authentication Registration", type: :system do
           fill_in "email_address", with: "newuser@example.com"
           fill_in "password", with: "password123"
           fill_in "password_confirmation", with: "password123"
-          click_button "Create account"
+          click_button "Create Account"
         end
 
         # Verify successful registration (but not auto sign-in for email users)
@@ -81,7 +81,7 @@ RSpec.describe "Authentication Registration", type: :system do
 
         # Verify modal switched to registration mode
         expect(page).to have_content("Create your Jupiter account")
-        expect(page).to have_button("Create account")
+        expect(page).to have_button("Create Account")
 
         # Verify registration fields are visible
         within "#auth-modal" do
@@ -95,17 +95,17 @@ RSpec.describe "Authentication Registration", type: :system do
         visit root_path
 
         # Open modal in registration mode
-        click_button "Create account"
+        click_button "Create Account"
         expect(page).to have_content("Create your Jupiter account")
 
         # Switch back to login mode
         within "#auth-modal" do
-          click_button "Sign in"
+          click_button "Sign In"
         end
 
         # Verify modal switched to login mode
         expect(page).to have_content("Sign in to Jupiter")
-        expect(page).to have_button("Sign in")
+        expect(page).to have_button("Sign In")
 
         # Verify registration-only fields are hidden
         within "#auth-modal" do
@@ -119,7 +119,7 @@ RSpec.describe "Authentication Registration", type: :system do
         visit root_path
 
         # Open modal and register
-        click_button "Sign in"
+        click_button "Sign In"
         within "#auth-modal" do
           click_button "Sign up"
           fill_in "first_name", with: "New"
@@ -127,7 +127,7 @@ RSpec.describe "Authentication Registration", type: :system do
           fill_in "email_address", with: "newuser@example.com"
           fill_in "password", with: "password123"
           fill_in "password_confirmation", with: "password123"
-          click_button "Create account"
+          click_button "Create Account"
         end
 
         # Verify successful registration by checking the success message
@@ -144,7 +144,7 @@ RSpec.describe "Authentication Registration", type: :system do
         visit root_path
 
         # Open modal and switch to registration
-        click_button "Sign in"
+        click_button "Sign In"
         within "#auth-modal" do
           click_button "Sign up"
         end
@@ -156,7 +156,7 @@ RSpec.describe "Authentication Registration", type: :system do
           fill_in "email_address", with: "test@example.com"
           fill_in "password", with: "password123"
           fill_in "password_confirmation", with: "differentpassword"
-          click_button "Create account"
+          click_button "Create Account"
         end
 
         # Should show validation error
@@ -168,7 +168,7 @@ RSpec.describe "Authentication Registration", type: :system do
         visit root_path
 
         # Open modal and switch to registration
-        click_button "Sign in"
+        click_button "Sign In"
         within "#auth-modal" do
           click_button "Sign up"
         end
@@ -183,7 +183,7 @@ RSpec.describe "Authentication Registration", type: :system do
 
           # Bypass browser validation for testing
           page.execute_script("document.querySelector('#auth-modal form').noValidate = true;")
-          click_button "Create account"
+          click_button "Create Account"
         end
 
         # Should show validation errors or redirect with error
@@ -202,7 +202,7 @@ RSpec.describe "Authentication Registration", type: :system do
         visit root_path
 
         # Open modal and switch to registration
-        click_button "Sign in"
+        click_button "Sign In"
         within "#auth-modal" do
           click_button "Sign up"
         end
@@ -214,7 +214,7 @@ RSpec.describe "Authentication Registration", type: :system do
           fill_in "email_address", with: existing_user.email_address
           fill_in "password", with: "password123"
           fill_in "password_confirmation", with: "password123"
-          click_button "Create account"
+          click_button "Create Account"
         end
 
         # Should show duplicate email error
@@ -226,7 +226,7 @@ RSpec.describe "Authentication Registration", type: :system do
         visit root_path
 
         # Open modal and switch to registration
-        click_button "Sign in"
+        click_button "Sign In"
         within "#auth-modal" do
           click_button "Sign up"
         end
@@ -238,7 +238,7 @@ RSpec.describe "Authentication Registration", type: :system do
           fill_in "email_address", with: "test@example.com"
           fill_in "password", with: "123" # Too short
           fill_in "password_confirmation", with: "123"
-          click_button "Create account"
+          click_button "Create Account"
         end
 
         # Should show password length error
@@ -253,8 +253,8 @@ RSpec.describe "Authentication Registration", type: :system do
   def expect_to_be_signed_out
     # Helper method to verify user is signed out
     # Look for login/signup buttons that only appear when not authenticated
-    expect(page).to have_button("Sign in") # Login button in sidebar
-    expect(page).to have_button("Create account") # Signup button in sidebar
+    expect(page).to have_button("Sign In") # Login button in sidebar
+    expect(page).to have_button("Create Account") # Signup button in sidebar
     expect(page).not_to have_button("Sign out") # No logout button when not authenticated
   end
 end

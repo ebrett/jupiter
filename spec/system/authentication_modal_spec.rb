@@ -15,12 +15,12 @@ RSpec.describe "Authentication Modal", type: :system do
       expect(page).not_to have_css("#auth-modal", visible: true)
 
       # Click sign in button to open modal
-      click_button "Sign in"
+      click_button "Sign In"
 
       # Verify modal opened in login mode
       expect(page).to have_css("#auth-modal", visible: true)
       expect(page).to have_content("Sign in to Jupiter")
-      expect(page).to have_button("Sign in")
+      expect(page).to have_button("Sign In")
 
       # Verify modal contains expected elements
       within "#auth-modal" do
@@ -37,12 +37,12 @@ RSpec.describe "Authentication Modal", type: :system do
       expect(page).not_to have_css("#auth-modal", visible: true)
 
       # Click create account button to open modal
-      click_button "Create account"
+      click_button "Create Account"
 
       # Verify modal opened in registration mode
       expect(page).to have_css("#auth-modal", visible: true)
       expect(page).to have_content("Create your Jupiter account")
-      expect(page).to have_button("Create account")
+      expect(page).to have_button("Create Account")
 
       # Verify modal contains expected registration elements
       within "#auth-modal" do
@@ -58,7 +58,7 @@ RSpec.describe "Authentication Modal", type: :system do
       visit root_path
 
       # Open modal
-      click_button "Sign in"
+      click_button "Sign In"
       expect(page).to have_css("#auth-modal", visible: true)
 
       # Close modal using the X button
@@ -109,17 +109,17 @@ RSpec.describe "Authentication Modal", type: :system do
       # Ensure modal is fully rendered before proceeding
       within "#auth-modal" do
         expect(page).to have_field("email_address")
-        expect(page).to have_button("Sign up")
+        expect(page).to have_button("Sign Up")
       end
 
       # Switch to registration mode
       within "#auth-modal" do
-        click_button "Sign up"
+        click_button "Sign Up"
       end
 
       # Verify switched to registration mode with reduced wait
       expect(page).to have_content("Create your Jupiter account", wait: 1)
-      expect(page).to have_button("Create account")
+      expect(page).to have_button("Create Account")
 
       # Verify registration fields are now visible
       within "#auth-modal" do
@@ -131,12 +131,12 @@ RSpec.describe "Authentication Modal", type: :system do
 
       # Switch back to login mode
       within "#auth-modal" do
-        click_button "Sign in"
+        click_button "Sign In"
       end
 
       # Verify switched back to login mode with reduced wait
       expect(page).to have_content("Sign in to Jupiter", wait: 1)
-      expect(page).to have_button("Sign in")
+      expect(page).to have_button("Sign In")
 
       # Verify login fields are visible and registration fields are hidden
       within "#auth-modal" do
@@ -151,12 +151,12 @@ RSpec.describe "Authentication Modal", type: :system do
       visit root_path
 
       # Open modal in login mode
-      click_button "Sign in"
+      click_button "Sign In"
       expect(page).to have_content("Sign in to Jupiter")
 
       # Switch to registration mode
       within "#auth-modal" do
-        click_button "Sign up"
+        click_button "Sign Up"
       end
 
       # Verify title changed
@@ -165,7 +165,7 @@ RSpec.describe "Authentication Modal", type: :system do
 
       # Switch back to login mode
       within "#auth-modal" do
-        click_button "Sign in"
+        click_button "Sign In"
       end
 
       # Verify title changed back
@@ -177,32 +177,32 @@ RSpec.describe "Authentication Modal", type: :system do
       visit root_path
 
       # Open modal in login mode
-      click_button "Sign in"
+      click_button "Sign In"
       within "#auth-modal" do
-        expect(page).to have_button("Sign in")
+        expect(page).to have_button("Sign In")
       end
 
       # Switch to registration mode
       within "#auth-modal" do
-        click_button "Sign up"
+        click_button "Sign Up"
       end
 
       # Verify button text changed within modal
       within "#auth-modal" do
-        expect(page).to have_button("Create account")
+        expect(page).to have_button("Create Account")
         # The "Sign up" button becomes "Sign in" for mode switching, so check for submit button specifically
-        expect(page).not_to have_css('input[type="submit"][value="Sign in"]')
+        expect(page).not_to have_css('input[type="submit"][value="Sign In"]')
       end
 
       # Switch back to login mode
       within "#auth-modal" do
-        click_button "Sign in"
+        click_button "Sign In"
       end
 
       # Verify button text changed back within modal
       within "#auth-modal" do
-        expect(page).to have_css('input[type="submit"][value="Sign in"]')
-        expect(page).not_to have_button("Create account")
+        expect(page).to have_css('input[type="submit"][value="Sign In"]')
+        expect(page).not_to have_button("Create Account")
       end
     end
   end
@@ -212,7 +212,7 @@ RSpec.describe "Authentication Modal", type: :system do
       visit root_path
 
       # Open modal in login mode
-      click_button "Sign in"
+      click_button "Sign In"
 
       # Fill in email (shared field)
       within "#auth-modal" do
@@ -221,7 +221,7 @@ RSpec.describe "Authentication Modal", type: :system do
 
       # Switch to registration mode
       within "#auth-modal" do
-        click_button "Sign up"
+        click_button "Sign Up"
       end
 
       # Verify email field retained its value
@@ -237,7 +237,7 @@ RSpec.describe "Authentication Modal", type: :system do
 
       # Switch back to login mode
       within "#auth-modal" do
-        click_button "Sign in"
+        click_button "Sign In"
       end
 
       # Verify shared fields retained their values
@@ -251,9 +251,9 @@ RSpec.describe "Authentication Modal", type: :system do
       visit root_path
 
       # Open modal in login mode, switch to registration
-      click_button "Sign in"
+      click_button "Sign In"
       within "#auth-modal" do
-        click_button "Sign up"
+        click_button "Sign Up"
       end
 
       # Fill in registration-specific fields
@@ -265,12 +265,12 @@ RSpec.describe "Authentication Modal", type: :system do
 
       # Switch back to login mode
       within "#auth-modal" do
-        click_button "Sign in"
+        click_button "Sign In"
       end
 
       # Switch back to registration to verify fields were cleared
       within "#auth-modal" do
-        click_button "Sign up"
+        click_button "Sign Up"
       end
 
       # Note: Field clearing behavior depends on implementation
@@ -288,7 +288,7 @@ RSpec.describe "Authentication Modal", type: :system do
       visit root_path
 
       # Open modal
-      click_button "Sign in"
+      click_button "Sign In"
 
       # Focus on email field
       within "#auth-modal" do
@@ -297,7 +297,7 @@ RSpec.describe "Authentication Modal", type: :system do
 
       # Switch modes
       within "#auth-modal" do
-        click_button "Sign up"
+        click_button "Sign Up"
       end
 
       # Verify modal is still functional after mode switch
@@ -313,22 +313,22 @@ RSpec.describe "Authentication Modal", type: :system do
       visit root_path
 
       # Open modal
-      click_button "Sign in"
+      click_button "Sign In"
       expect(page).to have_css("#auth-modal", visible: true)
 
       # Switch modes multiple times
       within "#auth-modal" do
-        click_button "Sign up"
+        click_button "Sign Up"
       end
       expect(page).to have_css("#auth-modal", visible: true)
 
       within "#auth-modal" do
-        click_button "Sign in"
+        click_button "Sign In"
       end
       expect(page).to have_css("#auth-modal", visible: true)
 
       within "#auth-modal" do
-        click_button "Sign up"
+        click_button "Sign Up"
       end
       expect(page).to have_css("#auth-modal", visible: true)
     end
@@ -337,14 +337,14 @@ RSpec.describe "Authentication Modal", type: :system do
       visit root_path
 
       # Open modal
-      click_button "Sign in"
+      click_button "Sign In"
 
       # Rapidly switch modes
       within "#auth-modal" do
-        click_button "Sign up"
-        click_button "Sign in"
-        click_button "Sign up"
-        click_button "Sign in"
+        click_button "Sign Up"
+        click_button "Sign In"
+        click_button "Sign Up"
+        click_button "Sign In"
       end
 
       # Verify modal is still functional
@@ -357,9 +357,9 @@ RSpec.describe "Authentication Modal", type: :system do
       visit root_path
 
       # Open modal and switch to registration
-      click_button "Sign in"
+      click_button "Sign In"
       within "#auth-modal" do
-        click_button "Sign up"
+        click_button "Sign Up"
       end
       expect(page).to have_content("Create your Jupiter account")
 
@@ -369,11 +369,11 @@ RSpec.describe "Authentication Modal", type: :system do
       end
 
       # Reopen modal
-      click_button "Sign in"
+      click_button "Sign In"
 
       # Verify it opened in login mode (default)
       expect(page).to have_content("Sign in to Jupiter")
-      expect(page).to have_button("Sign in")
+      expect(page).to have_button("Sign In")
     end
   end
 
@@ -381,8 +381,8 @@ RSpec.describe "Authentication Modal", type: :system do
 
   def expect_to_be_signed_out
     # Helper method to verify user is signed out
-    expect(page).to have_button("Sign in")
-    expect(page).to have_button("Create account")
+    expect(page).to have_button("Sign In")
+    expect(page).to have_button("Create Account")
     expect(page).not_to have_button("Sign out")
   end
 end

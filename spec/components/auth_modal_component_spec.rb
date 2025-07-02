@@ -44,9 +44,9 @@ RSpec.describe AuthModalComponent, type: :component do
       render_inline(described_class.new(mode: :login))
 
       expect(rendered_content).to include("Forgot password?")
-      expect(rendered_content).to include('value="Sign in"')
+      expect(rendered_content).to include('value="Sign In"')
       expect(rendered_content).to include("Don&#39;t have an account?")
-      expect(rendered_content).to include("Sign up")
+      expect(rendered_content).to include("Sign Up")
     end
 
     it "hides registration-only fields" do
@@ -112,9 +112,9 @@ RSpec.describe AuthModalComponent, type: :component do
     it "renders registration form actions and links" do
       render_inline(described_class.new(mode: :register))
 
-      expect(rendered_content).to include('value="Create account"')
+      expect(rendered_content).to include('value="Create Account"')
       expect(rendered_content).to include("Already have an account?")
-      expect(rendered_content).to include("Sign in")
+      expect(rendered_content).to include("Sign In")
       expect(rendered_content).to include("Terms of Service")
     end
 
@@ -225,18 +225,18 @@ RSpec.describe AuthModalComponent, type: :component do
   end
 
   describe "submit button text verification" do
-    it "displays 'Sign in' for login mode" do
+    it "displays 'Sign In' for login mode" do
       render_inline(described_class.new(mode: :login))
 
-      expect(rendered_content).to include('value="Sign in"')
-      expect(rendered_content).not_to include('value="Create account"')
+      expect(rendered_content).to include('value="Sign In"')
+      expect(rendered_content).not_to include('value="Create Account"')
     end
 
-    it "displays 'Create account' for registration mode" do
+    it "displays 'Create Account' for registration mode" do
       render_inline(described_class.new(mode: :register))
 
-      expect(rendered_content).to include('value="Create account"')
-      expect(rendered_content).not_to include('value="Sign in"')
+      expect(rendered_content).to include('value="Create Account"')
+      expect(rendered_content).not_to include('value="Sign In"')
     end
 
     it "submit button has correct type and styling for both modes" do

@@ -22,7 +22,7 @@ RSpec.describe "Authentication Login", type: :system do
         within "main" do # Target the main content area to avoid modal
           fill_in "email_address", with: user.email_address
           fill_in "password", with: "password123"
-          click_button "Sign in"
+          click_button "Sign In"
         end
 
         # Verify successful login
@@ -49,7 +49,7 @@ RSpec.describe "Authentication Login", type: :system do
         visit root_path
 
         # Click the "Sign in" button in sidebar to open modal
-        click_button "Sign in"
+        click_button "Sign In"
 
         # Verify modal opened
         expect(page).to have_css("#auth-modal", visible: true)
@@ -59,7 +59,7 @@ RSpec.describe "Authentication Login", type: :system do
         within "#auth-modal" do
           fill_in "email_address", with: user.email_address
           fill_in "password", with: "password123"
-          click_button "Sign in"
+          click_button "Sign In"
         end
 
         # Wait for form submission and redirect
@@ -74,7 +74,7 @@ RSpec.describe "Authentication Login", type: :system do
         visit root_path
 
         # Open modal
-        click_button "Sign in"
+        click_button "Sign In"
         expect(page).to have_css("#auth-modal", visible: true)
 
         # Fill in credentials and check remember me
@@ -82,7 +82,7 @@ RSpec.describe "Authentication Login", type: :system do
           fill_in "email_address", with: user.email_address
           fill_in "password", with: "password123"
           check "remember_me"
-          click_button "Sign in"
+          click_button "Sign In"
         end
 
         # Verify successful login
@@ -103,11 +103,11 @@ RSpec.describe "Authentication Login", type: :system do
       visit root_path
 
       # Open modal and sign in
-      click_button "Sign in"
+      click_button "Sign In"
       within "#auth-modal" do
         fill_in "email_address", with: existing_user.email_address
         fill_in "password", with: "password123"
-        click_button "Sign in"
+        click_button "Sign In"
       end
 
       # Wait for sign in to complete (authentication redirects to dashboard)
@@ -130,12 +130,12 @@ RSpec.describe "Authentication Login", type: :system do
       visit root_path
 
       # Sign in with remember me checked
-      click_button "Sign in"
+      click_button "Sign In"
       within "#auth-modal" do
         fill_in "email_address", with: existing_user.email_address
         fill_in "password", with: "password123"
         check "remember_me"
-        click_button "Sign in"
+        click_button "Sign In"
       end
 
       # Verify successful login (session creation proven by successful authentication)
@@ -150,12 +150,12 @@ RSpec.describe "Authentication Login", type: :system do
       visit root_path
 
       # Sign in without remember me
-      click_button "Sign in"
+      click_button "Sign In"
       within "#auth-modal" do
         fill_in "email_address", with: existing_user.email_address
         fill_in "password", with: "password123"
         # Don't check remember_me
-        click_button "Sign in"
+        click_button "Sign In"
       end
 
       # Verify successful login (session creation proven by successful authentication)
@@ -180,7 +180,7 @@ RSpec.describe "Authentication Login", type: :system do
 
       # Verify user is signed out
       expect_to_be_signed_out
-      expect(page).to have_button("Sign in") # Should see login button again
+      expect(page).to have_button("Sign In") # Should see login button again
     end
 
     it "destroys session on sign out" do
@@ -201,11 +201,11 @@ RSpec.describe "Authentication Login", type: :system do
     it "destroys session record on sign out" do
       # First sign in to create a session
       visit root_path
-      click_button "Sign in"
+      click_button "Sign In"
       within "#auth-modal" do
         fill_in "email_address", with: user.email_address
         fill_in "password", with: "password123"
-        click_button "Sign in"
+        click_button "Sign In"
       end
 
       # Verify user is signed in
@@ -216,7 +216,7 @@ RSpec.describe "Authentication Login", type: :system do
 
       # Verify user is signed out (session destruction proven by logout success)
       expect_to_be_signed_out
-      expect(page).to have_button("Sign in")
+      expect(page).to have_button("Sign In")
 
       # Note: Direct database session verification is challenging in system tests
       # The successful logout proves session destruction worked
@@ -231,7 +231,7 @@ RSpec.describe "Authentication Login", type: :system do
     within "main" do
       fill_in "email_address", with: email
       fill_in "password", with: password
-      click_button "Sign in"
+      click_button "Sign In"
     end
   end
 
@@ -239,13 +239,13 @@ RSpec.describe "Authentication Login", type: :system do
     # Helper method to verify user is signed in
     # Look for user-specific elements that only appear when authenticated
     expect(page).to have_button("Sign out") # Logout button in sidebar
-    expect(page).not_to have_button("Sign in") # No login button when authenticated
+    expect(page).not_to have_button("Sign In") # No login button when authenticated
   end
 
   def expect_to_be_signed_out
     # Helper method to verify user is signed out
     # Look for login/signup buttons that only appear when not authenticated
-    expect(page).to have_button("Sign in") # Login button in sidebar
+    expect(page).to have_button("Sign In") # Login button in sidebar
     expect(page).to have_button("Create account") # Signup button in sidebar
     expect(page).not_to have_button("Sign out") # No logout button when not authenticated
   end
