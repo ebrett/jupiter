@@ -30,16 +30,13 @@ RSpec.describe "Authentication Forms", type: :system do
     it "uses correct form action for login mode" do
       visit root_path
 
-      # Debug: Check if the Sign In button is present
-      expect(page).to have_button("Sign In")
-
-      # Open modal in login mode - be specific to avoid ambiguity with sidebar button
-      within "main" do
+      # Click sign in button to open modal
+      within ".max-w-4xl" do
         click_button "Sign In"
       end
 
-      # Wait for modal to become visible with explicit wait
-      expect(page).to have_css("#auth-modal", visible: true, wait: 10)
+      # Wait for modal to become visible
+      expect(page).to have_css("#auth-modal", visible: true)
       expect(page).to have_content("Sign in to Jupiter")
 
       # Verify form action points to session endpoint
@@ -53,7 +50,7 @@ RSpec.describe "Authentication Forms", type: :system do
 
       # Open modal in login mode first, then switch to registration
       # This ensures the Stimulus controller properly updates the form action
-      within "main" do
+      within ".max-w-4xl" do
         click_button "Sign In"
       end
 
@@ -73,7 +70,7 @@ RSpec.describe "Authentication Forms", type: :system do
       visit root_path
 
       # Start in login mode
-      within "main" do
+      within ".max-w-4xl" do
         click_button "Sign In"
       end
       expect(page.find("#auth-modal form")['action']).to end_with("/session")
@@ -91,7 +88,7 @@ RSpec.describe "Authentication Forms", type: :system do
       visit root_path
 
       # Start in login mode, switch to registration, then back to login
-      within "main" do
+      within ".max-w-4xl" do
         click_button "Sign In"
       end
 
@@ -102,7 +99,9 @@ RSpec.describe "Authentication Forms", type: :system do
 
       # Switch back to login mode
       within "#auth-modal" do
+        within ".max-w-4xl" do
         click_button "Sign In"
+      end
       end
 
       # Verify form action changed back
@@ -113,7 +112,7 @@ RSpec.describe "Authentication Forms", type: :system do
       visit root_path
 
       # Open modal in login mode
-      within "main" do
+      within ".max-w-4xl" do
         click_button "Sign In"
       end
 
@@ -132,7 +131,9 @@ RSpec.describe "Authentication Forms", type: :system do
 
       # Switch back to login mode
       within "#auth-modal" do
+        within ".max-w-4xl" do
         click_button "Sign In"
+      end
       end
 
       # Verify form action changed back to login
@@ -148,7 +149,7 @@ RSpec.describe "Authentication Forms", type: :system do
       visit root_path
 
       # Open modal and switch to registration
-      within "main" do
+      within ".max-w-4xl" do
         click_button "Sign In"
       end
       within "#auth-modal" do
@@ -173,7 +174,7 @@ RSpec.describe "Authentication Forms", type: :system do
       visit root_path
 
       # Test login mode
-      within "main" do
+      within ".max-w-4xl" do
         click_button "Sign In"
       end
       login_method = page.find("#auth-modal form")['method']
@@ -193,7 +194,7 @@ RSpec.describe "Authentication Forms", type: :system do
       visit root_path
 
       # Open modal
-      within "main" do
+      within ".max-w-4xl" do
         click_button "Sign In"
       end
 
@@ -206,7 +207,7 @@ RSpec.describe "Authentication Forms", type: :system do
       visit root_path
 
       # Open modal in login mode
-      within "main" do
+      within ".max-w-4xl" do
         click_button "Sign In"
       end
       form = page.find("#auth-modal form")
@@ -226,7 +227,7 @@ RSpec.describe "Authentication Forms", type: :system do
       visit root_path
 
       # Test login mode structure
-      within "main" do
+      within ".max-w-4xl" do
         click_button "Sign In"
       end
       within "#auth-modal form" do
@@ -259,7 +260,7 @@ RSpec.describe "Authentication Forms", type: :system do
       visit root_path
 
       # Open modal in login mode
-      within "main" do
+      within ".max-w-4xl" do
         click_button "Sign In"
       end
 
@@ -281,7 +282,7 @@ RSpec.describe "Authentication Forms", type: :system do
       visit root_path
 
       # Open modal and switch to registration
-      within "main" do
+      within ".max-w-4xl" do
         click_button "Sign In"
       end
       within "#auth-modal" do
@@ -313,7 +314,7 @@ RSpec.describe "Authentication Forms", type: :system do
       visit root_path
 
       # Start in login, verify attributes
-      within "main" do
+      within ".max-w-4xl" do
         click_button "Sign In"
       end
       email_required_login = page.find('#auth-modal input[name="email_address"]')['required']
@@ -328,7 +329,9 @@ RSpec.describe "Authentication Forms", type: :system do
 
       # Switch back to login, verify attributes still correct
       within "#auth-modal" do
+        within ".max-w-4xl" do
         click_button "Sign In"
+      end
       end
       email_required_back = page.find('#auth-modal input[name="email_address"]')['required']
       expect(email_required_back).to eq("true")
@@ -340,7 +343,7 @@ RSpec.describe "Authentication Forms", type: :system do
       visit root_path
 
       # Open modal
-      within "main" do
+      within ".max-w-4xl" do
         click_button "Sign In"
       end
 
@@ -356,7 +359,7 @@ RSpec.describe "Authentication Forms", type: :system do
       visit root_path
 
       # Open modal in login mode
-      within "main" do
+      within ".max-w-4xl" do
         click_button "Sign In"
       end
       login_csrf = page.find('#auth-modal input[name="authenticity_token"]', visible: false).value
@@ -377,7 +380,7 @@ RSpec.describe "Authentication Forms", type: :system do
       visit root_path
 
       # Test login mode
-      within "main" do
+      within ".max-w-4xl" do
         click_button "Sign In"
       end
       within "#auth-modal" do
@@ -403,7 +406,7 @@ RSpec.describe "Authentication Forms", type: :system do
       visit root_path
 
       # Open modal
-      within "main" do
+      within ".max-w-4xl" do
         click_button "Sign In"
       end
 

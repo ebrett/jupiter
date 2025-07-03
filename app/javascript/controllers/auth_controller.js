@@ -98,7 +98,7 @@ export default class extends Controller {
     const oauthButton = modal.querySelector('a[href="/auth/nationbuilder"]')
     if (oauthButton) {
       const nationName = this.getNationDisplayName()
-      const buttonText = isLogin ? `Sign in with ${nationName}` : `Sign up with ${nationName}`
+      const buttonText = isLogin ? `Sign In with ${nationName}` : `Sign Up with ${nationName}`
       
       if (oauthButton.querySelector('svg')) {
         // Keep SVG, just update text after it
@@ -112,7 +112,7 @@ export default class extends Controller {
     // Update primary button text
     const submitButton = modal.querySelector('input[type="submit"]')
     if (submitButton) {
-      submitButton.value = isLogin ? 'Sign in' : 'Create account'
+      submitButton.value = isLogin ? 'Sign In' : 'Create Account'
     }
     
     // Toggle fields based on mode using data attributes
@@ -135,7 +135,7 @@ export default class extends Controller {
       const switchButton = switchTextContainer.querySelector('.font-medium.text-blue-600')
       if (switchButton) {
         const newText = isLogin ? "Don't have an account?" : "Already have an account?"
-        const linkText = isLogin ? 'Sign up' : 'Sign in'
+        const linkText = isLogin ? 'Sign Up' : 'Sign In'
         
         // Update the text content
         switchTextContainer.innerHTML = `${newText} <button type="button" class="font-medium text-blue-600 hover:text-blue-500" data-action="click->${isLogin ? 'auth#switchToRegister' : 'auth#switchToLogin'}">${linkText}</button>`
