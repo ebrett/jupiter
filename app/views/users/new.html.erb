@@ -1,4 +1,4 @@
-<!-- Sign In Page -->
+<!-- Sign Up Page -->
 <div class="min-h-screen w-full flex flex-col justify-center py-12 px-6 lg:px-8 bg-gray-50">
   <div class="mx-auto w-full max-w-md">
     <!-- Jupiter Logo/Brand -->
@@ -10,11 +10,11 @@
     
     <!-- Header -->
     <h1 class="text-center text-3xl font-bold tracking-tight text-gray-900">
-      Sign in to your account
+      Create your account
     </h1>
     <p class="mt-2 text-center text-sm text-gray-600">
       Or
-      <%= link_to "create a new account", sign_up_path, class: "font-medium text-blue-600 hover:text-blue-500" %>
+      <%= link_to "sign in to your existing account", sign_in_path, class: "font-medium text-blue-600 hover:text-blue-500" %>
     </p>
   </div>
 
@@ -30,7 +30,13 @@
               </svg>
             </div>
             <div class="ml-3">
-              <p class="text-sm font-medium text-red-800"><%= alert %></p>
+              <p class="text-sm font-medium text-red-800">
+                <%= alert %>
+                <% if alert.include?('Email address has already been taken') %>
+                  <br>
+                  <%= link_to "Sign in instead", sign_in_path, class: "underline font-semibold hover:text-red-700" %>
+                <% end %>
+              </p>
             </div>
           </div>
         </div>
@@ -51,15 +57,44 @@
         </div>
       <% end %>
 
-      <!-- Sign In Form -->
-      <%= form_with url: session_url, local: true, class: "space-y-6" do |form| %>
+      <!-- Sign Up Form -->
+      <%= form_with url: users_path, local: true, class: "space-y-6" do |form| %>
+        <!-- Name Fields -->
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <%= form.label :first_name, "First name", class: "block text-sm font-medium text-gray-700", for: "signup_first_name" %>
+            <div class="mt-1">
+              <%= form.text_field :first_name, 
+                  id: "signup_first_name", 
+                  autocomplete: "given-name", 
+                  placeholder: "John", 
+                  value: params[:first_name],
+                  "aria-label": "First name",
+                  class: "appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
+            </div>
+          </div>
+
+          <div>
+            <%= form.label :last_name, "Last name", class: "block text-sm font-medium text-gray-700", for: "signup_last_name" %>
+            <div class="mt-1">
+              <%= form.text_field :last_name, 
+                  id: "signup_last_name", 
+                  autocomplete: "family-name", 
+                  placeholder: "Doe", 
+                  value: params[:last_name],
+                  "aria-label": "Last name",
+                  class: "appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
+            </div>
+          </div>
+        </div>
+
+        <!-- Email Field -->
         <div>
-          <%= form.label :email_address, "Email address", class: "block text-sm font-medium text-gray-700", for: "signin_email_address" %>
+          <%= form.label :email_address, "Email address", class: "block text-sm font-medium text-gray-700", for: "signup_email_address" %>
           <div class="mt-1">
             <%= form.email_field :email_address, 
-                id: "signin_email_address", 
+                id: "signup_email_address", 
                 required: true, 
-                autofocus: true, 
                 autocomplete: "username", 
                 placeholder: "Enter your email address", 
                 value: params[:email_address],
@@ -69,19 +104,19 @@
                 class: "appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
           </div>
           <div id="email-help" class="mt-1 text-xs text-gray-500">
-            We'll use this to sign you in and send important updates.
+            We'll use this to send you important updates about your account.
           </div>
         </div>
 
+        <!-- Password Field -->
         <div>
-          <%= form.label :password, "Password", class: "block text-sm font-medium text-gray-700", for: "signin_password" %>
+          <%= form.label :password, "Password", class: "block text-sm font-medium text-gray-700", for: "signup_password" %>
           <div class="mt-1">
             <%= form.password_field :password, 
-                id: "signin_password", 
+                id: "signup_password", 
                 required: true, 
-                autocomplete: "current-password", 
-                placeholder: "Enter your password", 
-                maxlength: 72,
+                autocomplete: "new-password", 
+                placeholder: "Create a secure password", 
                 minlength: 8,
                 "aria-label": "Password",
                 "aria-describedby": "password-help",
@@ -93,30 +128,40 @@
           </div>
         </div>
 
-        <div class="flex items-center justify-between">
-          <div class="flex items-center">
-            <%= form.check_box :remember_me, 
-                id: "signin_remember_me", 
-                "aria-describedby": "remember-help",
-                class: "h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" %>
-            <%= form.label :remember_me, "Remember me", for: "signin_remember_me", class: "ml-2 block text-sm text-gray-900" %>
-            <span id="remember-help" class="sr-only">Keep me signed in for up to 30 days</span>
+        <!-- Password Confirmation Field -->
+        <div>
+          <%= form.label :password_confirmation, "Confirm password", class: "block text-sm font-medium text-gray-700", for: "signup_password_confirmation" %>
+          <div class="mt-1">
+            <%= form.password_field :password_confirmation, 
+                id: "signup_password_confirmation", 
+                required: true, 
+                autocomplete: "new-password", 
+                placeholder: "Confirm your password",
+                "aria-label": "Confirm password",
+                "aria-describedby": "password-confirm-help",
+                "aria-invalid": flash[:alert].present? ? "true" : "false",
+                class: "appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
           </div>
-
-          <div class="text-sm">
-            <%= link_to "Forgot your password?", new_password_path, class: "font-medium text-blue-600 hover:text-blue-500" %>
+          <div id="password-confirm-help" class="mt-1 text-xs text-gray-500">
+            Re-enter your password to confirm.
           </div>
         </div>
 
+        <!-- Submit Button -->
         <div>
-          <%= form.submit "Sign in", 
-              id: "signin_submit",
-              "aria-describedby": "signin-help",
-              "data-disable-with": "Signing in...",
+          <%= form.submit "Create Account", 
+              id: "signup_submit",
+              "aria-describedby": "signup-help",
+              "data-disable-with": "Creating account...",
               class: "w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed" %>
-          <div id="signin-help" class="mt-2 text-xs text-center text-gray-500">
-            By signing in, you agree to our terms of service and privacy policy.
-          </div>
+        </div>
+
+        <!-- Terms of Service -->
+        <div id="signup-help" class="text-xs text-center text-gray-500">
+          By creating an account, you agree to our
+          <%= link_to "Terms of Service", "#", class: "text-blue-600 hover:text-blue-500" %>
+          and
+          <%= link_to "Privacy Policy", "#", class: "text-blue-600 hover:text-blue-500" %>
         </div>
 
         <!-- NationBuilder OAuth -->
@@ -136,7 +181,7 @@
                 <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
                 </svg>
-                <span class="ml-2">NationBuilder</span>
+                <span class="ml-2">Sign Up with NationBuilder</span>
               <% end %>
             </div>
           </div>

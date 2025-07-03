@@ -1,4 +1,8 @@
 Rails.application.routes.draw do
+  # Authentication pages
+  get "/sign-in", to: "sessions#new", as: :sign_in
+  get "/sign-up", to: "users#new", as: :sign_up
+
   resource :session
   resources :passwords, param: :token
 
