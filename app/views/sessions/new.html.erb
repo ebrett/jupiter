@@ -1,48 +1,145 @@
-<div class="mx-auto md:w-2/3 w-full">
-  <% if alert = flash[:alert] %>
-    <p class="py-2 px-3 bg-red-50 mb-5 text-red-500 font-medium rounded-lg inline-block" id="alert"><%= alert %></p>
-  <% end %>
-
-  <% if notice = flash[:notice] %>
-    <p class="py-2 px-3 bg-green-50 mb-5 text-green-500 font-medium rounded-lg inline-block" id="notice"><%= notice %></p>
-  <% end %>
-
-  <h1 class="font-bold text-4xl">Sign in</h1>
-
-  <%= form_with url: session_url, class: "contents" do |form| %>
-    <div class="my-5">
-      <%= form.email_field :email_address, id: "login_page_email_address", required: true, autofocus: true, autocomplete: "username", placeholder: "Enter your email address", value: params[:email_address], class: "block shadow-sm rounded-md border border-gray-400 focus:outline-blue-600 px-3 py-2 mt-2 w-full" %>
+<!-- Sign In Page -->
+<div class="min-h-screen w-full flex flex-col justify-center py-12 px-6 lg:px-8 bg-gray-50">
+  <div class="mx-auto w-full max-w-md">
+    <!-- Jupiter Logo/Brand -->
+    <div class="text-center mb-8">
+      <%= link_to root_path, class: "inline-flex items-center" do %>
+        <h2 class="text-2xl font-bold text-gray-900">Jupiter</h2>
+      <% end %>
     </div>
+    
+    <!-- Header -->
+    <h1 class="text-center text-3xl font-bold tracking-tight text-gray-900">
+      Sign in to your account
+    </h1>
+    <p class="mt-2 text-center text-sm text-gray-600">
+      Or
+      <%= link_to "create a new account", sign_up_path, class: "font-medium text-blue-600 hover:text-blue-500" %>
+    </p>
+  </div>
 
-    <div class="my-5">
-      <%= form.password_field :password, id: "login_page_password", required: true, autocomplete: "current-password", placeholder: "Enter your password", maxlength: 72, class: "block shadow-sm rounded-md border border-gray-400 focus:outline-blue-600 px-3 py-2 mt-2 w-full" %>
-    </div>
+  <div class="mt-8 mx-auto w-full max-w-md">
+    <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+      <!-- Flash Messages -->
+      <% if alert = flash[:alert] %>
+        <div class="mb-4 rounded-md bg-red-50 p-4">
+          <div class="flex">
+            <div class="flex-shrink-0">
+              <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd" />
+              </svg>
+            </div>
+            <div class="ml-3">
+              <p class="text-sm font-medium text-red-800"><%= alert %></p>
+            </div>
+          </div>
+        </div>
+      <% end %>
 
-    <div class="col-span-6 sm:flex sm:items-center sm:gap-4">
-      <div class="inline">
-        <%= form.submit "Sign in", class: "w-full sm:w-auto text-center rounded-md px-3.5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white inline-block font-medium cursor-pointer" %>
-      </div>
+      <% if notice = flash[:notice] %>
+        <div class="mb-4 rounded-md bg-green-50 p-4">
+          <div class="flex">
+            <div class="flex-shrink-0">
+              <svg class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.236 4.53L8.53 10.53a.75.75 0 00-1.06 1.061l2.03 2.03a.75.75 0 001.137-.089l3.857-5.481z" clip-rule="evenodd" />
+              </svg>
+            </div>
+            <div class="ml-3">
+              <p class="text-sm font-medium text-green-800"><%= notice %></p>
+            </div>
+          </div>
+        </div>
+      <% end %>
 
-      <div class="mt-4 text-sm text-gray-500 sm:mt-0">
-        <%= link_to "Forgot password?", new_password_path, class: "text-gray-700 underline hover:no-underline" %>
-      </div>
-    </div>
+      <!-- Sign In Form -->
+      <%= form_with url: session_url, local: true, class: "space-y-6" do |form| %>
+        <div>
+          <%= form.label :email_address, "Email address", class: "block text-sm font-medium text-gray-700", for: "signin_email_address" %>
+          <div class="mt-1">
+            <%= form.email_field :email_address, 
+                id: "signin_email_address", 
+                required: true, 
+                autofocus: true, 
+                autocomplete: "username", 
+                placeholder: "Enter your email address", 
+                value: params[:email_address],
+                "aria-label": "Email address", 
+                "aria-describedby": "email-help",
+                "aria-invalid": params[:email_address].present? && flash[:alert].present? ? "true" : "false",
+                class: "appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
+          </div>
+          <div id="email-help" class="mt-1 text-xs text-gray-500">
+            We'll use this to sign you in and send important updates.
+          </div>
+        </div>
 
-    <% if feature_enabled?('nationbuilder_signin') %>
-      <div class="my-6 flex items-center">
-        <div class="flex-1 border-t border-gray-300"></div>
-        <div class="mx-4 text-sm text-gray-500">or</div>
-        <div class="flex-1 border-t border-gray-300"></div>
-      </div>
+        <div>
+          <%= form.label :password, "Password", class: "block text-sm font-medium text-gray-700", for: "signin_password" %>
+          <div class="mt-1">
+            <%= form.password_field :password, 
+                id: "signin_password", 
+                required: true, 
+                autocomplete: "current-password", 
+                placeholder: "Enter your password", 
+                maxlength: 72,
+                minlength: 8,
+                "aria-label": "Password",
+                "aria-describedby": "password-help",
+                "aria-invalid": flash[:alert].present? ? "true" : "false",
+                class: "appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
+          </div>
+          <div id="password-help" class="mt-1 text-xs text-gray-500">
+            Must be at least 8 characters long.
+          </div>
+        </div>
 
-      <div class="text-center">
-        <%= link_to "/auth/nationbuilder", class: "w-full inline-flex justify-center items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" do %>
-          <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-          </svg>
-          Sign in with NationBuilder
+        <div class="flex items-center justify-between">
+          <div class="flex items-center">
+            <%= form.check_box :remember_me, 
+                id: "signin_remember_me", 
+                "aria-describedby": "remember-help",
+                class: "h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" %>
+            <%= form.label :remember_me, "Remember me", for: "signin_remember_me", class: "ml-2 block text-sm text-gray-900" %>
+            <span id="remember-help" class="sr-only">Keep me signed in for up to 30 days</span>
+          </div>
+
+          <div class="text-sm">
+            <%= link_to "Forgot your password?", new_password_path, class: "font-medium text-blue-600 hover:text-blue-500" %>
+          </div>
+        </div>
+
+        <div>
+          <%= form.submit "Sign in", 
+              id: "signin_submit",
+              "aria-describedby": "signin-help",
+              "data-disable-with": "Signing in...",
+              class: "w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed" %>
+          <div id="signin-help" class="mt-2 text-xs text-center text-gray-500">
+            By signing in, you agree to our terms of service and privacy policy.
+          </div>
+        </div>
+
+        <!-- NationBuilder OAuth -->
+        <% if feature_enabled?('nationbuilder_signin') %>
+          <div class="mt-6">
+            <div class="relative my-6">
+              <div class="absolute inset-0 flex items-center">
+                <div class="w-full border-t border-gray-300"></div>
+              </div>
+              <div class="relative flex justify-center text-sm">
+                <span class="px-4 bg-white text-gray-500">Or continue with</span>
+              </div>
+            </div>
+
+            <%= link_to "/auth/nationbuilder", class: "w-full inline-flex justify-center items-center py-3 px-4 border-2 border-indigo-600 rounded-lg shadow-sm bg-indigo-50 text-sm font-semibold text-indigo-700 hover:bg-indigo-100 hover:border-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200" do %>
+              <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+              </svg>
+              <span>Continue with NationBuilder</span>
+            <% end %>
+          </div>
         <% end %>
-      </div>
-    <% end %>
-  <% end %>
+      <% end %>
+    </div>
+  </div>
 </div>

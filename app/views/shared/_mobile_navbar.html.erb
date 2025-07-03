@@ -1,0 +1,125 @@
+<!-- Mobile Navigation Bar -->
+<div class="bg-white border-b border-gray-200">
+  <nav>
+    <div class="px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between h-16">
+        <!-- Left side - Logo and menu button -->
+        <div class="flex items-center">
+          <!-- Mobile menu button -->
+          <button type="button" class="md:hidden p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                  onclick="toggleMobileMenu()"
+                  id="mobile-menu-button">
+            <span class="sr-only">Open main menu</span>
+          <!-- Hamburger icon -->
+          <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+          </svg>
+        </button>
+        
+        <!-- Logo -->
+        <div class="ml-2">
+          <%= link_to root_path, class: "flex items-center" do %>
+            <h1 class="text-xl font-bold text-gray-900">Jupiter</h1>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Right side - User actions -->
+      <div class="flex items-center space-x-4">
+        <% if authenticated? %>
+          <!-- User avatar -->
+          <div class="flex items-center space-x-3">
+            <%= render Catalyst::AvatarComponent.new(
+              initials: user_initials,
+              size: :sm,
+              alt: user_display_name,
+              class: "bg-indigo-600 text-white"
+            ) %>
+            
+            <!-- Sign out button -->
+            <%= button_to session_path, method: :delete, class: "p-1 text-gray-400 hover:text-gray-500", title: "Sign out", data: { confirm: "Are you sure you want to sign out?" } do %>
+              <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
+              </svg>
+            <% end %>
+          </div>
+        <% else %>
+          <!-- Auth buttons for mobile -->
+          <div class="flex items-center space-x-2">
+            <%= link_to sign_in_path, class: "px-3 py-1 text-sm font-medium text-blue-600 hover:text-blue-500" do %>
+              Sign In
+            <% end %>
+            <%= link_to sign_up_path, class: "px-3 py-1 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md" do %>
+              Sign Up
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile menu panel -->
+  <div class="hidden absolute top-16 left-0 right-0 z-40 bg-white border-b border-gray-200 shadow-lg" id="mobile-menu-panel">
+    <div class="px-2 pt-2 pb-3 space-y-1 bg-white">
+      <!-- Dashboard -->
+      <%= link_to root_path, class: "block px-3 py-2 text-base font-medium rounded-md #{current_page?(root_path) ? 'bg-gray-100 text-gray-900' : 'text-gray-700 hover:bg-gray-50'}" do %>
+        Dashboard
+      <% end %>
+      
+      <!-- Users (if authorized) -->
+      <% if authenticated? && policy(User).index? %>
+        <%= link_to users_path, class: "block px-3 py-2 text-base font-medium rounded-md #{current_page?(users_path) ? 'bg-gray-100 text-gray-900' : 'text-gray-700 hover:bg-gray-50'}" do %>
+          Users
+        <% end %>
+      <% end %>
+      
+      <!-- Roles (if authorized) -->
+      <% if authenticated? && policy(Role).index? %>
+        <%= link_to roles_path, class: "block px-3 py-2 text-base font-medium rounded-md #{current_page?(roles_path) ? 'bg-gray-100 text-gray-900' : 'text-gray-700 hover:bg-gray-50'}" do %>
+          Roles
+        <% end %>
+      <% end %>
+
+      <!-- Forms section -->
+      <% if authenticated? && current_user&.can_submit_requests? %>
+        <div class="pt-4 pb-2">
+          <p class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Forms</p>
+        </div>
+        <%= link_to inkind_donations_path, class: "block px-3 py-2 text-base font-medium rounded-md #{current_page?(inkind_donations_path) ? 'bg-gray-100 text-gray-900' : 'text-gray-700 hover:bg-gray-50'}" do %>
+          In-Kind Donations
+        <% end %>
+      <% end %>
+
+      <!-- System section -->
+      <% if authenticated? && current_user&.has_role?(:system_administrator) %>
+        <div class="pt-4 pb-2">
+          <p class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">System</p>
+        </div>
+        <%= link_to system_oauth_status_index_path, class: "block px-3 py-2 text-base font-medium rounded-md #{current_page?(system_oauth_status_index_path) ? 'bg-gray-100 text-gray-900' : 'text-gray-700 hover:bg-gray-50'}" do %>
+          OAuth Status
+        <% end %>
+        <%= link_to system_health_index_path, class: "block px-3 py-2 text-base font-medium rounded-md #{current_page?(system_health_index_path) ? 'bg-gray-100 text-gray-900' : 'text-gray-700 hover:bg-gray-50'}" do %>
+          System Health
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+  </nav>
+</div>
+
+<script>
+function toggleMobileMenu() {
+  const menu = document.getElementById('mobile-menu-panel');
+  menu.classList.toggle('hidden');
+}
+
+// Close menu when clicking outside
+document.addEventListener('click', function(event) {
+  const menu = document.getElementById('mobile-menu-panel');
+  const button = document.getElementById('mobile-menu-button');
+  
+  if (!menu.contains(event.target) && !button.contains(event.target)) {
+    menu.classList.add('hidden');
+  }
+});
+</script>

@@ -15,9 +15,13 @@ class RegistrationsController < ApplicationController
         redirect_to after_authentication_url, notice: "Welcome to Jupiter!"
       end
     else
-      # Handle registration errors
+      # Handle registration errors - redirect back to sign-up with preserved data
       error_message = @user.errors.full_messages.join(", ")
-      redirect_to root_path, alert: "Registration failed: #{error_message}"
+      redirect_to sign_up_path(
+        first_name: registration_params[:first_name],
+        last_name: registration_params[:last_name],
+        email_address: registration_params[:email_address]
+      ), alert: error_message
     end
   end
 

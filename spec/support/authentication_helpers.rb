@@ -3,7 +3,7 @@ module AuthenticationHelpers
     # For request specs, we need to actually perform the login
     post session_path, params: {
       email_address: user.email_address,
-      password: 'password' # Default password from factory
+      password: 'password123' # Default password from factory
     }
   end
 
