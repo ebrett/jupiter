@@ -161,7 +161,11 @@ RSpec.describe "Feature Flag Authentication Integration", type: :system do
     describe "feature flag transition scenarios" do
       it "handles enabling feature flag during session" do
         # Start with disabled flag
-        FeatureFlag.create!(name: 'nationbuilder_signin', enabled: false)
+        FeatureFlag.create!(
+          name: 'nationbuilder_signin',
+          description: 'Enable NationBuilder OAuth sign-in',
+          enabled: false
+        )
 
         visit sign_in_path
         expect(page).not_to have_link(href: "/auth/nationbuilder")
@@ -176,7 +180,11 @@ RSpec.describe "Feature Flag Authentication Integration", type: :system do
 
       it "handles disabling feature flag during session" do
         # Start with enabled flag
-        FeatureFlag.create!(name: 'nationbuilder_signin', enabled: true)
+        FeatureFlag.create!(
+          name: 'nationbuilder_signin',
+          description: 'Enable NationBuilder OAuth sign-in',
+          enabled: true
+        )
 
         visit sign_in_path
         expect(page).to have_link(href: "/auth/nationbuilder")
@@ -194,7 +202,11 @@ RSpec.describe "Feature Flag Authentication Integration", type: :system do
         user = FactoryBot.create(:user, email_address: 'test@example.com', password: 'password123')
 
         # Test with flag enabled
-        FeatureFlag.create!(name: 'nationbuilder_signin', enabled: true)
+        FeatureFlag.create!(
+          name: 'nationbuilder_signin',
+          description: 'Enable NationBuilder OAuth sign-in',
+          enabled: true
+        )
         visit sign_in_path
         expect(page).to have_link(href: "/auth/nationbuilder")
 

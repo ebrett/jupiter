@@ -40,21 +40,18 @@ RSpec.describe "Authentication Errors", type: :system do
     it "handles form submission errors gracefully" do
       visit sign_in_path
 
-      # Test form submission with invalid email format
+      # Test form submission with invalid email format (bypass browser validation)
       fill_in "email_address", with: "invalid-email-format"
       fill_in "password", with: "password123"
+      
+      # Disable HTML5 validation for testing server-side validation
+      page.execute_script("document.querySelector('form').noValidate = true;")
       click_button "Sign in"
 
-      # The form should fail with either browser validation or server error
-      # Since invalid email format might be caught by browser validation or server
-      if page.has_current_path?(sign_in_path)
-        # Server handled it - redirected with error
-        expect(page).to have_content("Try another email address or password.")
-        expect(page).to have_field("email_address")
-      else
-        # Browser validation prevented submission
-        expect(page).to have_current_path(sign_in_path)
-      end
+      # Should redirect back to sign-in page with error message
+      expect(page).to have_current_path(sign_in_path)
+      expect(page).to have_content("Try another email address or password.")
+      expect(page).to have_field("email_address")
     end
 
     it "shows error for non-existent user" do
