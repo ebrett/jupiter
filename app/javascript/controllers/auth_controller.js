@@ -132,13 +132,19 @@ export default class extends Controller {
     // Update switch mode text
     const switchTextContainer = modal.querySelector('.text-sm.text-gray-600')
     if (switchTextContainer) {
-      const switchButton = switchTextContainer.querySelector('.font-medium.text-blue-600')
+      const switchButton = switchTextContainer.querySelector('button')
       if (switchButton) {
-        const newText = isLogin ? "Don't have an account?" : "Already have an account?"
-        const linkText = isLogin ? 'Sign Up' : 'Sign In'
+        // Update button text
+        switchButton.textContent = isLogin ? 'Sign Up' : 'Sign In'
         
-        // Update the text content
-        switchTextContainer.innerHTML = `${newText} <button type="button" class="font-medium text-blue-600 hover:text-blue-500" data-action="click->${isLogin ? 'auth#switchToRegister' : 'auth#switchToLogin'}">${linkText}</button>`
+        // Update the question text (first text node)
+        const textNode = switchTextContainer.firstChild
+        if (textNode && textNode.nodeType === Node.TEXT_NODE) {
+          textNode.textContent = isLogin ? "Don't have an account? " : "Already have an account? "
+        }
+        
+        // Update the button action
+        switchButton.setAttribute('data-action', `click->${isLogin ? 'auth#switchToRegister' : 'auth#switchToLogin'}`)
       }
     }
   }

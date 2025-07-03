@@ -161,7 +161,7 @@ RSpec.describe "Authentication Forms", type: :system do
 
       # Additional verification: ensure we're actually in registration mode
       expect(page).to have_content("Create your Jupiter account")
-      expect(page).to have_button("Create account")
+      expect(page).to have_button("Create Account")
     end
   end
 
@@ -245,7 +245,7 @@ RSpec.describe "Authentication Forms", type: :system do
         expect(page).to have_field("email_address")
         expect(page).to have_field("password")
         expect(page).to have_field("password_confirmation")
-        expect(page).to have_button("Create account")
+        expect(page).to have_button("Create Account")
         expect(page).not_to have_field("remember_me", visible: true)
       end
     end

@@ -246,7 +246,7 @@ RSpec.describe "Authentication Login", type: :system do
     # Helper method to verify user is signed out
     # Look for login/signup buttons that only appear when not authenticated
     expect(page).to have_button("Sign In") # Login button in sidebar
-    expect(page).to have_button("Create account") # Signup button in sidebar
+    expect(page).to have_button("Create Account") # Signup button in sidebar
     expect(page).not_to have_button("Sign out") # No logout button when not authenticated
   end
 end
