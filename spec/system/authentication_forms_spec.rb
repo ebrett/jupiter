@@ -99,9 +99,7 @@ RSpec.describe "Authentication Forms", type: :system do
 
       # Switch back to login mode
       within "#auth-modal" do
-        within ".max-w-4xl" do
         click_button "Sign In"
-      end
       end
 
       # Verify form action changed back
@@ -131,9 +129,7 @@ RSpec.describe "Authentication Forms", type: :system do
 
       # Switch back to login mode
       within "#auth-modal" do
-        within ".max-w-4xl" do
         click_button "Sign In"
-      end
       end
 
       # Verify form action changed back to login
