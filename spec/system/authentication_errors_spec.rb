@@ -291,7 +291,6 @@ RSpec.describe "Authentication Errors", type: :system do
       # Should succeed
       expect_to_be_signed_in
     end
-
   end
 
   private
