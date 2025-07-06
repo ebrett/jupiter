@@ -196,6 +196,7 @@ RSpec.describe "Feature Flag Authentication Integration", type: :system do
         visit sign_in_path
         expect(page).not_to have_link(href: "/auth/nationbuilder")
       end
+    end
 
     describe "OAuth error handling with feature flags" do
       before do
