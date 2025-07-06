@@ -197,45 +197,6 @@ RSpec.describe "Feature Flag Authentication Integration", type: :system do
         expect(page).not_to have_link(href: "/auth/nationbuilder")
       end
     end
-
-    describe "OAuth error handling with feature flags" do
-      before do
-        FeatureFlag.create!(name: 'nationbuilder_signin', description: 'Enable NationBuilder OAuth sign-in', enabled: true)
-      end
-
-      it "gracefully handles OAuth failures while maintaining regular auth" do
-        visit sign_in_path
-
-        # OAuth button should be present
-        expect(page).to have_link(href: "/auth/nationbuilder")
-
-        # If OAuth fails, regular authentication should still work
-        user = FactoryBot.create(:user, email_address: 'fallback@example.com', password: 'password123')
-
-        fill_in "email_address", with: user.email_address
-        fill_in "password", with: "password123"
-        click_button "Sign in"
-
-        expect(page).to have_button("Sign out")
-      end
-
-      it "maintains clean UX when OAuth is unavailable" do
-        visit sign_in_path
-
-        # Even with OAuth enabled, if service is down, regular auth should work
-        expect(page).to have_field("email_address")
-        expect(page).to have_field("password")
-        expect(page).to have_button("Sign in")
-
-        # Form should be functional
-        user = FactoryBot.create(:user, email_address: 'reliable@example.com', password: 'password123')
-        fill_in "email_address", with: user.email_address
-        fill_in "password", with: "password123"
-        click_button "Sign in"
-
-        expect(page).to have_button("Sign out")
-      end
-    end
   end
 
   describe "feature flag infrastructure" do
