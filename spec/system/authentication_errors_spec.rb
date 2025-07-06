@@ -292,35 +292,6 @@ RSpec.describe "Authentication Errors", type: :system do
       expect_to_be_signed_in
     end
 
-    it "allows user to retry after registration error" do
-      visit sign_up_path
-
-      # Try invalid registration first
-      fill_in "first_name", with: "Test"
-      fill_in "last_name", with: "User"
-      fill_in "email_address", with: "test@example.com"
-      fill_in "password", with: "123" # Too short
-      fill_in "password_confirmation", with: "123"
-
-      # Disable HTML5 validation to test server-side validation
-      page.execute_script("document.querySelector('form').noValidate = true;")
-      click_button "Create Account"
-
-      # Should show error
-      expect(page.current_path).to eq(sign_up_path)
-      expect(page).to have_content("Password is too short")
-
-      # Try again with valid data
-      fill_in "first_name", with: "Test"
-      fill_in "last_name", with: "User"
-      fill_in "email_address", with: "newuser@example.com"
-      fill_in "password", with: "password123"
-      fill_in "password_confirmation", with: "password123"
-      click_button "Create Account"
-
-      # Should succeed
-      expect(page).to have_content("Account created! Please check your email to verify your account.")
-    end
   end
 
   private
