@@ -13,10 +13,10 @@ RSpec.describe InkindDonationsController, type: :controller do
   describe 'authentication' do
     it 'requires authentication for all actions' do
       get :index
-      expect(response).to redirect_to(new_session_path)
+      expect(response).to redirect_to(sign_in_path)
 
       get :new
-      expect(response).to redirect_to(new_session_path)
+      expect(response).to redirect_to(sign_in_path)
     end
   end
 

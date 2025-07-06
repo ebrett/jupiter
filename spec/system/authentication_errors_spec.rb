@@ -17,7 +17,7 @@ RSpec.describe "Authentication Errors", type: :system do
       click_button "Sign in"
 
       # Should redirect back to sign-in page with flash message
-      expect(page).to have_current_path(sign_in_path)
+      expect(page.current_path).to eq(sign_in_path)
       expect(page).to have_content("Try another email address or password.")
 
       # Verify we're on the login page showing the error
@@ -33,7 +33,7 @@ RSpec.describe "Authentication Errors", type: :system do
       click_button "Sign in"
 
       # Should redirect back to sign-in page with flash message
-      expect(page).to have_current_path(sign_in_path)
+      expect(page.current_path).to eq(sign_in_path)
       expect(page).to have_content("Try another email address or password.")
     end
 
@@ -43,13 +43,13 @@ RSpec.describe "Authentication Errors", type: :system do
       # Test form submission with invalid email format (bypass browser validation)
       fill_in "email_address", with: "invalid-email-format"
       fill_in "password", with: "password123"
-      
+
       # Disable HTML5 validation for testing server-side validation
       page.execute_script("document.querySelector('form').noValidate = true;")
       click_button "Sign in"
 
       # Should redirect back to sign-in page with error message
-      expect(page).to have_current_path(sign_in_path)
+      expect(page.current_path).to eq(sign_in_path)
       expect(page).to have_content("Try another email address or password.")
       expect(page).to have_field("email_address")
     end
@@ -63,7 +63,7 @@ RSpec.describe "Authentication Errors", type: :system do
       click_button "Sign in"
 
       # Should redirect with error message
-      expect(page).to have_current_path(sign_in_path)
+      expect(page.current_path).to eq(sign_in_path)
       expect(page).to have_content("Try another email address or password.")
     end
 
@@ -79,7 +79,7 @@ RSpec.describe "Authentication Errors", type: :system do
       click_button "Sign in"
 
       # Should redirect with error message
-      expect(page).to have_current_path(sign_in_path)
+      expect(page.current_path).to eq(sign_in_path)
       expect(page).to have_content("Try another email address or password.")
     end
   end
@@ -94,10 +94,13 @@ RSpec.describe "Authentication Errors", type: :system do
       fill_in "email_address", with: "test@example.com"
       fill_in "password", with: "123" # Too short
       fill_in "password_confirmation", with: "123"
+
+      # Disable HTML5 validation to test server-side validation
+      page.execute_script("document.querySelector('form').noValidate = true;")
       click_button "Create Account"
 
       # Should redirect back to sign-up page with flash message
-      expect(page).to have_current_path(sign_up_path)
+      expect(page.current_path).to eq(sign_up_path)
       expect(page).to have_content("Password is too short")
     end
 
@@ -113,7 +116,7 @@ RSpec.describe "Authentication Errors", type: :system do
       click_button "Create Account"
 
       # Should redirect back to sign-up page with flash message
-      expect(page).to have_current_path(sign_up_path)
+      expect(page.current_path).to eq(sign_up_path)
       expect(page).to have_content("Password confirmation doesn't match")
     end
 
@@ -132,7 +135,7 @@ RSpec.describe "Authentication Errors", type: :system do
       click_button "Create Account"
 
       # Should redirect back to sign-up page with flash message
-      expect(page).to have_current_path(sign_up_path)
+      expect(page.current_path).to eq(sign_up_path)
       expect(page).to have_content("Email address has already been taken")
     end
 
@@ -145,10 +148,13 @@ RSpec.describe "Authentication Errors", type: :system do
       fill_in "email_address", with: "valid@example.com"
       fill_in "password", with: "123" # Too short - will cause validation error
       fill_in "password_confirmation", with: "123"
+
+      # Disable HTML5 validation to test server-side validation
+      page.execute_script("document.querySelector('form').noValidate = true;")
       click_button "Create Account"
 
       # After validation error, user should be on sign-up page with error message
-      expect(page).to have_current_path(sign_up_path)
+      expect(page.current_path).to eq(sign_up_path)
       expect(page).to have_content("Password is too short")
 
       # User can try again with the same form
@@ -170,7 +176,7 @@ RSpec.describe "Authentication Errors", type: :system do
       click_button "Create Account"
 
       # Should show validation errors
-      expect(page).to have_current_path(sign_up_path)
+      expect(page.current_path).to eq(sign_up_path)
       expect(page).to have_content("Email address can't be blank")
       # Could show various "can't be blank" messages
     end
@@ -190,7 +196,7 @@ RSpec.describe "Authentication Errors", type: :system do
       click_button "Create Account"
 
       # Should show validation error on the same page
-      expect(page).to have_current_path(sign_up_path)
+      expect(page.current_path).to eq(sign_up_path)
       expect(page).to have_content("Email address can't be blank")
     end
   end
@@ -295,10 +301,13 @@ RSpec.describe "Authentication Errors", type: :system do
       fill_in "email_address", with: "test@example.com"
       fill_in "password", with: "123" # Too short
       fill_in "password_confirmation", with: "123"
+
+      # Disable HTML5 validation to test server-side validation
+      page.execute_script("document.querySelector('form').noValidate = true;")
       click_button "Create Account"
 
       # Should show error
-      expect(page).to have_current_path(sign_up_path)
+      expect(page.current_path).to eq(sign_up_path)
       expect(page).to have_content("Password is too short")
 
       # Try again with valid data

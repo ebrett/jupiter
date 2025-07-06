@@ -60,7 +60,7 @@ RSpec.describe "Authentication Sign-In Page", type: :system do
       fill_in 'Password', with: 'wrongpassword'
       click_button 'Sign in'
 
-      expect(page).to have_current_path(sign_in_path)
+      expect(page.current_path).to eq(sign_in_path)
       expect(page).to have_content('Try another email address or password')
 
       # Check that email is preserved but password is not
@@ -74,7 +74,7 @@ RSpec.describe "Authentication Sign-In Page", type: :system do
       # Use JavaScript to submit form bypassing HTML5 validation
       page.execute_script("document.querySelector('form').submit()")
 
-      expect(page).to have_current_path(sign_in_path)
+      expect(page.current_path).to eq(sign_in_path)
       expect(page).to have_content('Try another email address or password')
     end
 
@@ -93,12 +93,15 @@ RSpec.describe "Authentication Sign-In Page", type: :system do
     end
 
     it "preserves return URL after authentication" do
+      # Give user admin permissions to access users page
+      admin_user = create(:user, :system_administrator, password: 'password123')
+
       # Try to access protected page
       visit users_path
-      expect(page).to have_current_path(sign_in_path)
+      expect(page.current_path).to eq(sign_in_path)
 
       # Sign in
-      fill_in 'Email address', with: user.email_address
+      fill_in 'Email address', with: admin_user.email_address
       fill_in 'Password', with: 'password123'
       click_button 'Sign in'
 

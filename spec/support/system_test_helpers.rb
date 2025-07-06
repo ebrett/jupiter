@@ -8,13 +8,11 @@ module SystemTestHelpers
 
   def sign_in_user(email:, password:, remember_me: false)
     """Sign in a user via the login page (not modal)"""
-    visit new_session_path
-    within "main" do
-      fill_in "email_address", with: email
-      fill_in "password", with: password
-      check "remember_me" if remember_me
-      find('input[type="submit"]').click
-    end
+    visit sign_in_path
+    fill_in "email_address", with: email
+    fill_in "password", with: password
+    check "remember_me" if remember_me
+    click_button "Sign in"
   end
 
   def sign_in_via_modal(email:, password:, remember_me: false)

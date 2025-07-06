@@ -132,7 +132,7 @@ RSpec.describe 'InkindDonations API', type: :request do
       it 'redirects to login' do
         post inkind_donations_path, params: valid_params
 
-        expect(response).to redirect_to(new_session_path)
+        expect(response).to redirect_to(sign_in_path)
         expect(InkindRequest.count).to eq(0)
       end
     end

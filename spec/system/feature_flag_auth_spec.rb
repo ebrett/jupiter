@@ -217,7 +217,7 @@ RSpec.describe "Feature Flag Authentication Integration", type: :system do
         expect(page).to have_button("Sign out")
 
         # Sign out
-        click_button "Sign out"
+        first(:button, "Sign out").click
 
         # Disable flag and test again
         FeatureFlag.find_by(name: 'nationbuilder_signin').update!(enabled: false)
@@ -234,7 +234,7 @@ RSpec.describe "Feature Flag Authentication Integration", type: :system do
 
     describe "OAuth error handling with feature flags" do
       before do
-        FeatureFlag.create!(name: 'nationbuilder_signin', enabled: true)
+        FeatureFlag.create!(name: 'nationbuilder_signin', description: 'Enable NationBuilder OAuth sign-in', enabled: true)
       end
 
       it "gracefully handles OAuth failures while maintaining regular auth" do
@@ -275,7 +275,7 @@ RSpec.describe "Feature Flag Authentication Integration", type: :system do
   describe "feature flag infrastructure" do
     it "properly manages feature flag state" do
       # Test flag creation
-      flag = FeatureFlag.create!(name: 'test_flag', enabled: false)
+      flag = FeatureFlag.create!(name: 'test_flag', description: 'Test feature flag', enabled: false)
       expect(flag.enabled).to be false
 
       # Test flag toggle
@@ -283,7 +283,7 @@ RSpec.describe "Feature Flag Authentication Integration", type: :system do
       expect(flag.reload.enabled).to be true
 
       # Test multiple flags
-      flag2 = FeatureFlag.create!(name: 'another_flag', enabled: true)
+      flag2 = FeatureFlag.create!(name: 'another_flag', description: 'Another test flag', enabled: true)
       expect(FeatureFlag.count).to eq 2
       expect(FeatureFlag.find_by(name: 'test_flag').enabled).to be true
       expect(FeatureFlag.find_by(name: 'another_flag').enabled).to be true

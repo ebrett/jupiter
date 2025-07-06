@@ -96,7 +96,7 @@ RSpec.describe 'NationbuilderAuthController', type: :request do
 
       get '/auth/nationbuilder/callback', params: { code: 'invalid_code' },
           headers: { 'Cookie' => "session_id=#{Rails.application.message_verifier('signed cookie').generate(session_record.id)}" }
-      expect(response).to redirect_to(new_session_path)
+      expect(response).to redirect_to(sign_in_path)
       follow_redirect!
       expect(response.body).to include('The authorization code has expired or is invalid')
     end

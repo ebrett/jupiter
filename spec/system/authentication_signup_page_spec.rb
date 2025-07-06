@@ -51,7 +51,7 @@ RSpec.describe "Authentication Sign-Up Page", type: :system do
       fill_in 'Email address', with: 'john.doe@example.com'
       fill_in 'Password', with: 'password123'
       fill_in 'Confirm password', with: 'password123'
-      within('.max-w-md') { click_button 'Create Account' }
+      click_button 'Create Account'
 
       expect(page).to have_current_path(root_path)
       expect(page).to have_content('Account created!')
@@ -67,7 +67,7 @@ RSpec.describe "Authentication Sign-Up Page", type: :system do
       fill_in 'Email address', with: 'john.doe@example.com'
       fill_in 'Password', with: 'password123'
       fill_in 'Confirm password', with: 'different'
-      within('.max-w-md') { click_button 'Create Account' }
+      click_button 'Create Account'
 
       expect(page.current_path).to eq(sign_up_path)
       expect(page).to have_content("Password confirmation doesn't match")
@@ -91,7 +91,7 @@ RSpec.describe "Authentication Sign-Up Page", type: :system do
       fill_in 'Email address', with: 'existing@example.com'
       fill_in 'Password', with: 'password123'
       fill_in 'Confirm password', with: 'password123'
-      within('.max-w-md') { click_button 'Create Account' }
+      click_button 'Create Account'
 
       expect(page.current_path).to eq(sign_up_path)
       expect(page).to have_content('Email address has already been taken')
@@ -101,12 +101,18 @@ RSpec.describe "Authentication Sign-Up Page", type: :system do
     it "validates password length" do
       visit sign_up_path
 
+      fill_in 'First name', with: 'Test'
+      fill_in 'Last name', with: 'User'
       fill_in 'Email address', with: 'test@example.com'
       fill_in 'Password', with: '123'
       fill_in 'Confirm password', with: '123'
-      within('.max-w-md') { click_button 'Create Account' }
 
-      expect(page.current_path).to eq(sign_up_path)
+      # Disable HTML5 validation to test server-side validation
+      page.execute_script("document.querySelector('form').noValidate = true;")
+      click_button 'Create Account'
+
+      # Wait for redirect and flash message
+      expect(page).to have_current_path(sign_up_path)
       expect(page).to have_content('Password is too short')
     end
 
@@ -143,7 +149,7 @@ RSpec.describe "Authentication Sign-Up Page", type: :system do
       fill_in 'Email address', with: 'minimal@example.com'
       fill_in 'Password', with: 'password123'
       fill_in 'Confirm password', with: 'password123'
-      within('.max-w-md') { click_button 'Create Account' }
+      click_button 'Create Account'
 
       expect(page).to have_current_path(root_path)
       expect(page).to have_content('Account created!')
@@ -197,7 +203,7 @@ RSpec.describe "Authentication Sign-Up Page", type: :system do
       fill_in 'Email address', with: '  UPPERCASE@EXAMPLE.COM  '
       fill_in 'Password', with: 'password123'
       fill_in 'Confirm password', with: 'password123'
-      within('.max-w-md') { click_button 'Create Account' }
+      click_button 'Create Account'
 
       expect(page).to have_current_path(root_path)
 
@@ -207,17 +213,32 @@ RSpec.describe "Authentication Sign-Up Page", type: :system do
     end
 
     it "sends verification email on successful registration" do
+      ActionMailer::Base.deliveries.clear
+      initial_user_count = User.count
+
       visit sign_up_path
 
+      fill_in 'First name', with: 'Test'
+      fill_in 'Last name', with: 'User'
       fill_in 'Email address', with: 'verify@example.com'
       fill_in 'Password', with: 'password123'
       fill_in 'Confirm password', with: 'password123'
 
-      expect {
-        within('.max-w-md') { click_button 'Create Account' }
-      }.to change { ActionMailer::Base.deliveries.count }.by(1)
+      click_button 'Create Account'
 
+      # Should redirect to root with success message
+      expect(page).to have_current_path(root_path)
       expect(page).to have_content('check your email to verify')
+
+      # Check that user was created
+      expect(User.count).to eq(initial_user_count + 1)
+
+      # Check that email was sent
+      expect(ActionMailer::Base.deliveries.count).to eq(1)
+
+      # Verify the email was sent to the right address
+      email = ActionMailer::Base.deliveries.last
+      expect(email.to).to include('verify@example.com')
     end
 
     it "displays loading state on form submission" do
