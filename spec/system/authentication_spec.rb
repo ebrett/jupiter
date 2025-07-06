@@ -27,20 +27,16 @@ RSpec.describe "Authentication System", type: :system do
     it "covers complete authentication workflows across all focused spec files" do
       # This test documents that authentication testing is split across multiple files:
       #
-      # - authentication_login_spec.rb: Login flows, session creation, sign out
-      # - authentication_registration_spec.rb: Registration flows, account creation
-      # - authentication_modal_spec.rb: Modal interactions, mode switching, UI behavior
-      # - authentication_forms_spec.rb: Form actions, validation attributes, CSRF protection
+      # - authentication_signin_page_spec.rb: Sign-in page flows, session creation
+      # - authentication_signup_page_spec.rb: Sign-up page flows, account creation
       # - authentication_errors_spec.rb: Error handling, validation errors, recovery
       # - feature_flag_auth_spec.rb: Feature flag integration with authentication
       #
       # This approach provides better organization and faster test execution while
       # maintaining comprehensive coverage of the authentication system.
 
-      expect(File.exist?(Rails.root.join('spec/system/authentication_login_spec.rb'))).to be true
-      expect(File.exist?(Rails.root.join('spec/system/authentication_registration_spec.rb'))).to be true
-      expect(File.exist?(Rails.root.join('spec/system/authentication_modal_spec.rb'))).to be true
-      expect(File.exist?(Rails.root.join('spec/system/authentication_forms_spec.rb'))).to be true
+      expect(File.exist?(Rails.root.join('spec/system/authentication_signin_page_spec.rb'))).to be true
+      expect(File.exist?(Rails.root.join('spec/system/authentication_signup_page_spec.rb'))).to be true
       expect(File.exist?(Rails.root.join('spec/system/authentication_errors_spec.rb'))).to be true
       expect(File.exist?(Rails.root.join('spec/system/feature_flag_auth_spec.rb'))).to be true
     end
@@ -67,7 +63,6 @@ RSpec.describe "Authentication System", type: :system do
       expect(NationbuilderTokenExchangeService).to be_present
 
       # Core Components
-      expect(AuthModalComponent).to be_present
       expect(ModalComponent).to be_present
 
       # Authentication system is fully functional
@@ -116,14 +111,14 @@ RSpec.describe "Authentication System", type: :system do
     # Helper method to verify user is signed in
     # Look for user-specific elements that only appear when authenticated
     expect(page).to have_button("Sign out") # Logout button in sidebar
-    expect(page).not_to have_button("Sign in") # No login button when authenticated
+    expect(page).not_to have_button("Sign In") # No login button when authenticated
   end
 
   def expect_to_be_signed_out
     # Helper method to verify user is signed out
     # Look for login/signup buttons that only appear when not authenticated
-    expect(page).to have_button("Sign in") # Login button in sidebar
-    expect(page).to have_button("Create account") # Signup button in sidebar
+    expect(page).to have_button("Sign In") # Login button in sidebar
+    expect(page).to have_button("Create Account") # Signup button in sidebar
     expect(page).not_to have_button("Sign out") # No logout button when not authenticated
   end
 end

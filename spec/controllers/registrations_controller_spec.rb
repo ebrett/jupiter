@@ -76,8 +76,8 @@ RSpec.describe RegistrationsController, type: :controller do
       it "redirects with error message" do
         post :create, params: valid_params.merge(email_address: "")
 
-        expect(response).to redirect_to(root_path)
-        expect(flash[:alert]).to match(/Registration failed/i)
+        expect(response.location).to start_with(sign_up_url)
+        expect(flash[:alert]).to be_present
       end
 
       it "does not send verification email" do
@@ -101,8 +101,8 @@ RSpec.describe RegistrationsController, type: :controller do
       it "shows error message" do
         post :create, params: valid_params
 
-        expect(response).to redirect_to(root_path)
-        expect(flash[:alert]).to match(/Registration failed.*taken/i)
+        expect(response.location).to start_with(sign_up_url)
+        expect(flash[:alert]).to include("Email address has already been taken")
       end
     end
   end

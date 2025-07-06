@@ -15,7 +15,8 @@ RSpec.describe "Navigation", type: :system do
         sign_in_user(email: system_admin.email_address, password: "password123")
       end
 
-      it "shows the Components navigation link in development", skip: !Rails.env.development? do
+      it "shows the Components navigation link in development" do
+        skip "Only runs in development environment" unless Rails.env.development?
         expect(page).to have_link("Components", href: "/component_examples")
       end
     end

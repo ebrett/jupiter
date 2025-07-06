@@ -23,16 +23,34 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body class="bg-gray-50 font-sans min-h-screen flex">
-    <%= render 'shared/sidebar' %>
-    <div class="flex-1 flex flex-col min-h-screen">
-      <%= render 'shared/navbar' if lookup_context.exists?('shared/navbar') %>
-      <main class="flex-1 container mx-auto px-5 py-8">
+  <body class="bg-gray-50 font-sans min-h-screen">
+    <!-- Mobile navbar (always show on mobile, hidden on desktop) -->
+    <div class="md:hidden fixed top-0 left-0 right-0 z-50">
+      <%= render 'shared/mobile_navbar' unless controller_name == "sessions" || (controller_name == "users" && action_name == "new") || controller_name == "passwords" || controller_name == "registrations" %>
+    </div>
+
+    <% if show_sidebar? %>
+      <!-- Desktop/Mobile layout with sidebar -->
+      <div class="flex min-h-screen">
+        <!-- Desktop sidebar (hidden on mobile) -->
+        <%= render 'shared/sidebar' %>
+        
+        <!-- Main content area -->
+        <div class="flex-1 flex flex-col min-h-screen">
+          <%= render 'shared/navbar' if lookup_context.exists?('shared/navbar') %>
+          <main class="flex-1 container mx-auto px-5 py-8 pt-20 md:pt-8">
+            <%= render_flash_messages %>
+            <%= yield %>
+          </main>
+          <%= render 'shared/footer' if lookup_context.exists?('shared/footer') %>
+        </div>
+      </div>
+    <% else %>
+      <!-- Full-width layout for authentication pages -->
+      <div class="min-h-screen w-full">
         <%= render_flash_messages %>
         <%= yield %>
-      </main>
-      <%= render 'shared/footer' if lookup_context.exists?('shared/footer') %>
-    </div>
-    <%= render AuthModalComponent.new(mode: :login) %>
+      </div>
+    <% end %>
   </body>
 </html>

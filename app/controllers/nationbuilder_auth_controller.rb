@@ -47,24 +47,24 @@ class NationbuilderAuthController < ApplicationController
     end
 
     flash[:alert] = user_message
-    redirect_to new_session_path
+    redirect_to sign_in_path
   rescue NationbuilderUserService::UserCreationError => e
     Rails.logger.error "NationBuilder OAuth: UserCreationError - #{e.message}"
     flash[:alert] = "Unable to create your account. Please try again or contact support."
-    redirect_to new_session_path
+    redirect_to sign_in_path
   rescue NationbuilderOauthErrors::NetworkError => e
     Rails.logger.error "NationBuilder OAuth: NetworkError - #{e.message}"
     flash[:alert] = "Unable to connect to NationBuilder. Please check your connection and try again."
-    redirect_to new_session_path
+    redirect_to sign_in_path
   rescue NationbuilderOauthErrors::RateLimitError => e
     Rails.logger.error "NationBuilder OAuth: RateLimitError - #{e.message}"
     flash[:alert] = "Too many sign-in attempts. Please wait a few minutes and try again."
-    redirect_to new_session_path
+    redirect_to sign_in_path
   rescue => e
     Rails.logger.error "OAuth callback error: #{e.class.name} - #{e.message}"
     Rails.logger.error e.backtrace.join("\n")
     flash[:alert] = "An unexpected error occurred during sign-in. Please try again."
-    redirect_to new_session_path
+    redirect_to sign_in_path
   end
 
   private
@@ -75,13 +75,13 @@ class NationbuilderAuthController < ApplicationController
     flag = FeatureFlag.find_by(name: "nationbuilder_signin")
 
     unless flag&.enabled?
-      redirect_to new_session_path, alert: "NationBuilder sign-in is currently unavailable."
+      redirect_to sign_in_path, alert: "NationBuilder sign-in is currently unavailable."
       return false
     end
 
     # If user is logged in, check if they have access to the feature
     if current_user && !feature_enabled?("nationbuilder_signin")
-      redirect_to new_session_path, alert: "NationBuilder sign-in is currently unavailable."
+      redirect_to sign_in_path, alert: "NationBuilder sign-in is currently unavailable."
       return false
     end
 

@@ -34,7 +34,7 @@ RSpec.describe "EmailVerifications", type: :request do
       it "redirects with error message" do
         get verify_email_path(token: "invalid_token")
 
-        expect(response).to redirect_to(new_session_path)
+        expect(response).to redirect_to(sign_in_path)
         expect(flash[:alert]).to match(/Invalid verification link/)
       end
     end
@@ -45,7 +45,7 @@ RSpec.describe "EmailVerifications", type: :request do
 
         get verify_email_path(token: "any_token")
 
-        expect(response).to redirect_to(new_session_path)
+        expect(response).to redirect_to(sign_in_path)
         expect(flash[:alert]).to match(/Invalid verification link/)
       end
     end
@@ -58,7 +58,7 @@ RSpec.describe "EmailVerifications", type: :request do
       it "redirects with error message" do
         get verify_email_path(token: user.verification_token)
 
-        expect(response).to redirect_to(new_session_path)
+        expect(response).to redirect_to(sign_in_path)
         expect(flash[:alert]).to match(/expired/)
       end
     end
@@ -128,7 +128,7 @@ RSpec.describe "EmailVerifications", type: :request do
       it "redirects to login" do
         post resend_verification_path
 
-        expect(response).to redirect_to(new_session_path)
+        expect(response).to redirect_to(sign_in_path)
         # Note: Flash message may not be set in test environment due to authentication stubs
       end
     end

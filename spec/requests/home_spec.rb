@@ -20,11 +20,11 @@ RSpec.describe "Home", type: :request do
         expect(response.body).not_to include('uppercase tracking-wider">System')
       end
 
-      it "includes the authentication modal" do
+      it "includes sign-in and sign-up navigation links" do
         get root_path
 
-        expect(response.body).to include('id="auth-modal"')
-        expect(response.body).to include('data-controller="auth"')
+        expect(response.body).to include('Sign In')
+        expect(response.body).to include('Sign Up')
       end
 
       it "shows the navbar items accessible to guests" do

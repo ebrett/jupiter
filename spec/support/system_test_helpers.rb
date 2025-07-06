@@ -8,13 +8,11 @@ module SystemTestHelpers
 
   def sign_in_user(email:, password:, remember_me: false)
     """Sign in a user via the login page (not modal)"""
-    visit new_session_path
-    within "main" do
-      fill_in "email_address", with: email
-      fill_in "password", with: password
-      check "remember_me" if remember_me
-      click_button "Sign in"
-    end
+    visit sign_in_path
+    fill_in "email_address", with: email
+    fill_in "password", with: password
+    check "remember_me" if remember_me
+    click_button "Sign in"
   end
 
   def sign_in_via_modal(email:, password:, remember_me: false)
@@ -26,7 +24,7 @@ module SystemTestHelpers
       fill_in "email_address", with: email
       fill_in "password", with: password
       check "remember_me" if remember_me
-      click_button "Sign in"
+      find('input[type="submit"]').click
     end
   end
 
@@ -43,7 +41,7 @@ module SystemTestHelpers
       fill_in "email_address", with: email
       fill_in "password", with: password
       fill_in "password_confirmation", with: password_confirmation
-      click_button "Create account"
+      find('input[type="submit"]').click
     end
   end
 
@@ -65,7 +63,7 @@ module SystemTestHelpers
     """Open the authentication modal in login mode"""
     # Use main content area to avoid sidebar confusion
     within "main" do
-      click_button "Sign in"
+      click_button "Sign In"
     end
     # Wait for modal to be visible with reduced timeout
     expect(page).to have_css("#auth-modal", visible: true, wait: 2)
@@ -79,7 +77,7 @@ module SystemTestHelpers
     """Open the authentication modal in registration mode"""
     # Use main content area to avoid sidebar confusion
     within "main" do
-      click_button "Create account"
+      click_button "Create Account"
     end
     # Wait for modal to be visible with reduced timeout
     expect(page).to have_css("#auth-modal", visible: true, wait: 2)
@@ -105,7 +103,7 @@ module SystemTestHelpers
   def switch_to_login_mode
     """Switch the modal from registration to login mode"""
     within "#auth-modal" do
-      click_button "Sign in"
+      click_button "Sign In"
     end
     expect(page).to have_content("Sign in to Jupiter")
   end
@@ -145,14 +143,14 @@ module SystemTestHelpers
   def submit_login_form
     """Submit the login form"""
     within "#auth-modal" do
-      click_button "Sign in"
+      find('input[type="submit"]').click
     end
   end
 
   def submit_registration_form
     """Submit the registration form"""
     within "#auth-modal" do
-      click_button "Create account"
+      find('input[type="submit"]').click
     end
   end
 
@@ -161,13 +159,13 @@ module SystemTestHelpers
   def expect_to_be_signed_in
     """Verify user is signed in by checking for sign out button"""
     expect(page).to have_button("Sign out")
-    expect(page).not_to have_button("Sign in")
+    expect(page).not_to have_button("Sign In")
   end
 
   def expect_to_be_signed_out
     """Verify user is signed out by checking for sign in buttons"""
-    expect(page).to have_button("Sign in")
-    expect(page).to have_button("Create account")
+    expect(page).to have_button("Sign In")
+    expect(page).to have_button("Create Account")
     expect(page).not_to have_button("Sign out")
   end
 
@@ -184,7 +182,7 @@ module SystemTestHelpers
   def expect_login_mode
     """Verify modal is in login mode"""
     expect(page).to have_content("Sign in to Jupiter")
-    expect(page).to have_button("Sign in")
+    expect(page).to have_button("Sign In")
     within "#auth-modal" do
       expect(page).to have_field("remember_me", visible: true)
       expect(page).not_to have_field("first_name", visible: true)
@@ -195,7 +193,7 @@ module SystemTestHelpers
   def expect_registration_mode
     """Verify modal is in registration mode"""
     expect(page).to have_content("Create your Jupiter account")
-    expect(page).to have_button("Create account")
+    expect(page).to have_button("Create Account")
     within "#auth-modal" do
       expect(page).to have_field("first_name", visible: true)
       expect(page).to have_field("last_name", visible: true)

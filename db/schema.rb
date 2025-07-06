@@ -10,10 +10,21 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_06_18_074922) do
+ActiveRecord::Schema[8.0].define(version: 2025_06_18_095803) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
+  create_table "expense_categories", force: :cascade do |t|
+    t.string "code", null: false
+    t.string "name", null: false
+    t.bigint "parent_id"
+    t.string "qb_account_id"
+    t.boolean "active", default: true
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["code"], name: "index_expense_categories_on_code", unique: true
+    t.index ["parent_id"], name: "index_expense_categories_on_parent_id"
+  end
   create_table "feature_flag_assignments", force: :cascade do |t|
     t.bigint "feature_flag_id", null: false
     t.string "assignable_type", null: false
@@ -60,6 +71,22 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_18_074922) do
     t.datetime "updated_at", null: false
     t.index ["session_id"], name: "index_rails_sessions_on_session_id", unique: true
     t.index ["updated_at"], name: "index_rails_sessions_on_updated_at"
+  end
+
+  create_table "requests", force: :cascade do |t|
+    t.string "request_type", null: false
+    t.string "request_number", null: false
+    t.integer "status", default: 0
+    t.decimal "amount_requested", precision: 10, scale: 2
+    t.string "currency_code", default: "USD"
+    t.decimal "amount_usd", precision: 10, scale: 2
+    t.decimal "exchange_rate", precision: 10, scale: 6, default: "1.0"
+    t.jsonb "form_data", null: false
+    t.jsonb "metadata"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["request_number"], name: "index_requests_on_request_number", unique: true
+    t.index ["request_type"], name: "index_requests_on_request_type"
   end
 
   create_table "roles", force: :cascade do |t|
@@ -130,6 +157,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_18_074922) do
     t.index ["verification_token"], name: "index_users_on_verification_token", unique: true
   end
 
+  add_foreign_key "expense_categories", "expense_categories", column: "parent_id"
   add_foreign_key "feature_flag_assignments", "feature_flags"
   add_foreign_key "feature_flags", "users", column: "created_by_id"
   add_foreign_key "feature_flags", "users", column: "updated_by_id"

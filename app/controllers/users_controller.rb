@@ -1,5 +1,10 @@
 class UsersController < ApplicationController
+  allow_unauthenticated_access only: %i[ new ]
   before_action :set_user, only: [ :show, :update, :destroy, :manage_roles, :assign_role, :remove_role ]
+  before_action :redirect_if_authenticated, only: :new
+
+  def new
+  end
 
   def index
     @q = policy_scope(User).ransack(params[:q])
@@ -88,5 +93,9 @@ class UsersController < ApplicationController
 
     def user_params
       params.require(:user).permit(:email_address, :first_name, :last_name, role_ids: [])
+    end
+
+    def redirect_if_authenticated
+      redirect_to root_path if authenticated?
     end
 end

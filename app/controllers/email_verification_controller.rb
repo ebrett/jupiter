@@ -5,7 +5,7 @@ class EmailVerificationController < ApplicationController
 
   def verify
     if @user.nil?
-      redirect_to new_session_path, alert: "Invalid verification link. Please try again or contact support."
+      redirect_to sign_in_path, alert: "Invalid verification link. Please try again or contact support."
       return
     end
 
@@ -15,7 +15,7 @@ class EmailVerificationController < ApplicationController
     end
 
     if @user.verification_expired?
-      redirect_to new_session_path, alert: "Verification link has expired. Please request a new one."
+      redirect_to sign_in_path, alert: "Verification link has expired. Please request a new one."
       return
     end
 
@@ -28,7 +28,7 @@ class EmailVerificationController < ApplicationController
   rescue => e
     Rails.logger.error "Email verification failed for token #{params[:token]}: #{e.message}"
     Rails.logger.error e.backtrace.join("\n") if Rails.env.test?
-    redirect_to new_session_path, alert: "Verification failed. Please try again."
+    redirect_to sign_in_path, alert: "Verification failed. Please try again."
   end
 
   def resend
@@ -61,6 +61,6 @@ class EmailVerificationController < ApplicationController
   end
 
   def require_current_user
-    redirect_to new_session_path, alert: "Please log in first." unless Current.user
+    redirect_to sign_in_path, alert: "Please log in first." unless Current.user
   end
 end

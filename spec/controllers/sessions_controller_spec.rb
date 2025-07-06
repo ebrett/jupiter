@@ -80,7 +80,7 @@ RSpec.describe SessionsController, type: :controller do
       it "redirects with error message" do
         post :create, params: invalid_params
 
-        expect(response).to redirect_to(new_session_path)
+        expect(response.location).to start_with(sign_in_url)
         expect(flash[:alert]).to eq("Try another email address or password.")
       end
 
@@ -95,14 +95,14 @@ RSpec.describe SessionsController, type: :controller do
       it "handles missing email gracefully" do
         post :create, params: { password: "password123" }
 
-        expect(response).to redirect_to(new_session_path)
+        expect(response.location).to start_with(sign_in_url)
         expect(flash[:alert]).to eq("Try another email address or password.")
       end
 
       it "handles missing password gracefully" do
         post :create, params: { email_address: user.email_address }
 
-        expect(response).to redirect_to(new_session_path)
+        expect(response.location).to start_with(sign_in_url)
         expect(flash[:alert]).to eq("Try another email address or password.")
       end
     end

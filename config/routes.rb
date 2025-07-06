@@ -1,4 +1,8 @@
 Rails.application.routes.draw do
+  # Authentication pages
+  get "/sign-in", to: "sessions#new", as: :sign_in
+  get "/sign-up", to: "users#new", as: :sign_up
+
   resource :session
   resources :passwords, param: :token
 
@@ -73,6 +77,13 @@ Rails.application.routes.draw do
   resources :roles, except: [ :new, :create, :destroy ] do
     member do
       get :users_with_role
+    end
+  end
+
+  # In-kind donation routes
+  resources :inkind_donations, only: [ :index, :show, :new, :create ] do
+    collection do
+      get :export
     end
   end
 
