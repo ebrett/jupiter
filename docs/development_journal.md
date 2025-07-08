@@ -17,8 +17,15 @@ Jupiter is a reimbursement and vendor payment web application for Democrats Abro
 
 ### Current Sprint
 - **Focus**: Browser Challenge Handling for NationBuilder OAuth
-- **Branch**: `main` (previously merged `feature/cloudflare-challenge-handling`)
-- **Status**: Planning manual browser challenge solution
+- **Branch**: `feature/browser-challenge-manual-handling`
+- **Status**: Implementation ready (PRD completed)
+
+## Active Branches & Ownership
+- `feature/browser-challenge-manual-handling`: Claude - Manual browser challenge handling for NationBuilder OAuth - [Created 2025-07-08]
+  - **PRD**: tasks/prd-browser-challenge-handling.md
+  - **Dependencies**: Existing Cloudflare challenge detection system
+  - **Timeline**: 1.5 weeks (3 phases)
+  - **Status**: Planning commit created
 
 ### Recent Activities
 
