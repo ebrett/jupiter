@@ -67,4 +67,152 @@ RSpec.describe NationbuilderTokenExchangeService do
       service.exchange_code_for_token('bad_code')
     }.to raise_error(NationbuilderTokenExchangeService::TokenExchangeError, /invalid_grant/)
   end
+
+  describe 'Cloudflare challenge detection' do
+    let(:service) do
+      described_class.new(
+        client_id: client_id,
+        client_secret: client_secret,
+        redirect_uri: redirect_uri
+      )
+    end
+
+    context 'when encountering Turnstile challenge' do
+      let(:turnstile_html) do
+        <<~HTML
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <title>Just a moment...</title>
+          </head>
+          <body>
+            <div class="cf-challenge-running">
+              <div class="cf-turnstile" data-sitekey="0x4AAAAAAABkMYinukHgb" data-callback="onloadTurnstileCallback">
+              </div>
+            </div>
+          </body>
+          </html>
+        HTML
+      end
+
+      it 'raises TokenExchangeError with challenge data' do
+        stub_request(:post, token_url).to_return(
+          status: 403,
+          body: turnstile_html,
+          headers: { 'Content-Type' => 'text/html' }
+        )
+
+        expect {
+          service.exchange_code_for_token(code)
+        }.to raise_error(NationbuilderTokenExchangeService::TokenExchangeError) do |error|
+          expect(error.message).to eq('cloudflare_challenge')
+          expect(error.data[:challenge]).to be_a(NationbuilderTokenExchangeService::CloudflareChallenge)
+          expect(error.data[:challenge].type).to eq('turnstile')
+          expect(error.data[:challenge].site_key).to eq('0x4AAAAAAABkMYinukHgb')
+        end
+      end
+    end
+
+    context 'when encountering browser challenge' do
+      let(:browser_challenge_html) do
+        <<~HTML
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <title>Just a moment...</title>
+          </head>
+          <body>
+            <div class="cf-challenge-running">
+              <div id="challenge-stage">
+                <div class="challenge-spinner"></div>
+              </div>
+            </div>
+          </body>
+          </html>
+        HTML
+      end
+
+      it 'raises TokenExchangeError with browser challenge data' do
+        stub_request(:post, token_url).to_return(
+          status: 403,
+          body: browser_challenge_html,
+          headers: { 'Content-Type' => 'text/html' }
+        )
+
+        expect {
+          service.exchange_code_for_token(code)
+        }.to raise_error(NationbuilderTokenExchangeService::TokenExchangeError) do |error|
+          expect(error.message).to eq('cloudflare_challenge')
+          expect(error.data[:challenge]).to be_a(NationbuilderTokenExchangeService::CloudflareChallenge)
+          expect(error.data[:challenge].type).to eq('browser_challenge')
+          expect(error.data[:challenge].site_key).to be_nil
+        end
+      end
+    end
+
+    context 'when encountering rate limit' do
+      let(:rate_limit_html) do
+        <<~HTML
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <title>Rate limited</title>
+          </head>
+          <body>
+            <h1>Rate limited</h1>
+            <p>Too many requests. Please wait.</p>
+          </body>
+          </html>
+        HTML
+      end
+
+      it 'raises TokenExchangeError with rate limit challenge data' do
+        stub_request(:post, token_url).to_return(
+          status: 429,
+          body: rate_limit_html,
+          headers: { 'Content-Type' => 'text/html' }
+        )
+
+        expect {
+          service.exchange_code_for_token(code)
+        }.to raise_error(NationbuilderTokenExchangeService::TokenExchangeError) do |error|
+          expect(error.message).to eq('cloudflare_challenge')
+          expect(error.data[:challenge]).to be_a(NationbuilderTokenExchangeService::CloudflareChallenge)
+          expect(error.data[:challenge].type).to eq('rate_limit')
+        end
+      end
+    end
+
+    context 'when encountering legacy challenge detection' do
+      let(:legacy_html) do
+        <<~HTML
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <title>Just a moment...</title>
+          </head>
+          <body>
+            <div>Just a moment...</div>
+          </body>
+          </html>
+        HTML
+      end
+
+      it 'maintains backward compatibility with legacy detection' do
+        stub_request(:post, token_url).to_return(
+          status: 403,
+          body: legacy_html,
+          headers: { 'Content-Type' => 'text/html' }
+        )
+
+        expect {
+          service.exchange_code_for_token(code)
+        }.to raise_error(NationbuilderTokenExchangeService::TokenExchangeError) do |error|
+          expect(error.message).to eq('cloudflare_challenge')
+          expect(error.data[:challenge].type).to eq('browser_challenge')
+          expect(error.data[:challenge].challenge_data['legacy_detection']).to be true
+        end
+      end
+    end
+  end
 end

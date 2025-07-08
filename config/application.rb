@@ -6,6 +6,9 @@ require "rails/all"
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
 
+# Load custom configurations
+require_relative "cloudflare"
+
 module Jupiter
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.

@@ -91,6 +91,14 @@ Rails.application.routes.draw do
   get "/auth/nationbuilder", to: "nationbuilder_auth#redirect"
   get "/auth/nationbuilder/callback", to: "nationbuilder_auth#callback"
 
+  # Cloudflare challenge routes
+  resources :cloudflare_challenges, only: [ :show ], param: :challenge_id do
+    member do
+      post :verify
+      get :complete
+    end
+  end
+
   # Component examples (development only)
   if Rails.env.development?
     get "component_examples", to: "component_examples#index"

@@ -10,9 +10,26 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_06_18_095803) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_06_214434) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "cloudflare_challenges", force: :cascade do |t|
+    t.string "challenge_id", null: false
+    t.string "challenge_type", null: false
+    t.json "challenge_data"
+    t.string "oauth_state", null: false
+    t.json "original_params"
+    t.string "session_id", null: false
+    t.bigint "user_id"
+    t.datetime "expires_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["challenge_id"], name: "index_cloudflare_challenges_on_challenge_id", unique: true
+    t.index ["expires_at"], name: "index_cloudflare_challenges_on_expires_at"
+    t.index ["session_id"], name: "index_cloudflare_challenges_on_session_id"
+    t.index ["user_id"], name: "index_cloudflare_challenges_on_user_id"
+  end
 
   create_table "expense_categories", force: :cascade do |t|
     t.string "code", null: false
@@ -25,6 +42,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_18_095803) do
     t.index ["code"], name: "index_expense_categories_on_code", unique: true
     t.index ["parent_id"], name: "index_expense_categories_on_parent_id"
   end
+
   create_table "feature_flag_assignments", force: :cascade do |t|
     t.bigint "feature_flag_id", null: false
     t.string "assignable_type", null: false
@@ -157,6 +175,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_18_095803) do
     t.index ["verification_token"], name: "index_users_on_verification_token", unique: true
   end
 
+  add_foreign_key "cloudflare_challenges", "users"
   add_foreign_key "expense_categories", "expense_categories", column: "parent_id"
   add_foreign_key "feature_flag_assignments", "feature_flags"
   add_foreign_key "feature_flags", "users", column: "created_by_id"

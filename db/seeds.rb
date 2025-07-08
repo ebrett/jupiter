@@ -262,6 +262,11 @@ feature_flags_data = [
     name: 'nationbuilder_signin',
     description: 'Enable NationBuilder OAuth sign-in functionality. When disabled, users can only sign in with email/password.',
     enabled: false
+  },
+  {
+    name: 'cloudflare_challenge_handling',
+    description: 'Enable Cloudflare challenge handling during OAuth flows. When disabled, challenges fall back to standard error messages.',
+    enabled: true
   }
 ]
 

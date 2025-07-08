@@ -1,0 +1,95 @@
+<main class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-md w-full space-y-8">
+    <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+      <div class="text-center mb-6">
+        <h1 class="text-2xl font-bold text-gray-900"><%= challenge_title %></h1>
+        <p class="mt-2 text-sm text-gray-600">
+          <%= challenge_description %>
+        </p>
+      </div>
+
+      <% if show_configuration_error? %>
+        <div class="mb-4 rounded-md bg-red-50 p-4">
+          <div class="flex">
+            <div class="flex-shrink-0">
+              <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor" aria-label="Error">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+              </svg>
+            </div>
+            <div class="ml-3">
+              <p class="text-sm text-red-800">Security configuration issue. Please try an alternative sign-in method.</p>
+            </div>
+          </div>
+        </div>
+      <% end %>
+
+      <%= form_with url: callback_url, method: :post, local: true, class: "space-y-6", "aria-label": 'Security Challenge Form' do |form| %>
+        <% if show_turnstile_widget? %>
+          <div class="flex justify-center">
+            <div class="cf-turnstile" 
+                 data-sitekey="<%= site_key %>"
+                 data-callback="handleTurnstileSuccess"
+                 data-error-callback="handleTurnstileError">
+            </div>
+          </div>
+        <% elsif challenge_type == 'browser_challenge' %>
+          <div class="text-center py-8">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
+            <p class="mt-4 text-sm text-gray-600">Performing browser verification...</p>
+          </div>
+        <% elsif challenge_type == 'rate_limit' %>
+          <div class="text-center py-8">
+            <div class="h-12 w-12 bg-yellow-100 rounded-full flex items-center justify-center mx-auto">
+              <svg class="h-6 w-6 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-label="Warning">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 15.5c-.77.833.192 2.5 1.732 2.5z" />
+              </svg>
+            </div>
+            <p class="mt-4 text-sm text-gray-600">Please wait before trying again.</p>
+          </div>
+        <% else %>
+          <div class="text-center py-8">
+            <p class="text-sm text-gray-600">Additional verification required.</p>
+          </div>
+        <% end %>
+
+        <div>
+          <%= form.submit "Continue", 
+                          class: "w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed",
+                          disabled: submit_button_disabled?,
+                          id: "challenge-submit-button" %>
+        </div>
+      <% end %>
+
+      <div class="mt-6 text-center">
+        <p class="text-sm text-gray-500">
+          Having trouble? 
+          <%= link_to "Try alternative sign-in", "/sign-in", 
+                      class: "font-medium text-indigo-600 hover:text-indigo-500" %>
+        </p>
+      </div>
+    </div>
+  </div>
+</main>
+
+<% if show_turnstile_widget? %>
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+
+  <script>
+    function handleTurnstileSuccess(token) {
+      // Enable submit button when challenge is completed
+      document.getElementById('challenge-submit-button').disabled = false;
+      
+      // Add token to form
+      const tokenInput = document.createElement('input');
+      tokenInput.type = 'hidden';
+      tokenInput.name = 'cf_turnstile_response';
+      tokenInput.value = token;
+      document.querySelector('form').appendChild(tokenInput);
+    }
+    
+    function handleTurnstileError(error) {
+      console.error('Turnstile error:', error);
+      alert('Challenge failed. Please refresh the page and try again.');
+    }
+  </script>
+<% end %>
