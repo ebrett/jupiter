@@ -140,7 +140,7 @@ RSpec.describe 'Cloudflare Challenge Feature Flag', type: :request do
       it 'allows access when feature flag is enabled' do
         # Test that the feature flag is enabled and can be checked
         expect(@cloudflare_flag.enabled?).to be true
-        
+
         # The actual controller test is covered in controller specs
         # This test verifies the feature flag integration at the request level
         expect(FeatureFlag.find_by(name: 'cloudflare_challenge_handling').enabled?).to be true

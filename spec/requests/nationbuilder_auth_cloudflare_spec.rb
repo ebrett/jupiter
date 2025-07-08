@@ -154,7 +154,7 @@ RSpec.describe 'NationbuilderAuth with Cloudflare Challenges', type: :request do
         # This test verifies the OAuth callback can handle the challenge_completed parameter
         # The full integration test is complex due to session management
         # and is covered in controller specs and system tests
-        
+
         get '/auth/nationbuilder/callback',
             params: { code: oauth_code, state: oauth_state, challenge_completed: 'true' }
 
