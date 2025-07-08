@@ -93,17 +93,59 @@ RSpec.describe CloudflareChallengeComponent, type: :component do
 
       let(:challenge_data) { { 'challenge_stage_present' => true } }
 
+      it 'shows browser challenge title' do
+        expect(subject).to include('Browser Verification Required')
+      end
 
-      it 'shows browser challenge message' do
-        expect(subject).to include('browser verification')
+      it 'shows manual verification instructions' do
+        expect(subject).to include('You\'re being asked to verify your browser for security reasons')
+      end
+
+      it 'includes step-by-step instructions' do
+        expect(subject).to include('step-number')
+        expect(subject).to include('>1<')
+        expect(subject).to include('>2<')
+        expect(subject).to include('>3<')
+        expect(subject).to include('>4<')
+      end
+
+      it 'includes "Open Verification Page" button' do
+        expect(subject).to include('Open Verification Page')
+        expect(subject).to include('target="_blank"')
+      end
+
+      it 'includes "Continue Sign-in" button' do
+        expect(subject).to include('Continue Sign-in')
+        expect(subject).to include('type="submit"')
+      end
+
+      it 'enables the continue button for manual verification' do
+        expect(subject).not_to include('disabled="disabled"')
+        expect(subject).not_to include('disabled=true')
       end
 
       it 'does not include Turnstile widget' do
         expect(subject).not_to include('cf-turnstile')
       end
 
-      it 'shows refresh instruction' do
-        expect(subject).to include('refresh')
+      it 'includes visual indicators for numbered steps' do
+        expect(subject).to include('step-number')
+        expect(subject).to include('step-content')
+      end
+
+      it 'includes mobile-responsive instruction layout' do
+        expect(subject).to include('space-y-4')
+        expect(subject).to include('text-sm')
+        expect(subject).to include('sm:text-base')
+      end
+
+      it 'includes help text for manual verification' do
+        expect(subject).to include('Complete any security checks')
+        expect(subject).to include('return here and click')
+      end
+
+      it 'shows NationBuilder-specific instructions' do
+        expect(subject).to include('NationBuilder page')
       end
     end
 
@@ -160,10 +202,10 @@ RSpec.describe CloudflareChallengeComponent, type: :component do
       context 'with browser challenge' do
         let(:challenge_data) { { 'challenge_stage_present' => true } }
 
-        it 'returns browser verification description' do
+        it 'returns manual verification description' do
           description = component.send(:challenge_description)
-          expect(description).to include('browser verification')
-          expect(description).to include('refresh')
+          expect(description).to include('follow the steps below')
+          expect(description).to include('manual verification')
         end
       end
 
@@ -196,6 +238,38 @@ RSpec.describe CloudflareChallengeComponent, type: :component do
 
         it 'returns true for rate limit challenges' do
           expect(component.send(:submit_button_disabled?)).to be true
+        end
+      end
+    end
+
+    describe '#show_manual_verification?' do
+      it 'returns false for turnstile challenges' do
+        expect(component.send(:show_manual_verification?)).to be false
+      end
+
+      context 'with browser challenge' do
+        let(:challenge_data) { { 'challenge_stage_present' => true } }
+
+        it 'returns true for browser challenges' do
+          expect(component.send(:show_manual_verification?)).to be true
+        end
+      end
+
+      context 'with rate limit' do
+        let(:challenge_data) { { 'rate_limited' => true } }
+
+        it 'returns false for rate limit challenges' do
+          expect(component.send(:show_manual_verification?)).to be false
+        end
+      end
+    end
+
+    describe '#verification_url' do
+      context 'with browser challenge' do
+        let(:challenge_data) { { 'challenge_stage_present' => true } }
+
+        it 'returns the OAuth URL for manual verification' do
+          expect(component.send(:verification_url)).to include('nationbuilder.com/oauth/authorize')
         end
       end
     end
