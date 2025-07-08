@@ -1,7 +1,7 @@
 require 'rails_helper'
 require 'webmock/rspec'
 
-RSpec.describe 'Cloudflare Service Integration', type: :integration do
+RSpec.describe NationbuilderTokenExchangeService, type: :integration do
   include WebMock::API
 
   before do
@@ -36,7 +36,7 @@ RSpec.describe 'Cloudflare Service Integration', type: :integration do
 
   describe 'NationbuilderTokenExchangeService + CloudflareChallenge interaction' do
     let(:service) do
-      NationbuilderTokenExchangeService.new(
+      described_class.new(
         client_id: 'dummy_id',
         client_secret: 'dummy_secret',
         redirect_uri: 'http://localhost:3000/auth/nationbuilder/callback'
@@ -219,7 +219,7 @@ RSpec.describe 'Cloudflare Service Integration', type: :integration do
 
   describe 'Feature flag integration across services' do
     it 'properly controls challenge handling based on feature flag state' do
-      service = NationbuilderTokenExchangeService.new(
+      service = described_class.new(
         client_id: 'dummy_id',
         client_secret: 'dummy_secret',
         redirect_uri: 'http://localhost:3000/auth/nationbuilder/callback'
@@ -268,7 +268,7 @@ RSpec.describe 'Cloudflare Service Integration', type: :integration do
   describe 'Error handling across service boundaries' do
     it 'handles API failures gracefully across different services' do
       # Test 1: NationBuilder API errors
-      service = NationbuilderTokenExchangeService.new(
+      service = described_class.new(
         client_id: 'dummy_id',
         client_secret: 'dummy_secret',
         redirect_uri: 'http://localhost:3000/auth/nationbuilder/callback'

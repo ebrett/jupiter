@@ -17,9 +17,11 @@ RSpec.describe 'Cloudflare Challenge Basic System Tests', type: :system do
         challenge = create(:cloudflare_challenge, session_id: 'test_session')
 
         # Mock session to match challenge
-        allow_any_instance_of(CloudflareChallengesController).to receive(:session).and_return(
+        controller_double = instance_double(CloudflareChallengesController)
+        allow(controller_double).to receive(:session).and_return(
           double('session', id: 'test_session')
         )
+        allow(CloudflareChallengesController).to receive(:new).and_return(controller_double)
 
         visit cloudflare_challenge_path(challenge.challenge_id)
 
@@ -62,9 +64,11 @@ RSpec.describe 'Cloudflare Challenge Basic System Tests', type: :system do
     end
 
     before do
-      allow_any_instance_of(CloudflareChallengesController).to receive(:session).and_return(
+      controller_double = instance_double(CloudflareChallengesController)
+      allow(controller_double).to receive(:session).and_return(
         double('session', id: 'test_session')
       )
+      allow(CloudflareChallengesController).to receive(:new).and_return(controller_double)
     end
 
     it 'provides alternative sign-in option' do

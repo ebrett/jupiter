@@ -158,9 +158,11 @@ RSpec.describe 'NationbuilderAuth with Cloudflare Challenges', type: :request do
                           session_id: test_session_id)
 
         # Mock the session ID in the controller to match our challenge
-        allow_any_instance_of(NationbuilderAuthController).to receive(:session).and_return(
+        controller_double = instance_double(NationbuilderAuthController)
+        allow(controller_double).to receive(:session).and_return(
           double('session', id: test_session_id)
         )
+        allow(NationbuilderAuthController).to receive(:new).and_return(controller_double)
 
         expect {
           get '/auth/nationbuilder/callback',

@@ -139,9 +139,11 @@ RSpec.describe 'Cloudflare Challenge Feature Flag', type: :request do
 
       it 'allows access to challenge pages' do
         # Mock session to match challenge
-        allow_any_instance_of(CloudflareChallengesController).to receive(:session).and_return(
+        controller_double = instance_double(CloudflareChallengesController)
+        allow(controller_double).to receive(:session).and_return(
           double('session', id: challenge.session_id)
         )
+        allow(CloudflareChallengesController).to receive(:new).and_return(controller_double)
 
         get cloudflare_challenge_path(challenge.challenge_id)
         expect(response).to have_http_status(:success)
