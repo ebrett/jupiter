@@ -98,6 +98,47 @@ RSpec.describe CloudflareChallenge, type: :model do
         expect(challenge.challenge_url).to eq(expected_url)
       end
     end
+
+    describe '#manual_verification?' do
+      it 'returns true for browser_challenge type' do
+        challenge = build(:cloudflare_challenge, challenge_type: 'browser_challenge')
+        expect(challenge.manual_verification?).to be true
+      end
+
+      it 'returns false for turnstile type' do
+        challenge = build(:cloudflare_challenge, challenge_type: 'turnstile')
+        expect(challenge.manual_verification?).to be false
+      end
+
+      it 'returns false for rate_limit type' do
+        challenge = build(:cloudflare_challenge, challenge_type: 'rate_limit')
+        expect(challenge.manual_verification?).to be false
+      end
+    end
+
+    describe '#verification_completed?' do
+      context 'with manual verification challenge' do
+        let(:challenge) { create(:cloudflare_challenge, challenge_type: 'browser_challenge') }
+
+        it 'returns false when challenge has not been touched' do
+          expect(challenge.verification_completed?).to be false
+        end
+
+        it 'returns true when challenge has been touched' do
+          challenge.touch
+          expect(challenge.verification_completed?).to be true
+        end
+      end
+
+      context 'with non-manual verification challenge' do
+        let(:challenge) { create(:cloudflare_challenge, challenge_type: 'turnstile') }
+
+        it 'returns false even when touched' do
+          challenge.touch
+          expect(challenge.verification_completed?).to be false
+        end
+      end
+    end
   end
 
   describe 'data integrity' do

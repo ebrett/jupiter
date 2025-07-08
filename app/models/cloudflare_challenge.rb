@@ -15,4 +15,14 @@ class CloudflareChallenge < ApplicationRecord
   def challenge_url
     Rails.application.routes.url_helpers.cloudflare_challenge_path(challenge_id)
   end
+
+  def manual_verification?
+    challenge_type == "browser_challenge"
+  end
+
+  def verification_completed?
+    # For manual verification, we consider it completed if the challenge has been touched
+    # after creation (indicating user has attempted manual verification)
+    manual_verification? && updated_at > created_at
+  end
 end

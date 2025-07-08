@@ -73,16 +73,16 @@ class CloudflareChallengeComponent < ViewComponent::Base
     nation_slug = ENV["NATIONBUILDER_NATION_SLUG"]
     client_id = ENV["NATIONBUILDER_CLIENT_ID"]
     redirect_uri = ENV["NATIONBUILDER_REDIRECT_URI"]
-    
+
     return nil if nation_slug.blank? || client_id.blank? || redirect_uri.blank?
-    
+
     params = {
       response_type: "code",
       client_id: client_id,
       redirect_uri: redirect_uri,
       scope: "default"
     }
-    
+
     "https://#{nation_slug}.nationbuilder.com/oauth/authorize?" + params.to_query
   end
 end
