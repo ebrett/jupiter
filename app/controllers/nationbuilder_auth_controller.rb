@@ -18,6 +18,11 @@ class NationbuilderAuthController < ApplicationController
   end
 
   def callback
+    # Check if this is a return from completed challenge
+    if params[:challenge_completed] == "true"
+      return handle_challenge_completed_callback
+    end
+
     return handle_oauth_error if params[:error]
     return handle_missing_code if params[:code].blank?
 
@@ -32,6 +37,11 @@ class NationbuilderAuthController < ApplicationController
   rescue NationbuilderTokenExchangeService::TokenExchangeError => e
     Rails.logger.error "NationBuilder OAuth: TokenExchangeError - #{e.message}"
 
+    # Check if this is a Cloudflare challenge and feature flag is enabled
+    if e.message == "cloudflare_challenge" && e.data[:challenge] && cloudflare_challenge_handling_enabled?
+      return handle_cloudflare_challenge(e.data[:challenge])
+    end
+
     # Provide user-friendly error messages based on the error
     user_message = case e.message
     when /invalid_grant/
@@ -40,8 +50,6 @@ class NationbuilderAuthController < ApplicationController
       "Configuration error: The redirect URL doesn't match. Please contact support."
     when /invalid_client/
       "Configuration error: Invalid client credentials. Please contact support."
-    when /cloudflare_challenge/
-      "NationBuilder OAuth is currently blocked by Cloudflare security. Please contact the NationBuilder site administrator to whitelist OAuth API endpoints."
     else
       "Unable to complete sign-in with NationBuilder. Please try again."
     end
@@ -60,6 +68,10 @@ class NationbuilderAuthController < ApplicationController
     Rails.logger.error "NationBuilder OAuth: RateLimitError - #{e.message}"
     flash[:alert] = "Too many sign-in attempts. Please wait a few minutes and try again."
     redirect_to sign_in_path
+  rescue Net::OpenTimeout, Net::ReadTimeout => e
+    Rails.logger.error "NationBuilder OAuth: Network timeout - #{e.message}"
+    flash[:alert] = "Unable to connect to NationBuilder. Please check your connection and try again."
+    redirect_to sign_in_path
   rescue => e
     Rails.logger.error "OAuth callback error: #{e.class.name} - #{e.message}"
     Rails.logger.error e.backtrace.join("\n")
@@ -68,6 +80,19 @@ class NationbuilderAuthController < ApplicationController
   end
 
   private
+
+  def cloudflare_challenge_handling_enabled?
+    flag = FeatureFlag.find_by(name: "cloudflare_challenge_handling")
+    return false unless flag&.enabled?
+
+    # If user is logged in, check if they have access to the feature
+    if current_user
+      feature_enabled?("cloudflare_challenge_handling")
+    else
+      # For unauthenticated users (OAuth flow), check global flag only
+      true
+    end
+  end
 
   def check_nationbuilder_feature_flag
     # For OAuth flows, we check if the feature is globally enabled
@@ -180,5 +205,64 @@ class NationbuilderAuthController < ApplicationController
 
     flash[:notice] = "Successfully linked your NationBuilder account!"
     redirect_to account_nationbuilder_link_path
+  end
+
+  def handle_cloudflare_challenge(cloudflare_challenge)
+    Rails.logger.info "NationBuilder OAuth: Handling Cloudflare challenge"
+
+    # Create challenge record
+    challenge = CloudflareChallenge.create!(
+      challenge_id: SecureRandom.uuid,
+      challenge_type: cloudflare_challenge.type,
+      challenge_data: cloudflare_challenge.challenge_data,
+      oauth_state: params[:state],
+      original_params: params.permit!.to_h.except("controller", "action"),
+      session_id: session.id.presence || request.session_options[:id] || SecureRandom.hex(16),
+      user: Current.user,
+      expires_at: 15.minutes.from_now
+    )
+
+    Rails.logger.info "NationBuilder OAuth: Created challenge #{challenge.challenge_id}"
+
+    # Redirect to challenge display page
+    redirect_to cloudflare_challenge_path(challenge.challenge_id)
+  end
+
+  def handle_challenge_completed_callback
+    Rails.logger.info "NationBuilder OAuth: Handling challenge completion callback"
+
+    # Get current session ID with same logic as create
+    current_session_id = session.id.presence || request.session_options[:id] || SecureRandom.hex(16)
+
+    # Find the challenge by OAuth state
+    challenge = CloudflareChallenge.active.for_session(current_session_id)
+                                   .find_by(oauth_state: params[:state])
+
+    if challenge.nil?
+      Rails.logger.error "NationBuilder OAuth: Challenge not found for state #{params[:state]}"
+      flash[:alert] = "Unable to complete sign-in. Please try again."
+      redirect_to sign_in_path
+      return
+    end
+
+    # Validate session matches
+    if challenge.session_id != current_session_id
+      Rails.logger.error "NationBuilder OAuth: Session mismatch for challenge #{challenge.challenge_id}"
+      flash[:alert] = "Unable to complete sign-in. Please try again."
+      redirect_to sign_in_path
+      return
+    end
+
+    Rails.logger.info "NationBuilder OAuth: Challenge #{challenge.challenge_id} validated, resuming OAuth flow"
+
+    # Resume normal OAuth flow
+    # The token exchange will succeed this time as the challenge has been completed
+    if challenge.user.present?
+      # User was already authenticated, continue with account linking
+      handle_account_linking
+    else
+      # New user authentication
+      authenticate_with_nationbuilder
+    end
   end
 end

@@ -141,7 +141,7 @@ class NationbuilderTokenExchangeService
       error_data = JSON.parse(res.body) rescue {}
       error_message = error_data["error_description"] || error_data["error"] || "Unknown error"
 
-      raise TokenExchangeError, error_message
+      raise TokenExchangeError.new(error_message, data: error_data)
     end
 
     JSON.parse(res.body, symbolize_names: true)

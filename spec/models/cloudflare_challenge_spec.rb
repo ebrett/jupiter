@@ -81,6 +81,14 @@ RSpec.describe CloudflareChallenge, type: :model do
         challenge = build(:cloudflare_challenge, expires_at: 1.hour.from_now)
         expect(challenge.expired?).to be false
       end
+
+      it 'returns false when expires_at is exactly now' do
+        freeze_time = Time.current
+        travel_to freeze_time do
+          challenge = build(:cloudflare_challenge, expires_at: freeze_time)
+          expect(challenge.expired?).to be false
+        end
+      end
     end
 
     describe '#challenge_url' do
@@ -89,6 +97,60 @@ RSpec.describe CloudflareChallenge, type: :model do
         expected_url = Rails.application.routes.url_helpers.cloudflare_challenge_path('test-id-123')
         expect(challenge.challenge_url).to eq(expected_url)
       end
+    end
+  end
+
+  describe 'data integrity' do
+    it 'stores challenge_data as JSON' do
+      data = { 'site_key' => 'test-key', 'turnstile_present' => true }
+      challenge = create(:cloudflare_challenge, challenge_data: data)
+      challenge.reload
+      
+      expect(challenge.challenge_data).to eq(data)
+      expect(challenge.challenge_data['site_key']).to eq('test-key')
+    end
+
+    it 'stores original_params as JSON' do
+      params = { 'code' => 'oauth123', 'state' => 'state456', 'extra' => 'value' }
+      challenge = create(:cloudflare_challenge, original_params: params)
+      challenge.reload
+      
+      expect(challenge.original_params).to eq(params)
+      expect(challenge.original_params['code']).to eq('oauth123')
+    end
+
+    it 'handles empty JSON fields gracefully' do
+      challenge = create(:cloudflare_challenge, challenge_data: {}, original_params: {})
+      challenge.reload
+      
+      expect(challenge.challenge_data).to eq({})
+      expect(challenge.original_params).to eq({})
+    end
+  end
+
+  describe 'edge cases' do
+    it 'handles very long challenge_id' do
+      long_id = 'a' * 255  # Test boundary
+      challenge = build(:cloudflare_challenge, challenge_id: long_id)
+      expect(challenge).to be_valid
+    end
+
+    it 'handles unicode characters in oauth_state' do
+      unicode_state = 'test_state_ü∑∫∆'
+      challenge = build(:cloudflare_challenge, oauth_state: unicode_state)
+      expect(challenge).to be_valid
+      expect(challenge.oauth_state).to eq(unicode_state)
+    end
+
+    it 'enforces required fields even with valid associations' do
+      user = create(:user)
+      challenge = build(:cloudflare_challenge, 
+                       user: user, 
+                       challenge_id: nil, 
+                       oauth_state: nil)
+      expect(challenge).not_to be_valid
+      expect(challenge.errors[:challenge_id]).to include("can't be blank")
+      expect(challenge.errors[:oauth_state]).to include("can't be blank")
     end
   end
 end
