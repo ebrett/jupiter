@@ -105,7 +105,7 @@ RSpec.describe CloudflareChallenge, type: :model do
       data = { 'site_key' => 'test-key', 'turnstile_present' => true }
       challenge = create(:cloudflare_challenge, challenge_data: data)
       challenge.reload
-      
+
       expect(challenge.challenge_data).to eq(data)
       expect(challenge.challenge_data['site_key']).to eq('test-key')
     end
@@ -114,7 +114,7 @@ RSpec.describe CloudflareChallenge, type: :model do
       params = { 'code' => 'oauth123', 'state' => 'state456', 'extra' => 'value' }
       challenge = create(:cloudflare_challenge, original_params: params)
       challenge.reload
-      
+
       expect(challenge.original_params).to eq(params)
       expect(challenge.original_params['code']).to eq('oauth123')
     end
@@ -122,7 +122,7 @@ RSpec.describe CloudflareChallenge, type: :model do
     it 'handles empty JSON fields gracefully' do
       challenge = create(:cloudflare_challenge, challenge_data: {}, original_params: {})
       challenge.reload
-      
+
       expect(challenge.challenge_data).to eq({})
       expect(challenge.original_params).to eq({})
     end
@@ -144,9 +144,9 @@ RSpec.describe CloudflareChallenge, type: :model do
 
     it 'enforces required fields even with valid associations' do
       user = create(:user)
-      challenge = build(:cloudflare_challenge, 
-                       user: user, 
-                       challenge_id: nil, 
+      challenge = build(:cloudflare_challenge,
+                       user: user,
+                       challenge_id: nil,
                        oauth_state: nil)
       expect(challenge).not_to be_valid
       expect(challenge.errors[:challenge_id]).to include("can't be blank")

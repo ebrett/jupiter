@@ -3,7 +3,7 @@ require 'rails_helper'
 RSpec.describe 'Cloudflare Challenge Basic System Tests', type: :system do
   before do
     driven_by(:rack_test)
-    
+
     # Enable cloudflare challenge handling feature flag
     @cloudflare_flag = FeatureFlag.find_or_create_by!(name: 'cloudflare_challenge_handling') do |flag|
       flag.description = 'Test flag for Cloudflare challenge handling'
@@ -15,14 +15,14 @@ RSpec.describe 'Cloudflare Challenge Basic System Tests', type: :system do
     context 'when cloudflare_challenge_handling is enabled' do
       it 'allows access to challenge pages' do
         challenge = create(:cloudflare_challenge, session_id: 'test_session')
-        
+
         # Mock session to match challenge
         allow_any_instance_of(CloudflareChallengesController).to receive(:session).and_return(
           double('session', id: 'test_session')
         )
 
         visit cloudflare_challenge_path(challenge.challenge_id)
-        
+
         expect(page).to have_content('Verification Required')
         expect(page).to have_content('Additional verification required')
       end
@@ -56,7 +56,7 @@ RSpec.describe 'Cloudflare Challenge Basic System Tests', type: :system do
 
   describe 'Navigation' do
     let(:challenge) do
-      create(:cloudflare_challenge, 
+      create(:cloudflare_challenge,
              challenge_type: 'turnstile',
              session_id: 'test_session')
     end
@@ -69,10 +69,10 @@ RSpec.describe 'Cloudflare Challenge Basic System Tests', type: :system do
 
     it 'provides alternative sign-in option' do
       visit cloudflare_challenge_path(challenge.challenge_id)
-      
+
       expect(page).to have_link('Try alternative sign-in', href: sign_in_path)
       click_link 'Try alternative sign-in'
-      
+
       expect(page).to have_current_path(sign_in_path)
     end
   end

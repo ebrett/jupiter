@@ -29,24 +29,21 @@ RSpec.describe CloudflareConfig do
   describe '.configured?' do
     context 'when both keys are present' do
       it 'returns true' do
-        allow(described_class).to receive(:turnstile_site_key).and_return('site-key')
-        allow(described_class).to receive(:turnstile_secret_key).and_return('secret-key')
+        allow(described_class).to receive_messages(turnstile_site_key: 'site-key', turnstile_secret_key: 'secret-key')
         expect(described_class.configured?).to be true
       end
     end
 
     context 'when site key is missing' do
       it 'returns false' do
-        allow(described_class).to receive(:turnstile_site_key).and_return(nil)
-        allow(described_class).to receive(:turnstile_secret_key).and_return('secret-key')
+        allow(described_class).to receive_messages(turnstile_site_key: nil, turnstile_secret_key: 'secret-key')
         expect(described_class.configured?).to be false
       end
     end
 
     context 'when secret key is missing' do
       it 'returns false' do
-        allow(described_class).to receive(:turnstile_site_key).and_return('site-key')
-        allow(described_class).to receive(:turnstile_secret_key).and_return(nil)
+        allow(described_class).to receive_messages(turnstile_site_key: 'site-key', turnstile_secret_key: nil)
         expect(described_class.configured?).to be false
       end
     end

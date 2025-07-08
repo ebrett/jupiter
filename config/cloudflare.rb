@@ -1,7 +1,7 @@
 # Cloudflare Turnstile Configuration
 #
 # This file configures Cloudflare Turnstile integration for challenge handling.
-# 
+#
 # Environment Variables Required:
 # - CLOUDFLARE_TURNSTILE_SITE_KEY: Public site key from Cloudflare dashboard
 # - CLOUDFLARE_TURNSTILE_SECRET_KEY: Secret key from Cloudflare dashboard
@@ -21,12 +21,12 @@
 module CloudflareConfig
   # Get the Turnstile site key from environment
   def self.turnstile_site_key
-    ENV['CLOUDFLARE_TURNSTILE_SITE_KEY']
+    ENV["CLOUDFLARE_TURNSTILE_SITE_KEY"]
   end
 
   # Get the Turnstile secret key from environment or credentials
   def self.turnstile_secret_key
-    ENV['CLOUDFLARE_TURNSTILE_SECRET_KEY'] || 
+    ENV["CLOUDFLARE_TURNSTILE_SECRET_KEY"] ||
       Rails.application.credentials.cloudflare_turnstile_secret_key
   end
 
@@ -37,6 +37,6 @@ module CloudflareConfig
 
   # Turnstile API endpoint for verification
   def self.verification_endpoint
-    'https://challenges.cloudflare.com/turnstile/v0/siteverify'
+    "https://challenges.cloudflare.com/turnstile/v0/siteverify"
   end
 end

@@ -75,14 +75,14 @@ RSpec.describe 'Cloudflare Service Integration', type: :integration do
           service.exchange_code_for_token(oauth_code)
         }.to raise_error(NationbuilderTokenExchangeService::TokenExchangeError) do |error|
           challenge = error.data[:challenge]
-          
+
           # Verify challenge object structure
           expect(challenge).to be_a(NationbuilderTokenExchangeService::CloudflareChallenge)
           expect(challenge.type).to eq('turnstile')
           expect(challenge.site_key).to eq('test-site-key-123')
           expect(challenge.challenge_data).to be_a(Hash)
           expect(challenge.challenge_data['turnstile_present']).to be true
-          
+
           # Verify it can be converted to hash (for database storage)
           hash_data = challenge.to_h
           expect(hash_data[:type]).to eq('turnstile')
@@ -154,9 +154,9 @@ RSpec.describe 'Cloudflare Service Integration', type: :integration do
         stub_request(:post, 'https://challenges.cloudflare.com/turnstile/v0/siteverify')
           .to_return(
             status: 200,
-            body: { 
-              success: false, 
-              'error-codes' => ['invalid-input-response'] 
+            body: {
+              success: false,
+              'error-codes' => [ 'invalid-input-response' ]
             }.to_json,
             headers: { 'Content-Type' => 'application/json' }
           )
@@ -182,7 +182,7 @@ RSpec.describe 'Cloudflare Service Integration', type: :integration do
   describe 'Database persistence and model interaction' do
     let(:challenge_data) { { 'turnstile_present' => true, 'site_key' => 'test-key' } }
     let(:original_params) { { 'code' => 'oauth123', 'state' => 'state456' } }
-    
+
     it 'stores and retrieves challenge data consistently' do
       challenge = CloudflareChallenge.create!(
         challenge_id: SecureRandom.uuid,
@@ -198,7 +198,7 @@ RSpec.describe 'Cloudflare Service Integration', type: :integration do
       reloaded_challenge = CloudflareChallenge.find(challenge.id)
       expect(reloaded_challenge.challenge_data).to eq(challenge_data)
       expect(reloaded_challenge.original_params).to eq(original_params)
-      
+
       # Verify scopes work correctly
       expect(CloudflareChallenge.active).to include(reloaded_challenge)
       expect(CloudflareChallenge.for_session('test-session')).to include(reloaded_challenge)
@@ -211,7 +211,7 @@ RSpec.describe 'Cloudflare Service Integration', type: :integration do
 
       expect(active_challenge.expired?).to be false
       expect(expired_challenge.expired?).to be true
-      
+
       expect(CloudflareChallenge.active).to include(active_challenge)
       expect(CloudflareChallenge.active).not_to include(expired_challenge)
     end
@@ -259,7 +259,7 @@ RSpec.describe 'Cloudflare Service Integration', type: :integration do
       # Test flag state changes
       flag.update!(enabled: false)
       expect(flag.enabled?).to be false
-      
+
       flag.update!(enabled: true)
       expect(flag.enabled?).to be true
     end
@@ -281,7 +281,7 @@ RSpec.describe 'Cloudflare Service Integration', type: :integration do
         service.exchange_code_for_token('invalid_code')
       }.to raise_error(NationbuilderTokenExchangeService::TokenExchangeError, /invalid_grant/)
 
-      # Test 2: Turnstile verification errors  
+      # Test 2: Turnstile verification errors
       verification_service = TurnstileVerificationService.new(
         response_token: 'invalid-token',
         user_ip: '127.0.0.1'
@@ -292,7 +292,7 @@ RSpec.describe 'Cloudflare Service Integration', type: :integration do
       stub_request(:post, 'https://challenges.cloudflare.com/turnstile/v0/siteverify')
         .to_return(
           status: 200,
-          body: { success: false, 'error-codes' => ['invalid-input-response'] }.to_json
+          body: { success: false, 'error-codes' => [ 'invalid-input-response' ] }.to_json
         )
 
       expect(verification_service.verify).to be false
@@ -319,7 +319,7 @@ RSpec.describe 'Cloudflare Service Integration', type: :integration do
         'turnstile_present' => true,
         'site_key' => 'test-site-key'
       }
-      
+
       challenge = CloudflareChallenge.create!(
         challenge_id: SecureRandom.uuid,
         challenge_type: 'turnstile',
@@ -334,7 +334,7 @@ RSpec.describe 'Cloudflare Service Integration', type: :integration do
       retrieved_challenge = CloudflareChallenge.find_by(challenge_id: challenge.challenge_id)
       expect(retrieved_challenge.challenge_data).to eq(challenge_data)
       expect(retrieved_challenge.challenge_data['site_key']).to eq('test-site-key')
-      
+
       # Verify URL generation works
       expect(retrieved_challenge.challenge_url).to include(challenge.challenge_id)
     end

@@ -92,7 +92,7 @@ Rails.application.routes.draw do
   get "/auth/nationbuilder/callback", to: "nationbuilder_auth#callback"
 
   # Cloudflare challenge routes
-  resources :cloudflare_challenges, only: [:show], param: :challenge_id do
+  resources :cloudflare_challenges, only: [ :show ], param: :challenge_id do
     member do
       post :verify
       get :complete

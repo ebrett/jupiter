@@ -16,7 +16,7 @@ RSpec.describe CloudflareChallengesController, type: :controller do
   # Override the session.id method to return our test session ID
   before do
     allow(session).to receive(:id).and_return(session_id)
-    
+
     # Enable cloudflare challenge handling feature flag for tests
     @cloudflare_flag = FeatureFlag.find_or_create_by!(name: 'cloudflare_challenge_handling') do |flag|
       flag.description = 'Test flag for Cloudflare challenge handling'
