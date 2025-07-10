@@ -93,6 +93,13 @@ RSpec.describe CloudflareChallengeComponent, type: :component do
 
       let(:challenge_data) { { 'challenge_stage_present' => true } }
 
+      before do
+        allow(ENV).to receive(:[]).and_call_original
+        allow(ENV).to receive(:[]).with("NATIONBUILDER_NATION_SLUG").and_return("test-nation")
+        allow(ENV).to receive(:[]).with("NATIONBUILDER_CLIENT_ID").and_return("test-client-id")
+        allow(ENV).to receive(:[]).with("NATIONBUILDER_REDIRECT_URI").and_return("http://localhost:3000/callback")
+      end
+
       it 'shows browser challenge title' do
         expect(subject).to include('Browser Verification Required')
       end
@@ -268,8 +275,25 @@ RSpec.describe CloudflareChallengeComponent, type: :component do
       context 'with browser challenge' do
         let(:challenge_data) { { 'challenge_stage_present' => true } }
 
+        before do
+          allow(ENV).to receive(:[]).and_call_original
+          allow(ENV).to receive(:[]).with("NATIONBUILDER_NATION_SLUG").and_return("test-nation")
+          allow(ENV).to receive(:[]).with("NATIONBUILDER_CLIENT_ID").and_return("test-client-id")
+          allow(ENV).to receive(:[]).with("NATIONBUILDER_REDIRECT_URI").and_return("http://localhost:3000/callback")
+        end
+
         it 'returns the OAuth URL for manual verification' do
           expect(component.send(:verification_url)).to include('nationbuilder.com/oauth/authorize')
+        end
+
+        context 'with missing ENV variables' do
+          before do
+            allow(ENV).to receive(:[]).with("NATIONBUILDER_NATION_SLUG").and_return(nil)
+          end
+
+          it 'returns nil when ENV variables are missing' do
+            expect(component.send(:verification_url)).to be_nil
+          end
         end
       end
     end
