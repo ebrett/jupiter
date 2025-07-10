@@ -32,10 +32,59 @@
                  data-error-callback="handleTurnstileError">
             </div>
           </div>
-        <% elsif challenge_type == 'browser_challenge' %>
-          <div class="text-center py-8">
-            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
-            <p class="mt-4 text-sm text-gray-600">Performing browser verification...</p>
+        <% elsif show_manual_verification? %>
+          <div class="space-y-4">
+            <div class="bg-blue-50 rounded-lg p-4">
+              <p class="text-sm text-blue-900 mb-4">You're being asked to verify your browser for security reasons. Please follow these steps:</p>
+              
+              <div class="space-y-3">
+                <div class="flex items-start space-x-3">
+                  <div class="step-number flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-semibold">1</div>
+                  <div class="step-content text-sm sm:text-base text-gray-700">
+                    You're being asked to verify your browser for security reasons
+                  </div>
+                </div>
+                
+                <div class="flex items-start space-x-3">
+                  <div class="step-number flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-semibold">2</div>
+                  <div class="step-content text-sm sm:text-base text-gray-700">
+                    Click the "Open Verification Page" button below
+                  </div>
+                </div>
+                
+                <div class="flex items-start space-x-3">
+                  <div class="step-number flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-semibold">3</div>
+                  <div class="step-content text-sm sm:text-base text-gray-700">
+                    Complete any security checks on the NationBuilder page
+                  </div>
+                </div>
+                
+                <div class="flex items-start space-x-3">
+                  <div class="step-number flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-semibold">4</div>
+                  <div class="step-content text-sm sm:text-base text-gray-700">
+                    Once verified, return here and click "Continue Sign-in"
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="flex flex-col sm:flex-row gap-3">
+              <% if verification_url %>
+                <a href="<%= verification_url %>" 
+                   target="_blank" 
+                   rel="noopener noreferrer"
+                   class="flex-1 inline-flex justify-center items-center px-4 py-2 border border-blue-300 rounded-md shadow-sm text-sm font-medium text-blue-700 bg-white hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                  </svg>
+                  Open Verification Page
+                </a>
+              <% else %>
+                <div class="flex-1 inline-flex justify-center items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-500 bg-gray-100 cursor-not-allowed">
+                  Configuration Error
+                </div>
+              <% end %>
+            </div>
           </div>
         <% elsif challenge_type == 'rate_limit' %>
           <div class="text-center py-8">
@@ -53,7 +102,7 @@
         <% end %>
 
         <div>
-          <%= form.submit "Continue", 
+          <%= form.submit show_manual_verification? ? "Continue Sign-in" : "Continue", 
                           class: "w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed",
                           disabled: submit_button_disabled?,
                           id: "challenge-submit-button" %>

@@ -26,7 +26,7 @@ RSpec.describe CloudflareChallengesController, type: :controller do
 
 
   describe 'GET #show' do
-    context 'with valid challenge' do
+    context 'with valid turnstile challenge' do
       before { valid_challenge }
 
       it 'renders the challenge page' do
@@ -40,6 +40,35 @@ RSpec.describe CloudflareChallengesController, type: :controller do
         get :show, params: { challenge_id: challenge_id }
 
         expect(assigns(:challenge_data)).to eq(valid_challenge.challenge_data)
+        expect(assigns(:site_key)).to eq(CloudflareConfig.turnstile_site_key)
+        expect(assigns(:callback_url)).to eq(verify_cloudflare_challenge_url(challenge_id))
+      end
+    end
+
+    context 'with browser challenge' do
+      let(:browser_challenge) do
+        create(:cloudflare_challenge,
+               challenge_id: challenge_id,
+               challenge_type: 'browser_challenge',
+               challenge_data: { 'challenge_stage_present' => true },
+               oauth_state: 'test-oauth-state',
+               session_id: session_id,
+               expires_at: 15.minutes.from_now)
+      end
+
+      before { browser_challenge }
+
+      it 'renders the challenge page with manual instructions' do
+        get :show, params: { challenge_id: challenge_id }
+
+        expect(response).to have_http_status(:ok)
+        expect(response).to render_template(:show)
+      end
+
+      it 'assigns challenge data for manual verification' do
+        get :show, params: { challenge_id: challenge_id }
+
+        expect(assigns(:challenge_data)).to eq(browser_challenge.challenge_data)
         expect(assigns(:site_key)).to eq(CloudflareConfig.turnstile_site_key)
         expect(assigns(:callback_url)).to eq(verify_cloudflare_challenge_url(challenge_id))
       end
@@ -167,6 +196,39 @@ RSpec.describe CloudflareChallengesController, type: :controller do
 
         expect(response).to render_template(:show)
         expect(flash.now[:alert]).to include('Please complete the challenge')
+      end
+    end
+
+    context 'with browser challenge manual verification' do
+      let(:browser_challenge_id) { SecureRandom.uuid }
+      let(:browser_challenge) do
+        create(:cloudflare_challenge,
+               challenge_id: browser_challenge_id,
+               challenge_type: 'browser_challenge',
+               challenge_data: { 'challenge_stage_present' => true },
+               oauth_state: 'test-oauth-state',
+               session_id: session_id,
+               expires_at: 15.minutes.from_now)
+      end
+
+      before { browser_challenge }
+
+      it 'completes manual verification without turnstile token' do
+        post :verify, params: { challenge_id: browser_challenge_id }
+
+        expect(response).to redirect_to(complete_cloudflare_challenge_path(browser_challenge_id))
+        expect(session[:completed_challenge_id]).to eq(browser_challenge_id)
+      end
+
+      it 'updates challenge with manual verification timestamp' do
+        expect {
+          post :verify, params: { challenge_id: browser_challenge_id }
+        }.to change { browser_challenge.reload.updated_at }
+      end
+
+      it 'does not call TurnstileVerificationService' do
+        expect(TurnstileVerificationService).not_to receive(:new)
+        post :verify, params: { challenge_id: browser_challenge_id }
       end
     end
 

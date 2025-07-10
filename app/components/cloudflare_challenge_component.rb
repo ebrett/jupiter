@@ -35,7 +35,7 @@ class CloudflareChallengeComponent < ViewComponent::Base
     when "turnstile"
       "Please complete the security check below to continue with sign-in."
     when "browser_challenge"
-      "Your browser verification is in progress. Please refresh the page in a moment."
+      "Please follow the steps below to complete manual verification and continue with sign-in."
     when "rate_limit"
       "Too many requests have been made. Please wait a few minutes before trying again."
     else
@@ -60,5 +60,29 @@ class CloudflareChallengeComponent < ViewComponent::Base
 
   def show_configuration_error?
     challenge_type == "turnstile" && site_key.blank?
+  end
+
+  def show_manual_verification?
+    challenge_type == "browser_challenge"
+  end
+
+  def verification_url
+    return nil unless show_manual_verification?
+
+    # Build the NationBuilder OAuth URL that user needs to visit manually
+    nation_slug = ENV["NATIONBUILDER_NATION_SLUG"]
+    client_id = ENV["NATIONBUILDER_CLIENT_ID"]
+    redirect_uri = ENV["NATIONBUILDER_REDIRECT_URI"]
+
+    return nil if nation_slug.blank? || client_id.blank? || redirect_uri.blank?
+
+    params = {
+      response_type: "code",
+      client_id: client_id,
+      redirect_uri: redirect_uri,
+      scope: "default"
+    }
+
+    "https://#{nation_slug}.nationbuilder.com/oauth/authorize?" + params.to_query
   end
 end

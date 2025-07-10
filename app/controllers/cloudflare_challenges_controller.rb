@@ -14,6 +14,13 @@ class CloudflareChallengesController < ApplicationController
   end
 
   def verify
+    # Handle browser challenges with manual verification
+    if @challenge.challenge_type == "browser_challenge"
+      handle_manual_verification
+      return
+    end
+
+    # Handle Turnstile challenges
     if params[:cf_turnstile_response].blank?
       flash.now[:alert] = "Please complete the challenge"
       render :show
@@ -100,5 +107,19 @@ class CloudflareChallengesController < ApplicationController
       response_token: response_token,
       user_ip: request.remote_ip
     ).verify
+  end
+
+  def handle_manual_verification
+    # For browser challenges, we assume the user has completed the manual verification
+    # by visiting the NationBuilder page. We just need to mark the challenge as completed.
+
+    # Update the challenge timestamp to track manual verification
+    @challenge.touch
+
+    # Mark the challenge as completed in the session
+    session[:completed_challenge_id] = @challenge.challenge_id
+
+    # Redirect to the completion flow
+    redirect_to complete_cloudflare_challenge_path(@challenge.challenge_id)
   end
 end

@@ -304,6 +304,10 @@ RSpec.describe NationbuilderTokenExchangeService, type: :integration do
         user_ip: '127.0.0.1'
       )
 
+      # Stub the API call to ensure no real HTTP requests are made
+      stub_request(:post, 'https://challenges.cloudflare.com/turnstile/v0/siteverify')
+        .to_return(status: 200, body: { success: false }.to_json)
+
       # Test with missing secret key
       allow(CloudflareConfig).to receive(:turnstile_secret_key).and_return(nil)
       expect(service.verify).to be false
