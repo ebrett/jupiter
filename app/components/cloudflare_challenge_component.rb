@@ -9,7 +9,7 @@ class CloudflareChallengeComponent < ViewComponent::Base
 
   def challenge_type
     return "turnstile" if challenge_data["turnstile_present"]
-    return "browser_challenge" if challenge_data["challenge_stage_present"]
+    return "browser_challenge" if challenge_data["challenge_stage_present"] || challenge_data["legacy_detection"]
     return "rate_limit" if challenge_data["rate_limited"]
 
     "unknown"
