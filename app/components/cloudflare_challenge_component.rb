@@ -69,20 +69,12 @@ class CloudflareChallengeComponent < ViewComponent::Base
   def verification_url
     return nil unless show_manual_verification?
 
-    # Build the NationBuilder OAuth URL that user needs to visit manually
+    # For Cloudflare challenges, users need to visit the NationBuilder domain
+    # to complete the challenge, not the OAuth authorization endpoint
     nation_slug = ENV["NATIONBUILDER_NATION_SLUG"]
-    client_id = ENV["NATIONBUILDER_CLIENT_ID"]
-    redirect_uri = ENV["NATIONBUILDER_REDIRECT_URI"]
+    return nil if nation_slug.blank?
 
-    return nil if nation_slug.blank? || client_id.blank? || redirect_uri.blank?
-
-    params = {
-      response_type: "code",
-      client_id: client_id,
-      redirect_uri: redirect_uri,
-      scope: "default"
-    }
-
-    "https://#{nation_slug}.nationbuilder.com/oauth/authorize?" + params.to_query
+    # Direct users to the main NationBuilder site to complete Cloudflare challenge
+    "https://#{nation_slug}.nationbuilder.com/"
   end
 end

@@ -116,8 +116,8 @@ RSpec.describe CloudflareChallengeComponent, type: :component do
         expect(subject).to include('>4<')
       end
 
-      it 'includes "Open Verification Page" button' do
-        expect(subject).to include('Open Verification Page')
+      it 'includes "Visit NationBuilder" button' do
+        expect(subject).to include('Visit NationBuilder')
         expect(subject).to include('target="_blank"')
       end
 
@@ -147,12 +147,12 @@ RSpec.describe CloudflareChallengeComponent, type: :component do
       end
 
       it 'includes help text for manual verification' do
-        expect(subject).to include('Complete any security checks')
+        expect(subject).to include('Complete any Cloudflare security checks')
         expect(subject).to include('return here and click')
       end
 
       it 'shows NationBuilder-specific instructions' do
-        expect(subject).to include('NationBuilder page')
+        expect(subject).to include('their site')
       end
     end
 
@@ -282,8 +282,8 @@ RSpec.describe CloudflareChallengeComponent, type: :component do
           allow(ENV).to receive(:[]).with("NATIONBUILDER_REDIRECT_URI").and_return("http://localhost:3000/callback")
         end
 
-        it 'returns the OAuth URL for manual verification' do
-          expect(component.send(:verification_url)).to include('nationbuilder.com/oauth/authorize')
+        it 'returns the NationBuilder main site URL for manual verification' do
+          expect(component.send(:verification_url)).to eq('https://test-nation.nationbuilder.com/')
         end
 
         context 'with missing ENV variables' do
