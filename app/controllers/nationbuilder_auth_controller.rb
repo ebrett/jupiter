@@ -210,12 +210,15 @@ class NationbuilderAuthController < ApplicationController
   def handle_cloudflare_challenge(cloudflare_challenge)
     Rails.logger.info "NationBuilder OAuth: Handling Cloudflare challenge"
 
+    # Get oauth_state from params or fallback to session.id
+    oauth_state = params[:state].presence || session.id.presence || SecureRandom.hex(16)
+
     # Create challenge record
     challenge = CloudflareChallenge.create!(
       challenge_id: SecureRandom.uuid,
       challenge_type: cloudflare_challenge.type,
       challenge_data: cloudflare_challenge.challenge_data,
-      oauth_state: params[:state],
+      oauth_state: oauth_state,
       original_params: params.permit!.to_h.except("controller", "action"),
       session_id: session.id.presence || request.session_options[:id] || SecureRandom.hex(16),
       user: Current.user,
