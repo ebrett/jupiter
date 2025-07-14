@@ -1,0 +1,31 @@
+#!/bin/bash
+
+# Script to set up git hooks for the project
+# Run this script after cloning the repository
+
+echo "Setting up git hooks..."
+
+# Create pre-commit hook that prevents commits to main branch
+cat > .git/hooks/pre-commit << 'EOF'
+#!/usr/bin/env bash
+
+# Prevent commits directly on main branch
+branch=$(git symbolic-ref HEAD | sed -e 's,.*/\(.*\),\1,')
+if [ "$branch" = "main" ]; then
+    echo "❌ Direct commits to main branch are not allowed!"
+    echo "Please create a feature branch first:"
+    echo "  git checkout -b feature/your-feature-name"
+    echo "  git add ."
+    echo "  git commit -m 'your commit message'"
+    exit 1
+fi
+
+# Run git secrets hook
+git secrets --pre_commit_hook -- "$@"
+EOF
+
+# Make the hook executable
+chmod +x .git/hooks/pre-commit
+
+echo "✅ Git hooks setup complete!"
+echo "Main branch protection is now active."
