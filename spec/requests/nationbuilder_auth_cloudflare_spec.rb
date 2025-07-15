@@ -37,9 +37,23 @@ RSpec.describe 'NationbuilderAuth with Cloudflare Challenges', type: :request do
     ENV['NATIONBUILDER_REDIRECT_URI'] = @original_redirect_uri
   end
 
+  # Helper to set up a proper OAuth flow with session
+  def setup_oauth_flow
+    get '/auth/nationbuilder'
+    expect(response).to have_http_status(:redirect)
+
+    # Extract the OAuth state from the redirect URL
+    redirect_url = response.headers['Location']
+    actual_oauth_state = redirect_url.match(/state=([^&]+)/)[1]
+
+    # Return the session cookies and OAuth state
+    [ response.headers['Set-Cookie'], actual_oauth_state ]
+  end
+
   describe 'Cloudflare challenge handling' do
     let(:oauth_code) { 'valid_oauth_code' }
     let(:oauth_state) { 'test_oauth_state' }
+
     let(:cloudflare_response_body) do
       <<~HTML
         <!DOCTYPE html>
@@ -68,19 +82,18 @@ RSpec.describe 'NationbuilderAuth with Cloudflare Challenges', type: :request do
       end
 
       it 'creates a CloudflareChallenge record and redirects to challenge' do
-        # Use the session from the initial request
-        session_cookies = response.headers['Set-Cookie']
+        session_cookies, actual_oauth_state = setup_oauth_flow
 
         expect {
           get '/auth/nationbuilder/callback',
-              params: { code: oauth_code, state: oauth_state },
+              params: { code: oauth_code, state: actual_oauth_state },
               headers: { 'Cookie' => session_cookies }
         }.to change(CloudflareChallenge, :count).by(1)
 
         challenge = CloudflareChallenge.last
         expect(challenge.challenge_type).to eq('turnstile')
-        expect(challenge.oauth_state).to eq(oauth_state)
-        expect(challenge.original_params).to include('code' => oauth_code, 'state' => oauth_state)
+        expect(challenge.oauth_state).to eq(actual_oauth_state)
+        expect(challenge.original_params).to include('code' => oauth_code, 'state' => actual_oauth_state)
         expect(challenge.session_id).to be_present
         expect(challenge.expires_at).to be > Time.current
 
@@ -88,15 +101,15 @@ RSpec.describe 'NationbuilderAuth with Cloudflare Challenges', type: :request do
       end
 
       it 'preserves all OAuth callback parameters in the challenge' do
-        session_cookies = response.headers['Set-Cookie']
+        session_cookies, actual_oauth_state = setup_oauth_flow
         extra_params = { 'foo' => 'bar', 'baz' => 'qux' }
 
         get '/auth/nationbuilder/callback',
-            params: { code: oauth_code, state: oauth_state }.merge(extra_params),
+            params: { code: oauth_code, state: actual_oauth_state }.merge(extra_params),
             headers: { 'Cookie' => session_cookies }
 
         challenge = CloudflareChallenge.last
-        expect(challenge.original_params).to include('code' => oauth_code, 'state' => oauth_state, 'foo' => 'bar', 'baz' => 'qux')
+        expect(challenge.original_params).to include('code' => oauth_code, 'state' => actual_oauth_state, 'foo' => 'bar', 'baz' => 'qux')
       end
 
       context 'with authenticated user linking account' do
@@ -109,9 +122,20 @@ RSpec.describe 'NationbuilderAuth with Cloudflare Challenges', type: :request do
         end
 
         it 'associates challenge with current user' do
+          # Sign in the user first
+          cookies = { 'session_id' => Rails.application.message_verifier('signed cookie').generate(session_record.id) }
+
+          # Set up OAuth flow as authenticated user
+          get '/auth/nationbuilder', headers: { 'Cookie' => cookies.map { |k, v| "#{k}=#{v}" }.join('; ') }
+          redirect_url = response.headers['Location']
+          actual_oauth_state = redirect_url.match(/state=([^&]+)/)[1]
+
+          # Merge cookies from response
+          new_cookies = response.headers['Set-Cookie']
+
           get '/auth/nationbuilder/callback',
-              params: { code: oauth_code, state: oauth_state },
-              headers: { 'Cookie' => "session_id=#{Rails.application.message_verifier('signed cookie').generate(session_record.id)}" }
+              params: { code: oauth_code, state: actual_oauth_state },
+              headers: { 'Cookie' => [ cookies.map { |k, v| "#{k}=#{v}" }.join('; '), new_cookies ].compact.join('; ') }
 
           challenge = CloudflareChallenge.last
           expect(challenge.user).to eq(user)
@@ -163,17 +187,19 @@ RSpec.describe 'NationbuilderAuth with Cloudflare Challenges', type: :request do
       end
 
       it 'validates challenge completion before resuming' do
-        # Create challenge for different session
+        # Create challenge for different OAuth state
+        different_oauth_state = 'different-oauth-state'
         challenge = create(:cloudflare_challenge,
-                          oauth_state: oauth_state,
-                          original_params: { 'code' => oauth_code, 'state' => oauth_state },
-                          session_id: 'different-session-id')
+                          oauth_state: different_oauth_state,
+                          original_params: { 'code' => oauth_code, 'state' => different_oauth_state },
+                          session_id: 'some-session-id')
 
-        session_cookies = response.headers['Set-Cookie']
+        session_cookies, actual_oauth_state = setup_oauth_flow
         get '/auth/nationbuilder/callback',
-            params: { code: oauth_code, state: oauth_state, challenge_completed: 'true' },
+            params: { code: oauth_code, state: actual_oauth_state, challenge_completed: 'true' },
             headers: { 'Cookie' => session_cookies }
 
+        # Should fail because no challenge exists for this OAuth state
         expect(response).to redirect_to(sign_in_path)
         expect(flash[:alert]).to eq('Unable to complete sign-in. Please try again.')
       end
@@ -204,9 +230,9 @@ RSpec.describe 'NationbuilderAuth with Cloudflare Challenges', type: :request do
       end
 
       it 'creates rate limit challenge and redirects' do
-        session_cookies = response.headers['Set-Cookie']
+        session_cookies, actual_oauth_state = setup_oauth_flow
         get '/auth/nationbuilder/callback',
-            params: { code: oauth_code, state: oauth_state },
+            params: { code: oauth_code, state: actual_oauth_state },
             headers: { 'Cookie' => session_cookies }
 
         challenge = CloudflareChallenge.last
@@ -242,9 +268,9 @@ RSpec.describe 'NationbuilderAuth with Cloudflare Challenges', type: :request do
       end
 
       it 'creates browser challenge and redirects' do
-        session_cookies = response.headers['Set-Cookie']
+        session_cookies, actual_oauth_state = setup_oauth_flow
         get '/auth/nationbuilder/callback',
-            params: { code: oauth_code, state: oauth_state },
+            params: { code: oauth_code, state: actual_oauth_state },
             headers: { 'Cookie' => session_cookies }
 
         challenge = CloudflareChallenge.last
@@ -263,9 +289,9 @@ RSpec.describe 'NationbuilderAuth with Cloudflare Challenges', type: :request do
           headers: { 'Content-Type' => 'application/json' }
         )
 
-      session_cookies = response.headers['Set-Cookie']
+      session_cookies, actual_oauth_state = setup_oauth_flow
       get '/auth/nationbuilder/callback',
-          params: { code: 'invalid_code' },
+          params: { code: 'invalid_code', state: actual_oauth_state },
           headers: { 'Cookie' => session_cookies }
 
       expect(response).to redirect_to(sign_in_path)
@@ -276,9 +302,9 @@ RSpec.describe 'NationbuilderAuth with Cloudflare Challenges', type: :request do
       stub_request(:post, 'https://testnation.nationbuilder.com/oauth/token')
         .to_timeout
 
-      session_cookies = response.headers['Set-Cookie']
+      session_cookies, actual_oauth_state = setup_oauth_flow
       get '/auth/nationbuilder/callback',
-          params: { code: 'valid_code' },
+          params: { code: 'valid_code', state: actual_oauth_state },
           headers: { 'Cookie' => session_cookies }
 
       expect(response).to redirect_to(sign_in_path)
