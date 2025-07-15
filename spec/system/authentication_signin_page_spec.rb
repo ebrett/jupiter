@@ -4,7 +4,7 @@ RSpec.describe "Authentication Sign-In Page", type: :system do
   let!(:user) { create(:user, password: 'password123') }
 
   before do
-    driven_by(:selenium, using: :headless_chrome, screen_size: [ 1400, 1400 ])
+    driven_by(:rack_test)
   end
 
   describe "sign-in page accessibility and functionality" do

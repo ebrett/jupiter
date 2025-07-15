@@ -2,6 +2,7 @@ require 'rails_helper'
 
 RSpec.describe "Authentication Errors", type: :system do
   before do
+    driven_by(:rack_test)
     # Ensure we start with a clean slate
     User.destroy_all
     Session.destroy_all
