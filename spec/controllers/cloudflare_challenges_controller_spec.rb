@@ -109,7 +109,7 @@ RSpec.describe CloudflareChallengesController, type: :controller do
                session_id: 'some-session-id')
       end
 
-      before do 
+      before do
         wrong_oauth_challenge
         # Set a different OAuth state in the session
         session[:oauth_state] = 'current-oauth-state'

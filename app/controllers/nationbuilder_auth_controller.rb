@@ -14,11 +14,11 @@ class NationbuilderAuthController < ApplicationController
       redirect_uri: ENV["NATIONBUILDER_REDIRECT_URI"],
       scopes: [ "default" ] # NationBuilder standard OAuth scope
     )
-    
+
     # Generate a secure OAuth state parameter and store it in the session
     oauth_state = SecureRandom.hex(16)
     session[:oauth_state] = oauth_state
-    
+
     redirect_to client.authorization_url(state: oauth_state), allow_other_host: true
   end
 

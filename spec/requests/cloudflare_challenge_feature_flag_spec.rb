@@ -37,6 +37,19 @@ RSpec.describe 'Cloudflare Challenge Feature Flag', type: :request do
     ENV['NATIONBUILDER_REDIRECT_URI'] = @original_redirect_uri
   end
 
+  # Helper to set up a proper OAuth flow with session
+  def setup_oauth_flow
+    get '/auth/nationbuilder'
+    expect(response).to have_http_status(:redirect)
+
+    # Extract the OAuth state from the redirect URL
+    redirect_url = response.headers['Location']
+    actual_oauth_state = redirect_url.match(/state=([^&]+)/)[1]
+
+    # Return the session cookies and OAuth state
+    [ response.headers['Set-Cookie'], actual_oauth_state ]
+  end
+
   describe 'OAuth flow with feature flag enabled' do
     let(:oauth_code) { 'valid_oauth_code' }
     let(:oauth_state) { 'test_oauth_state' }
@@ -70,11 +83,11 @@ RSpec.describe 'Cloudflare Challenge Feature Flag', type: :request do
     end
 
     it 'handles Cloudflare challenge when feature flag is enabled' do
-      session_cookies = response.headers['Set-Cookie']
+      session_cookies, actual_oauth_state = setup_oauth_flow
 
       expect {
         get '/auth/nationbuilder/callback',
-            params: { code: oauth_code, state: oauth_state },
+            params: { code: oauth_code, state: actual_oauth_state },
             headers: { 'Cookie' => session_cookies }
       }.to change(CloudflareChallenge, :count).by(1)
 
@@ -116,11 +129,11 @@ RSpec.describe 'Cloudflare Challenge Feature Flag', type: :request do
     end
 
     it 'falls back to standard error handling when feature flag is disabled' do
-      session_cookies = response.headers['Set-Cookie']
+      session_cookies, actual_oauth_state = setup_oauth_flow
 
       expect {
         get '/auth/nationbuilder/callback',
-            params: { code: oauth_code, state: oauth_state },
+            params: { code: oauth_code, state: actual_oauth_state },
             headers: { 'Cookie' => session_cookies }
       }.not_to change(CloudflareChallenge, :count)
 
@@ -200,10 +213,21 @@ RSpec.describe 'Cloudflare Challenge Feature Flag', type: :request do
     end
 
     it 'handles challenge when user has feature flag access' do
+      # Sign in the user first
+      cookies = { 'session_id' => Rails.application.message_verifier('signed cookie').generate(session_record.id) }
+
+      # Set up OAuth flow as authenticated user
+      get '/auth/nationbuilder', headers: { 'Cookie' => cookies.map { |k, v| "#{k}=#{v}" }.join('; ') }
+      redirect_url = response.headers['Location']
+      actual_oauth_state = redirect_url.match(/state=([^&]+)/)[1]
+
+      # Merge cookies from response
+      new_cookies = response.headers['Set-Cookie']
+
       expect {
         get '/auth/nationbuilder/callback',
-            params: { code: oauth_code, state: oauth_state },
-            headers: { 'Cookie' => "session_id=#{Rails.application.message_verifier('signed cookie').generate(session_record.id)}" }
+            params: { code: oauth_code, state: actual_oauth_state },
+            headers: { 'Cookie' => [ cookies.map { |k, v| "#{k}=#{v}" }.join('; '), new_cookies ].compact.join('; ') }
       }.to change(CloudflareChallenge, :count).by(1)
 
       challenge = CloudflareChallenge.last
@@ -214,10 +238,21 @@ RSpec.describe 'Cloudflare Challenge Feature Flag', type: :request do
       # Remove user's access to cloudflare challenge flag
       FeatureFlagAssignment.find_by(feature_flag: @cloudflare_flag, assignable: user)&.destroy
 
+      # Sign in the user first
+      cookies = { 'session_id' => Rails.application.message_verifier('signed cookie').generate(session_record.id) }
+
+      # Set up OAuth flow as authenticated user
+      get '/auth/nationbuilder', headers: { 'Cookie' => cookies.map { |k, v| "#{k}=#{v}" }.join('; ') }
+      redirect_url = response.headers['Location']
+      actual_oauth_state = redirect_url.match(/state=([^&]+)/)[1]
+
+      # Merge cookies from response
+      new_cookies = response.headers['Set-Cookie']
+
       expect {
         get '/auth/nationbuilder/callback',
-            params: { code: oauth_code, state: oauth_state },
-            headers: { 'Cookie' => "session_id=#{Rails.application.message_verifier('signed cookie').generate(session_record.id)}" }
+            params: { code: oauth_code, state: actual_oauth_state },
+            headers: { 'Cookie' => [ cookies.map { |k, v| "#{k}=#{v}" }.join('; '), new_cookies ].compact.join('; ') }
       }.not_to change(CloudflareChallenge, :count)
 
       expect(response).to redirect_to(sign_in_path)
