@@ -14,7 +14,12 @@ class NationbuilderAuthController < ApplicationController
       redirect_uri: ENV["NATIONBUILDER_REDIRECT_URI"],
       scopes: [ "default" ] # NationBuilder standard OAuth scope
     )
-    redirect_to client.authorization_url(state: session.id), allow_other_host: true
+    
+    # Generate a secure OAuth state parameter and store it in the session
+    oauth_state = SecureRandom.hex(16)
+    session[:oauth_state] = oauth_state
+    
+    redirect_to client.authorization_url(state: oauth_state), allow_other_host: true
   end
 
   def callback
@@ -25,6 +30,13 @@ class NationbuilderAuthController < ApplicationController
 
     return handle_oauth_error if params[:error]
     return handle_missing_code if params[:code].blank?
+
+    # Validate OAuth state parameter for CSRF protection
+    if params[:state] != session[:oauth_state]
+      Rails.logger.error "OAuth state mismatch - expected: #{session[:oauth_state]}, got: #{params[:state]}"
+      flash[:alert] = "Security validation failed. Please try signing in again."
+      redirect_to sign_in_path and return
+    end
 
     # Handle both authenticated and unauthenticated users
     if Current.user
@@ -210,8 +222,8 @@ class NationbuilderAuthController < ApplicationController
   def handle_cloudflare_challenge(cloudflare_challenge)
     Rails.logger.info "NationBuilder OAuth: Handling Cloudflare challenge"
 
-    # Get oauth_state from params or fallback to session.id
-    oauth_state = params[:state].presence || session.id.presence || SecureRandom.hex(16)
+    # Use the OAuth state from params (which should match session[:oauth_state])
+    oauth_state = params[:state]
 
     # Create challenge record
     challenge = CloudflareChallenge.create!(
@@ -220,7 +232,7 @@ class NationbuilderAuthController < ApplicationController
       challenge_data: cloudflare_challenge.challenge_data,
       oauth_state: oauth_state,
       original_params: params.permit!.to_h.except("controller", "action"),
-      session_id: session.id.presence || request.session_options[:id] || SecureRandom.hex(16),
+      session_id: request.session_options[:id] || SecureRandom.hex(16),
       user: Current.user,
       expires_at: 15.minutes.from_now
     )
@@ -234,23 +246,11 @@ class NationbuilderAuthController < ApplicationController
   def handle_challenge_completed_callback
     Rails.logger.info "NationBuilder OAuth: Handling challenge completion callback"
 
-    # Get current session ID with same logic as create
-    current_session_id = session.id.presence || request.session_options[:id] || SecureRandom.hex(16)
-
     # Find the challenge by OAuth state
-    challenge = CloudflareChallenge.active.for_session(current_session_id)
-                                   .find_by(oauth_state: params[:state])
+    challenge = CloudflareChallenge.active.find_by(oauth_state: params[:state])
 
     if challenge.nil?
       Rails.logger.error "NationBuilder OAuth: Challenge not found for state #{params[:state]}"
-      flash[:alert] = "Unable to complete sign-in. Please try again."
-      redirect_to sign_in_path
-      return
-    end
-
-    # Validate session matches
-    if challenge.session_id != current_session_id
-      Rails.logger.error "NationBuilder OAuth: Session mismatch for challenge #{challenge.challenge_id}"
       flash[:alert] = "Unable to complete sign-in. Please try again."
       redirect_to sign_in_path
       return
