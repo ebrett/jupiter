@@ -6,21 +6,24 @@
 require 'webmock/rspec'
 
 RSpec.configure do |config|
-  config.before(:each, type: :system) do
-    # Disable NationBuilder OAuth for all system tests to avoid timeouts
-    # System tests should focus on UI/UX, not OAuth integration
-    nationbuilder_flag = FeatureFlag.find_or_create_by!(name: 'nationbuilder_signin') do |flag|
-      flag.description = 'NationBuilder OAuth feature flag'
-      flag.enabled = false
-    end
-    nationbuilder_flag.update!(enabled: false)
+  config.before(:each, type: :system) do |example|
+    # Skip OAuth stubbing if the test is explicitly testing OAuth feature flags
+    unless example.metadata[:oauth_feature_test]
+      # Disable NationBuilder OAuth for all system tests to avoid timeouts
+      # System tests should focus on UI/UX, not OAuth integration
+      nationbuilder_flag = FeatureFlag.find_or_create_by!(name: 'nationbuilder_signin') do |flag|
+        flag.description = 'NationBuilder OAuth feature flag'
+        flag.enabled = false
+      end
+      nationbuilder_flag.update!(enabled: false)
 
-    # Disable Cloudflare challenge handling for system tests
-    cloudflare_flag = FeatureFlag.find_or_create_by!(name: 'cloudflare_challenge_handling') do |flag|
-      flag.description = 'Cloudflare challenge handling feature flag'
-      flag.enabled = false
+      # Disable Cloudflare challenge handling for system tests
+      cloudflare_flag = FeatureFlag.find_or_create_by!(name: 'cloudflare_challenge_handling') do |flag|
+        flag.description = 'Cloudflare challenge handling feature flag'
+        flag.enabled = false
+      end
+      cloudflare_flag.update!(enabled: false)
     end
-    cloudflare_flag.update!(enabled: false)
 
     # Allow local connections for Selenium WebDriver, but stub external OAuth requests
     WebMock.allow_net_connect!(net_http_connect_on_start: true, allow_localhost: true)
