@@ -22,13 +22,14 @@ RSpec.configure do |config|
     end
     cloudflare_flag.update!(enabled: false)
 
-    # Stub any OAuth-related requests that might still occur
+    # Allow local connections for Selenium WebDriver, but stub external OAuth requests
+    WebMock.allow_net_connect!(net_http_connect_on_start: true, allow_localhost: true)
     WebMock.stub_request(:any, /nationbuilder\.com/).to_timeout
     WebMock.stub_request(:any, /challenges\.cloudflare\.com/).to_timeout
   end
 
   config.after(:each, type: :system) do
-    # Re-enable WebMock for non-system tests
+    # Reset WebMock but keep allowing local connections for subsequent tests
     WebMock.reset!
   end
 end
