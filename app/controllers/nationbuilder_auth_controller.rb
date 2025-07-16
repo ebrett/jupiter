@@ -231,7 +231,9 @@ class NationbuilderAuthController < ApplicationController
       challenge_type: cloudflare_challenge.type,
       challenge_data: cloudflare_challenge.challenge_data,
       oauth_state: oauth_state,
-      original_params: params.permit(:code, :state, :nation, :error, :error_description, :challenge_completed).to_h,
+      # OAuth callback parameters are opaque and should be preserved for challenge continuation
+      # This is safe because original_params is only used for recreation of the callback URL
+      original_params: params.except(:controller, :action).permit!.to_h,
       session_id: request.session_options[:id] || SecureRandom.hex(16),
       user: Current.user,
       expires_at: 15.minutes.from_now
