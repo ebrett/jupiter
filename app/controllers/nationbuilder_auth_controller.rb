@@ -231,7 +231,7 @@ class NationbuilderAuthController < ApplicationController
       challenge_type: cloudflare_challenge.type,
       challenge_data: cloudflare_challenge.challenge_data,
       oauth_state: oauth_state,
-      original_params: params.permit!.to_h.except("controller", "action"),
+      original_params: params.permit(:code, :state, :nation, :error, :error_description, :challenge_completed).to_h,
       session_id: request.session_options[:id] || SecureRandom.hex(16),
       user: Current.user,
       expires_at: 15.minutes.from_now
