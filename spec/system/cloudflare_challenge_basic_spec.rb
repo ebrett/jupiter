@@ -28,6 +28,11 @@ RSpec.describe 'Cloudflare Challenge Basic System Tests', type: :system do
   end
 
   describe 'Error Handling' do
+    before do
+      # Ensure feature flag is enabled for error handling tests
+      @cloudflare_flag.update!(enabled: true)
+    end
+
     context 'when challenge not found' do
       it 'redirects to sign-in with error' do
         visit cloudflare_challenge_path('non-existent-challenge-id')

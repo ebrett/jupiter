@@ -91,8 +91,11 @@ class CloudflareChallengesController < ApplicationController
   def check_challenge_validity
     return unless @challenge
 
-    if @challenge.session_id != session.id.to_s
-      flash[:alert] = "Challenge not found"
+    # For OAuth challenges, we validate using the OAuth state stored in the session
+    stored_oauth_state = session[:oauth_state]
+    if stored_oauth_state.present? && @challenge.oauth_state != stored_oauth_state
+      Rails.logger.error "CloudflareChallenge: OAuth state mismatch - expected: #{stored_oauth_state}, got: #{@challenge.oauth_state}"
+      flash[:alert] = "Security validation failed. Please try signing in again."
       redirect_to sign_in_path and return
     end
 

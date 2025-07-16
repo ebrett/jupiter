@@ -155,7 +155,7 @@ RSpec.describe "Authentication Sign-Up Page", type: :system do
       expect(page).to have_content('Account created!')
     end
 
-    context "when NationBuilder OAuth is enabled" do
+    context "when NationBuilder OAuth is enabled", :oauth_feature_test do
       before do
         allow(FeatureFlagService).to receive(:enabled?).with('nationbuilder_signin', anything).and_return(true)
       end
@@ -168,7 +168,7 @@ RSpec.describe "Authentication Sign-Up Page", type: :system do
       end
     end
 
-    context "when NationBuilder OAuth is disabled" do
+    context "when NationBuilder OAuth is disabled", :oauth_feature_test do
       before do
         allow(FeatureFlagService).to receive(:enabled?).with('nationbuilder_signin', anything).and_return(false)
       end

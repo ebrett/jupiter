@@ -101,20 +101,25 @@ RSpec.describe CloudflareChallengesController, type: :controller do
       end
     end
 
-    context 'with wrong session' do
-      let(:wrong_session_challenge) do
+    context 'with wrong OAuth state' do
+      let(:wrong_oauth_challenge) do
         create(:cloudflare_challenge,
                challenge_id: challenge_id,
-               session_id: 'different-session-id')
+               oauth_state: 'different-oauth-state',
+               session_id: 'some-session-id')
       end
 
-      before { wrong_session_challenge }
+      before do
+        wrong_oauth_challenge
+        # Set a different OAuth state in the session
+        session[:oauth_state] = 'current-oauth-state'
+      end
 
       it 'redirects to sign in with error' do
         get :show, params: { challenge_id: challenge_id }
 
         expect(response).to redirect_to(sign_in_path)
-        expect(flash[:alert]).to include('Challenge not found')
+        expect(flash[:alert]).to include('Security validation failed')
       end
     end
   end
