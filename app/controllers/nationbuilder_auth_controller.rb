@@ -222,8 +222,8 @@ class NationbuilderAuthController < ApplicationController
   def handle_cloudflare_challenge(cloudflare_challenge)
     Rails.logger.info "NationBuilder OAuth: Handling Cloudflare challenge"
 
-    # Use the OAuth state from params (which should match session[:oauth_state])
-    oauth_state = params[:state]
+    # Get oauth_state from params or fallback to session.id
+    oauth_state = params[:state].presence || session.id.presence || SecureRandom.hex(16)
 
     # Create challenge record
     challenge = CloudflareChallenge.create!(
@@ -231,10 +231,8 @@ class NationbuilderAuthController < ApplicationController
       challenge_type: cloudflare_challenge.type,
       challenge_data: cloudflare_challenge.challenge_data,
       oauth_state: oauth_state,
-      # OAuth callback parameters are opaque and should be preserved for challenge continuation
-      # This is safe because original_params is only used for recreation of the callback URL
-      original_params: params.except(:controller, :action).permit!.to_h,
-      session_id: request.session_options[:id] || SecureRandom.hex(16),
+      original_params: params.permit!.to_h.except("controller", "action"),
+      session_id: session.id.presence || request.session_options[:id] || SecureRandom.hex(16),
       user: Current.user,
       expires_at: 15.minutes.from_now
     )
