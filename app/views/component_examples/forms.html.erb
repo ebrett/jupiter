@@ -146,5 +146,80 @@
         </form>
       </div>
     </section>
+
+    <!-- Rails Form with TailwindFormBuilder Example -->
+    <section>
+      <h2 class="text-xl font-semibold text-gray-900 mb-4">Rails Form with TailwindFormBuilder</h2>
+      <div class="bg-white p-6 rounded-lg shadow">
+        <div class="mb-4 p-4 bg-blue-50 rounded-md">
+          <p class="text-sm text-blue-800">
+            <strong>Note:</strong> Use <code class="bg-blue-100 px-1 py-0.5 rounded">tailwind_form_with</code> helper to automatically apply consistent Tailwind styling to all form inputs.
+          </p>
+        </div>
+        
+        <%= tailwind_form_with scope: :example, url: "#", local: true, class: "space-y-6 max-w-lg" do |form| %>
+          <div>
+            <%= form.label :first_name, "First name" %>
+            <div class="mt-1">
+              <%= form.text_field :first_name, placeholder: "John" %>
+            </div>
+          </div>
+          
+          <div>
+            <%= form.label :last_name, "Last name" %>
+            <div class="mt-1">
+              <%= form.text_field :last_name, placeholder: "Doe" %>
+            </div>
+          </div>
+          
+          <div>
+            <%= form.label :email, "Email address" %>
+            <div class="mt-1">
+              <%= form.email_field :email, placeholder: "john@example.com", required: true %>
+            </div>
+          </div>
+          
+          <div>
+            <%= form.label :bio, "Bio" %>
+            <div class="mt-1">
+              <%= form.text_area :bio, rows: 4, placeholder: "Tell us about yourself..." %>
+            </div>
+          </div>
+          
+          <div>
+            <%= form.label :role, "Role" %>
+            <div class="mt-1">
+              <%= form.select :role, options_for_select([["Admin", "admin"], ["User", "user"], ["Guest", "guest"]]), { prompt: "Select a role" } %>
+            </div>
+          </div>
+          
+          <div class="flex items-center">
+            <%= form.check_box :terms_accepted %>
+            <%= form.label :terms_accepted, "I agree to the terms and conditions", class: "ml-2 block text-sm text-gray-900" %>
+          </div>
+          
+          <div class="flex gap-3">
+            <%= form.submit "Submit", "data-disable-with": "Submitting..." %>
+            <button type="button" class="bg-white text-gray-700 px-4 py-2 rounded-md text-sm font-medium border border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+              Cancel
+            </button>
+          </div>
+        <% end %>
+        
+        <div class="mt-6 p-4 bg-gray-50 rounded-md">
+          <h4 class="text-sm font-medium text-gray-900 mb-2">Code Example:</h4>
+          <pre class="text-xs text-gray-700 overflow-x-auto"><code>&lt;%= tailwind_form_with model: @user do |form| %&gt;
+  &lt;div&gt;
+    &lt;%= form.label :email %&gt;
+    &lt;div class="mt-1"&gt;
+      &lt;%= form.email_field :email %&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  
+  &lt;%= form.submit "Save" %&gt;
+&lt;% end %&gt;</code></pre>
+        </div>
+      </div>
+    </section>
   </div>
 </div>

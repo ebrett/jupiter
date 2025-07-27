@@ -17,15 +17,15 @@ class InkindDonationFormComponent < ViewComponent::Base
   end
 
   def input_classes
-    "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+    TailwindFormBuilder::BASE_INPUT_CLASSES
   end
 
   def error_classes
-    "mt-1 block w-full rounded-md border-red-300 text-red-900 placeholder-red-300 shadow-sm focus:border-red-500 focus:ring-red-500"
+    TailwindFormBuilder::ERROR_INPUT_CLASSES
   end
 
   def label_classes
-    "block text-sm font-medium text-gray-700"
+    TailwindFormBuilder::LABEL_CLASSES
   end
 
   def error_message_classes
