@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Jupiter is a reimbursement and vendor payment web application built with Rails 8.0.2. The app streamlines payment requests with approval workflows and role-based access control. Currently implementing NationBuilder OAuth integration on the `feature/nationbuilder-oauth` branch.
+DA Finances Application (DAFA) is a reimbursement and vendor payment web application built with Rails 8.0.2. The app streamlines payment requests with approval workflows and role-based access control. Currently implementing NationBuilder OAuth integration on the `feature/nationbuilder-oauth` branch.
 
 ## Development Commands
 
@@ -272,3 +272,36 @@ end
 - **Unit tests**: Single responsibility, fewer expectations preferred  
 - **Component tests**: Structure verification may require multiple expectations
 - **Integration tests**: End-to-end flows, comprehensive assertions needed
+
+## Agent OS Documentation
+
+### Product Context
+- **Mission & Vision:** @.agent-os/product/mission.md
+- **Technical Architecture:** @.agent-os/product/tech-stack.md
+- **Development Roadmap:** @.agent-os/product/roadmap.md
+- **Decision History:** @.agent-os/product/decisions.md
+
+### Development Standards
+- **Code Style:** @~/.agent-os/standards/code-style.md
+- **Best Practices:** @~/.agent-os/standards/best-practices.md
+
+### Project Management
+- **Active Specs:** @.agent-os/specs/
+- **Spec Planning:** Use `@~/.agent-os/instructions/create-spec.md`
+- **Tasks Execution:** Use `@~/.agent-os/instructions/execute-tasks.md`
+
+## Workflow Instructions
+
+When asked to work on this codebase:
+
+1. **First**, check @.agent-os/product/roadmap.md for current priorities
+2. **Then**, follow the appropriate instruction file:
+   - For new features: @.agent-os/instructions/create-spec.md
+   - For tasks execution: @.agent-os/instructions/execute-tasks.md
+3. **Always**, adhere to the standards in the files listed above
+
+## Important Notes
+
+- Product-specific files in `.agent-os/product/` override any global standards
+- User's specific instructions override (or amend) instructions found in `.agent-os/specs/...`
+- Always adhere to established patterns, code style, and best practices documented above.
