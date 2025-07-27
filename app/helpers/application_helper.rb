@@ -56,4 +56,13 @@ module ApplicationHelper
     # Convert slug to display name (e.g., "democrats-abroad" -> "Democrats Abroad")
     slug.split("-").map(&:capitalize).join(" ")
   end
+
+  # Convenience method for creating forms with TailwindFormBuilder
+  # Usage: tailwind_form_with(model: @user) do |form|
+  def tailwind_form_with(model: nil, scope: nil, url: nil, format: nil, **options, &block)
+    options[:builder] = TailwindFormBuilder
+    form_options = { scope: scope, url: url, format: format }.merge(options)
+    form_options[:model] = model unless model.nil?
+    form_with(**form_options, &block)
+  end
 end

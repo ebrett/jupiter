@@ -52,9 +52,9 @@
       <% end %>
 
       <!-- Sign In Form -->
-      <%= form_with url: session_url, local: true, class: "space-y-6" do |form| %>
+      <%= tailwind_form_with url: session_url, local: true, class: "space-y-6" do |form| %>
         <div>
-          <%= form.label :email_address, "Email address", class: "block text-sm font-medium text-gray-700", for: "signin_email_address" %>
+          <%= form.label :email_address, "Email address", for: "signin_email_address" %>
           <div class="mt-1">
             <%= form.email_field :email_address, 
                 id: "signin_email_address", 
@@ -65,8 +65,7 @@
                 value: params[:email_address],
                 "aria-label": "Email address", 
                 "aria-describedby": "email-help",
-                "aria-invalid": params[:email_address].present? && flash[:alert].present? ? "true" : "false",
-                class: "appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
+                "aria-invalid": params[:email_address].present? && flash[:alert].present? ? "true" : "false" %>
           </div>
           <div id="email-help" class="mt-1 text-xs text-gray-500">
             We'll use this to sign you in and send important updates.
@@ -74,7 +73,7 @@
         </div>
 
         <div>
-          <%= form.label :password, "Password", class: "block text-sm font-medium text-gray-700", for: "signin_password" %>
+          <%= form.label :password, "Password", for: "signin_password" %>
           <div class="mt-1">
             <%= form.password_field :password, 
                 id: "signin_password", 
@@ -85,8 +84,7 @@
                 minlength: 8,
                 "aria-label": "Password",
                 "aria-describedby": "password-help",
-                "aria-invalid": flash[:alert].present? ? "true" : "false",
-                class: "appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
+                "aria-invalid": flash[:alert].present? ? "true" : "false" %>
           </div>
           <div id="password-help" class="mt-1 text-xs text-gray-500">
             Must be at least 8 characters long.
@@ -97,8 +95,7 @@
           <div class="flex items-center">
             <%= form.check_box :remember_me, 
                 id: "signin_remember_me", 
-                "aria-describedby": "remember-help",
-                class: "h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" %>
+                "aria-describedby": "remember-help" %>
             <%= form.label :remember_me, "Remember me", for: "signin_remember_me", class: "ml-2 block text-sm text-gray-900" %>
             <span id="remember-help" class="sr-only">Keep me signed in for up to 30 days</span>
           </div>
@@ -112,8 +109,7 @@
           <%= form.submit "Sign in", 
               id: "signin_submit",
               "aria-describedby": "signin-help",
-              "data-disable-with": "Signing in...",
-              class: "w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed" %>
+              "data-disable-with": "Signing in..." %>
           <div id="signin-help" class="mt-2 text-xs text-center text-gray-500">
             By signing in, you agree to our terms of service and privacy policy.
           </div>
