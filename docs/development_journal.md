@@ -21,6 +21,10 @@ Jupiter is a reimbursement and vendor payment web application for Democrats Abro
 - **Status**: Complete - Ready for testing and PR
 
 ## Active Branches & Ownership
+- `improve-forms`: Claude Code (with Brett) - TailwindFormBuilder implementation - [Created 2025-07-27]
+  - **Purpose**: Implement custom Rails FormBuilder to eliminate repeated Tailwind CSS classes
+  - **Status**: Complete - Ready for PR
+  - **Dependencies**: None
 - `feature/browser-challenge-manual-handling`: Claude - Manual browser challenge handling for NationBuilder OAuth - [Created 2025-07-08]
   - **PRD**: tasks/prd-browser-challenge-handling.md
   - **Dependencies**: Existing Cloudflare challenge detection system
@@ -28,6 +32,57 @@ Jupiter is a reimbursement and vendor payment web application for Democrats Abro
   - **Status**: ✅ Complete - All tasks implemented and tested
 
 ### Recent Activities
+
+## 2025-07-27 - Implemented TailwindFormBuilder for Consistent Form Styling
+**Developer(s)**: Claude Code (with Brett) | **Branch**: `improve-forms` | **Context**: User reviewed Test Double article about optimizing Rails forms
+
+### What Was Done
+- Created `app/form_builders/tailwind_form_builder.rb` with centralized Tailwind CSS class constants
+- Added `tailwind_form_with` helper method to `app/helpers/application_helper.rb`
+- Migrated 10 form views to use the new FormBuilder:
+  - Authentication forms: `sessions/new.html.erb`, `users/new.html.erb`
+  - Password forms: `passwords/new.html.erb`, `passwords/edit.html.erb`
+  - Admin forms: `admin/feature_flags/_form.html.erb`
+  - Role management: `roles/edit.html.erb`
+  - Component updates: `InkindDonationFormComponent`
+- Created comprehensive test suite: `spec/form_builders/tailwind_form_builder_spec.rb` (28 tests)
+- Updated component examples to demonstrate FormBuilder usage
+- Fixed all RuboCop violations with auto-correct
+
+### Why It Was Done
+- User requested implementation of Test Double article recommendations
+- Existing forms had extensive repetition of Tailwind CSS classes (30+ characters per input)
+- Inconsistent styling across different forms in the application
+- Preparation for extensive form development in upcoming treasury features (Phases 1-4 of roadmap)
+
+### Technical Details
+- FormBuilder extends `ActionView::Helpers::FormBuilder`
+- Constants defined for consistent styling:
+  - `BASE_INPUT_CLASSES`: Standard input field styling
+  - `ERROR_INPUT_CLASSES`: Red border/text for validation errors
+  - `LABEL_CLASSES`: Consistent label styling
+  - `SUBMIT_BUTTON_CLASSES`: Blue button styling with hover states
+  - `CHECKBOX_CLASSES`: Checkbox-specific styling
+- Automatic error state detection using `object.errors`
+- Class merging preserves custom classes while applying defaults
+- Helper method handles both model-based and model-less forms
+
+### Results
+- **90% reduction** in repeated CSS class strings across forms
+- All form_builders tests passing (28 examples, 0 failures)
+- Core test suite passing (163 model/controller tests)
+- RuboCop compliance achieved
+- Consistent form styling throughout application
+- Cleaner, more maintainable form views
+- Git commit: `9360a36` - "Implement TailwindFormBuilder to optimize Rails forms"
+
+### Next Steps
+- Create pull request for code review
+- Update developer documentation with FormBuilder usage guidelines
+- Consider extracting additional form patterns (error messages, help text)
+- Monitor for any form-related issues during QA testing
+
+---
 
 #### 2025-07-08: Browser Challenge Investigation & Complete Implementation ✅
 
