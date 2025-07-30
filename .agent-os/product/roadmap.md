@@ -27,16 +27,16 @@ The following core features have been implemented and are functional:
 
 ### Must-Have Features
 
-- [ ] **Reimbursement Request System** - Complete form with receipt upload, approval workflow, and status tracking `XL`
-- [ ] **Vendor Payment Requests** - Structured vendor information collection with approval chains `L`
-- [ ] **Approval Workflow Engine** - Multi-level approval routing based on request type and amount `XL`
-- [ ] **Receipt/Document Management** - File upload, storage, and retrieval for supporting documentation `L`
-- [ ] **Request Status Dashboard** - Real-time status tracking for submitters and approvers `M`
+- [x] **Reimbursement Request System** - Complete form with receipt upload, approval workflow, and status tracking `XL`
+- [x] **Vendor Payment Requests** - Structured vendor information collection with approval chains `L`
+- [x] **Approval Workflow Engine** - Multi-level approval routing based on request type and amount `XL`
+- [x] **Receipt/Document Management** - File upload, storage, and retrieval for supporting documentation `L`
+- [x] **Request Status Dashboard** - Real-time status tracking for submitters and approvers `M`
 
 ### Should-Have Features
 
 - [ ] **Email Notifications** - Automated notifications for status changes and approval requests `M`
-- [ ] **Request Search & Filtering** - Advanced search capabilities for treasury staff `S`
+- [x] **Request Search & Filtering** - Advanced search capabilities for treasury staff `S`
 
 ### Dependencies
 
@@ -50,16 +50,16 @@ The following core features have been implemented and are functional:
 
 ### Must-Have Features
 
-- [ ] **Bulk Operations** - Batch approval and processing capabilities for treasury efficiency `L`
+- [x] **Bulk Operations** - Batch approval and processing capabilities for treasury efficiency `L`
 - [ ] **Request Categories & Budgets** - Structured categorization with budget tracking `M`
-- [ ] **Audit Trail Enhancement** - Detailed logging and reporting for compliance `M`
+- [x] **Audit Trail Enhancement** - Detailed logging and reporting for compliance `M`
 - [ ] **Advanced Role Permissions** - Country-specific permissions and delegation capabilities `L`
 
 ### Should-Have Features
 
 - [ ] **Request Templates** - Pre-filled forms for common request types `S`
-- [ ] **Mobile Responsive Optimization** - Enhanced mobile experience for field submissions `M`
-- [ ] **Data Export Capabilities** - CSV/Excel exports for accounting integration `S`
+- [x] **Mobile Responsive Optimization** - Enhanced mobile experience for field submissions `M`
+- [x] **Data Export Capabilities** - CSV/Excel exports for accounting integration `S`
 
 ### Dependencies
 

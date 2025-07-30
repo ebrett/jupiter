@@ -20,6 +20,10 @@ class Request < ApplicationRecord
   validates :exchange_rate, presence: true, numericality: { greater_than: 0 }
   validates :form_data, presence: true
 
+  # Active Storage attachments for documents
+  has_many_attached :receipts
+  has_many_attached :invoices
+
   before_validation :generate_request_number, on: :create
   before_validation :set_defaults, on: :create
 

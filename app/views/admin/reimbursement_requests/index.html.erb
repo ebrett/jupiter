@@ -1,0 +1,137 @@
+<div class="px-4 sm:px-6 lg:px-8">
+  <div class="sm:flex sm:items-center">
+    <div class="sm:flex-auto">
+      <h1 class="text-xl font-semibold text-gray-900">Reimbursement Requests</h1>
+      <p class="mt-2 text-sm text-gray-700">
+        Manage and approve reimbursement requests from organization members.
+      </p>
+    </div>
+    <div class="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
+      <%= link_to "Export CSV", export_admin_reimbursement_requests_path(format: :csv, status: params[:status], user_id: params[:user_id]), 
+                  class: "inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" %>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="mt-6 flex flex-col sm:flex-row gap-4">
+    <%= form_with url: admin_reimbursement_requests_path, method: :get, class: "flex flex-col sm:flex-row gap-4" do |f| %>
+      <div>
+        <%= f.label :status, "Filter by Status", class: "block text-sm font-medium text-gray-700" %>
+        <%= f.select :status, 
+            options_for_select([
+              ["All Statuses", ""],
+              ["Draft", "draft"],
+              ["Submitted", "submitted"],
+              ["Under Review", "under_review"],
+              ["Approved", "approved"],
+              ["Rejected", "rejected"],
+              ["Paid", "paid"]
+            ], params[:status]),
+            {},
+            class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm",
+            onchange: "this.form.submit()" %>
+      </div>
+      
+      <% if params[:user_id].present? %>
+        <%= f.hidden_field :user_id, value: params[:user_id] %>
+        <div class="flex items-end">
+          <%= link_to "Clear User Filter", admin_reimbursement_requests_path(status: params[:status]), 
+                      class: "inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" %>
+        </div>
+      <% end %>
+    <% end %>
+  </div>
+
+  <!-- Requests Table -->
+  <div class="mt-8 flow-root">
+    <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+      <div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
+        <table class="min-w-full divide-y divide-gray-300">
+          <thead>
+            <tr>
+              <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0">
+                Request #
+              </th>
+              <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                Title
+              </th>
+              <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                Submitter
+              </th>
+              <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                Amount
+              </th>
+              <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                Status
+              </th>
+              <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                Date
+              </th>
+              <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-0">
+                <span class="sr-only">Actions</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-200">
+            <% @reimbursement_requests.each do |request| %>
+              <tr>
+                <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-0">
+                  <%= request.request_number %>
+                </td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                  <%= truncate(request.title, length: 30) %>
+                </td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                  <%= link_to "#{request.user.first_name} #{request.user.last_name}", 
+                              admin_reimbursement_requests_path(user_id: request.user.id),
+                              class: "text-indigo-600 hover:text-indigo-900" %>
+                  <div class="text-xs text-gray-400"><%= request.user.email_address %></div>
+                </td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                  $<%= number_with_precision(request.amount_in_dollars, precision: 2) %>
+                  <% if request.approved? && request.approved_amount_cents != request.amount_cents %>
+                    <div class="text-xs text-green-600">
+                      Approved: $<%= number_with_precision(request.approved_amount, precision: 2) %>
+                    </div>
+                  <% end %>
+                </td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm">
+                  <span class="inline-flex rounded-full px-2 text-xs font-semibold leading-5
+                    <%= case request.status
+                        when 'draft' then 'bg-gray-100 text-gray-800'
+                        when 'submitted' then 'bg-yellow-100 text-yellow-800'
+                        when 'under_review' then 'bg-blue-100 text-blue-800'
+                        when 'approved' then 'bg-green-100 text-green-800'
+                        when 'rejected' then 'bg-red-100 text-red-800'
+                        when 'paid' then 'bg-purple-100 text-purple-800'
+                        else 'bg-gray-100 text-gray-800'
+                        end %>">
+                    <%= request.status.humanize %>
+                  </span>
+                </td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                  <%= request.expense_date&.strftime('%b %d, %Y') %>
+                  <% if request.submitted_at %>
+                    <div class="text-xs text-gray-400">
+                      Submitted: <%= request.submitted_at.strftime('%b %d') %>
+                    </div>
+                  <% end %>
+                </td>
+                <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
+                  <%= link_to "View", admin_reimbursement_request_path(request), 
+                              class: "text-indigo-600 hover:text-indigo-900" %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+        
+        <% if @reimbursement_requests.empty? %>
+          <div class="text-center py-8 text-gray-500">
+            No reimbursement requests found.
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

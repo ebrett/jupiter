@@ -1,0 +1,125 @@
+<% content_for :title, "Vendor Payment Requests" %>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <!-- Page Header -->
+  <div class="sm:flex sm:items-center sm:justify-between mb-8">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-900">Vendor Payment Requests</h1>
+      <p class="mt-2 text-sm text-gray-600">
+        Track and manage vendor payment requests
+      </p>
+    </div>
+    <div class="mt-4 sm:mt-0 flex space-x-3">
+      <% if policy(VendorRequest).export? %>
+        <%= link_to vendor_requests_path(format: :csv), 
+              class: "inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" do %>
+          <svg class="-ml-1 mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          Export CSV
+        <% end %>
+      <% end %>
+      <% if policy(VendorRequest).create? %>
+        <%= link_to new_vendor_request_path, 
+              class: "inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" do %>
+          <svg class="-ml-1 mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+          </svg>
+          New Request
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Requests Table -->
+  <% if @vendor_requests.any? %>
+    <div class="bg-white shadow-sm ring-1 ring-gray-900/5 rounded-lg overflow-hidden">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Request</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vendor</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+            <th class="relative px-6 py-3"><span class="sr-only">Actions</span></th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <% @vendor_requests.each do |request| %>
+            <tr class="hover:bg-gray-50">
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center">
+                  <div>
+                    <div class="text-sm font-medium text-gray-900">
+                      <%= request.request_number %>
+                    </div>
+                    <div class="text-sm text-gray-500">
+                      <%= request.invoice_number %>
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-4">
+                <div class="text-sm text-gray-900">
+                  <%= request.vendor_name %>
+                </div>
+                <div class="text-sm text-gray-500">
+                  <%= truncate(request.purpose, length: 40) %>
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-900">
+                  <%= number_to_currency(request.amount_requested, unit: "$") %>
+                </div>
+                <div class="text-sm text-gray-500">
+                  <%= request.currency_code %>
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full 
+                           <%= case request.status
+                               when 'submitted' then 'bg-yellow-100 text-yellow-800'
+                               when 'approved' then 'bg-green-100 text-green-800'
+                               when 'rejected' then 'bg-red-100 text-red-800'
+                               when 'paid' then 'bg-blue-100 text-blue-800'
+                               else 'bg-gray-100 text-gray-800'
+                               end %>">
+                  <%= request.status.humanize %>
+                </span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <%= request.created_at.strftime("%m/%d/%Y") %>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                <%= link_to "View", request, class: "text-blue-600 hover:text-blue-900" %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <!-- Empty State -->
+    <div class="text-center py-12">
+      <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 48 48">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m6 0h6m6 0h6M9 12v6m0 6h6m0 6h6m6-6h6m-6-6v6m0-6V6a2 2 0 012-2h4a2 2 0 012 2v6m0 6v6a2 2 0 01-2 2h-4a2 2 0 01-2-2v-6m-6 0V6a2 2 0 00-2-2H9a2 2 0 00-2 2v6m0 6v6a2 2 0 002 2h4a2 2 0 002-2v-6" />
+      </svg>
+      <h3 class="mt-2 text-sm font-medium text-gray-900">No vendor payment requests</h3>
+      <p class="mt-1 text-sm text-gray-500">
+        Get started by creating a new vendor payment request.
+      </p>
+      <% if policy(VendorRequest).create? %>
+        <div class="mt-6">
+          <%= link_to new_vendor_request_path, 
+                class: "inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" do %>
+            <svg class="-ml-1 mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            New Vendor Payment Request
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+</div>

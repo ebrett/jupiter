@@ -17,6 +17,10 @@ module Authentication
       resume_session
     end
 
+    def authenticate_user!
+      require_authentication
+    end
+
     def require_authentication
       resume_session || request_authentication
     end

@@ -3,18 +3,20 @@ FactoryBot.define do
     sequence(:email_address) { |n| "user#{n}@example.com" }
     password { "password123" }
     password_confirmation { "password123" }
+    first_name { "Test" }
+    last_name { "User" }
 
     trait :nationbuilder_user do
-      sequence(:nationbuilder_uid) { |n| "nb_user_#{n}" }
       first_name { "John" }
       last_name { "Doe" }
       password { nil }
       password_confirmation { nil }
+      nationbuilder_profile_data { { "id" => "nb_user_#{rand(1000..9999)}" } }
     end
 
     trait :email_password_user do
       # Uses default password setup above
-      nationbuilder_uid { nil }
+      nationbuilder_profile_data { nil }
     end
 
     trait :with_system_administrator_role do
@@ -53,17 +55,34 @@ FactoryBot.define do
       end
     end
 
+    trait :with_viewer_role do
+      after(:create) do |user|
+        role = Role.find_or_create_by(name: "viewer") do |r|
+          r.description = "Can view requests and basic information"
+        end
+        user.roles << role unless user.roles.include?(role)
+      end
+    end
+
     # Convenience aliases for common role traits
     trait :system_administrator do
       with_system_administrator_role
     end
 
-    trait :treasury_team_admin do
+    trait :treasury_admin do
       with_treasury_team_admin_role
     end
 
-    trait :country_chapter_admin do
+    trait :chapter_admin do
       with_country_chapter_admin_role
+    end
+
+    trait :submitter do
+      with_submitter_role
+    end
+
+    trait :viewer do
+      with_viewer_role
     end
 
     trait :admin do

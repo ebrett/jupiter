@@ -1,0 +1,188 @@
+<% content_for :title, "Vendor Payment Request #{@vendor_request.request_number}" %>
+
+<div class="max-w-4xl mx-auto p-6">
+  <!-- Breadcrumb Navigation -->
+  <nav class="flex mb-8" aria-label="Breadcrumb">
+    <ol class="flex items-center space-x-4">
+      <li>
+        <%= link_to root_path, class: "text-gray-400 hover:text-gray-500" do %>
+          <svg class="flex-shrink-0 h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path>
+          </svg>
+          <span class="sr-only">Home</span>
+        <% end %>
+      </li>
+      <li>
+        <div class="flex items-center">
+          <svg class="flex-shrink-0 h-5 w-5 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+          </svg>
+          <%= link_to "Vendor Requests", vendor_requests_path, class: "ml-4 text-sm font-medium text-gray-500 hover:text-gray-700" %>
+        </div>
+      </li>
+      <li>
+        <div class="flex items-center">
+          <svg class="flex-shrink-0 h-5 w-5 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+          </svg>
+          <span class="ml-4 text-sm font-medium text-gray-500" aria-current="page"><%= @vendor_request.request_number %></span>
+        </div>
+      </li>
+    </ol>
+  </nav>
+
+  <!-- Page Header -->
+  <div class="mb-8">
+    <div class="flex items-center justify-between">
+      <div>
+        <h1 class="text-3xl font-bold text-gray-900">Vendor Payment Request</h1>
+        <p class="mt-2 text-sm text-gray-600">
+          Request #<%= @vendor_request.request_number %> • 
+          Submitted <%= @vendor_request.created_at.strftime("%B %d, %Y") %>
+        </p>
+      </div>
+      <div>
+        <span class="inline-flex px-3 py-1 text-sm font-semibold rounded-full 
+                   <%= case @vendor_request.status
+                       when 'submitted' then 'bg-yellow-100 text-yellow-800'
+                       when 'approved' then 'bg-green-100 text-green-800'
+                       when 'rejected' then 'bg-red-100 text-red-800'
+                       when 'paid' then 'bg-blue-100 text-blue-800'
+                       else 'bg-gray-100 text-gray-800'
+                       end %>">
+          <%= @vendor_request.status.humanize %>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Request Details -->
+  <div class="space-y-8">
+    <!-- Request Information -->
+    <div class="bg-white shadow-sm ring-1 ring-gray-900/5 rounded-lg p-6">
+      <h2 class="text-lg font-semibold text-gray-900 mb-6">Request Information</h2>
+      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Purpose</dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= @vendor_request.purpose %></dd>
+        </div>
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Expense Category</dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= @vendor_request.expense_category_code %></dd>
+        </div>
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Amount</dt>
+          <dd class="mt-1 text-sm text-gray-900">
+            <%= number_to_currency(@vendor_request.amount_requested, unit: "$") %> 
+            <%= @vendor_request.currency_code %>
+          </dd>
+        </div>
+        <% if @vendor_request.chapter.present? %>
+          <div>
+            <dt class="text-sm font-medium text-gray-500">Chapter</dt>
+            <dd class="mt-1 text-sm text-gray-900"><%= @vendor_request.chapter %></dd>
+          </div>
+        <% end %>
+        <div class="sm:col-span-2">
+          <dt class="text-sm font-medium text-gray-500">Description</dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= simple_format(@vendor_request.description) %></dd>
+        </div>
+      </div>
+    </div>
+
+    <!-- Vendor Information -->
+    <div class="bg-white shadow-sm ring-1 ring-gray-900/5 rounded-lg p-6">
+      <h2 class="text-lg font-semibold text-gray-900 mb-6">Vendor Information</h2>
+      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Vendor Name</dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= @vendor_request.vendor_name %></dd>
+        </div>
+        <% if @vendor_request.vendor_email.present? %>
+          <div>
+            <dt class="text-sm font-medium text-gray-500">Vendor Email</dt>
+            <dd class="mt-1 text-sm text-gray-900"><%= @vendor_request.vendor_email %></dd>
+          </div>
+        <% end %>
+        <div class="sm:col-span-2">
+          <dt class="text-sm font-medium text-gray-500">Vendor Address</dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= simple_format(@vendor_request.vendor_address) %></dd>
+        </div>
+        <% if @vendor_request.vendor_tax_id.present? %>
+          <div>
+            <dt class="text-sm font-medium text-gray-500">Tax ID / VAT Number</dt>
+            <dd class="mt-1 text-sm text-gray-900"><%= @vendor_request.vendor_tax_id %></dd>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Invoice Information -->
+    <div class="bg-white shadow-sm ring-1 ring-gray-900/5 rounded-lg p-6">
+      <h2 class="text-lg font-semibold text-gray-900 mb-6">Invoice Information</h2>
+      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Invoice Number</dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= @vendor_request.invoice_number %></dd>
+        </div>
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Invoice Date</dt>
+          <dd class="mt-1 text-sm text-gray-900">
+            <%= @vendor_request.invoice_date&.strftime("%B %d, %Y") %>
+          </dd>
+        </div>
+        <% if @vendor_request.due_date.present? %>
+          <div>
+            <dt class="text-sm font-medium text-gray-500">Due Date</dt>
+            <dd class="mt-1 text-sm text-gray-900">
+              <%= @vendor_request.due_date&.strftime("%B %d, %Y") %>
+            </dd>
+          </div>
+        <% end %>
+        <% if @vendor_request.payment_terms.present? %>
+          <div>
+            <dt class="text-sm font-medium text-gray-500">Payment Terms</dt>
+            <dd class="mt-1 text-sm text-gray-900"><%= @vendor_request.payment_terms %></dd>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Invoices -->
+    <% if @vendor_request.invoices.any? %>
+      <div class="bg-white shadow-sm ring-1 ring-gray-900/5 rounded-lg p-6">
+        <h2 class="text-lg font-semibold text-gray-900 mb-6">Invoice Documents</h2>
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <% @vendor_request.invoices.each do |invoice| %>
+            <div class="border border-gray-200 rounded-lg p-4">
+              <div class="flex items-center">
+                <% if invoice.content_type.start_with?('image/') %>
+                  <svg class="h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                <% else %>
+                  <svg class="h-8 w-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                  </svg>
+                <% end %>
+                <div class="ml-3 flex-1">
+                  <p class="text-sm font-medium text-gray-900 truncate">
+                    <%= invoice.filename %>
+                  </p>
+                  <p class="text-sm text-gray-500">
+                    <%= number_to_human_size(invoice.byte_size) %>
+                  </p>
+                </div>
+              </div>
+              <div class="mt-4">
+                <%= link_to "Download", url_for(invoice), 
+                      class: "text-sm text-blue-600 hover:text-blue-900",
+                      target: "_blank" %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

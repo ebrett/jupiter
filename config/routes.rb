@@ -38,7 +38,7 @@ Rails.application.routes.draw do
   # Admin dashboard (can be renamed or left as is)
   get "admin", to: "admin#index"
 
-  # Admin namespace for feature flags
+  # Admin namespace for feature flags and treasury management
   namespace :admin do
     resources :feature_flags do
       member do
@@ -48,6 +48,20 @@ Rails.application.routes.draw do
         post :clear_cache
       end
       resources :feature_flag_assignments, only: [ :create, :destroy ]
+    end
+
+    # Treasury admin routes for reimbursement requests
+    resources :reimbursement_requests, only: [ :index, :show ] do
+      member do
+        patch :approve
+        patch :reject
+        patch :request_info
+        patch :mark_paid
+      end
+      collection do
+        post :bulk_approve
+        get :export
+      end
     end
   end
 
@@ -82,6 +96,23 @@ Rails.application.routes.draw do
 
   # In-kind donation routes
   resources :inkind_donations, only: [ :index, :show, :new, :create ] do
+    collection do
+      get :export
+    end
+  end
+
+  # Reimbursement request routes
+  resources :reimbursement_requests do
+    member do
+      post :submit
+    end
+    collection do
+      get :export
+    end
+  end
+
+  # Vendor payment request routes
+  resources :vendor_requests, only: [ :index, :show, :new, :create ] do
     collection do
       get :export
     end
