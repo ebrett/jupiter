@@ -1,0 +1,207 @@
+<div class="px-4 sm:px-6 lg:px-8">
+  <div class="sm:flex sm:items-center">
+    <div class="sm:flex-auto">
+      <h1 class="text-2xl font-bold text-gray-900">Treasury Dashboard</h1>
+      <p class="mt-2 text-sm text-gray-700">
+        Overview of reimbursement requests and treasury operations.
+      </p>
+    </div>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+    <!-- Pending Requests -->
+    <div class="bg-white overflow-hidden shadow rounded-lg">
+      <div class="p-5">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <div class="w-8 h-8 bg-yellow-500 rounded-md flex items-center justify-center">
+              <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+          </div>
+          <div class="ml-5 w-0 flex-1">
+            <dl>
+              <dt class="text-sm font-medium text-gray-500 truncate">Pending Review</dt>
+              <dd class="text-lg font-medium text-gray-900"><%= @pending_requests %></dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+      <div class="bg-gray-50 px-5 py-3">
+        <%= link_to admin_reimbursement_requests_path(status: 'submitted'), 
+                    class: "text-sm font-medium text-indigo-600 hover:text-indigo-500" do %>
+          View all pending
+          <span aria-hidden="true"> →</span>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Under Review -->
+    <div class="bg-white overflow-hidden shadow rounded-lg">
+      <div class="p-5">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <div class="w-8 h-8 bg-blue-500 rounded-md flex items-center justify-center">
+              <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            </div>
+          </div>
+          <div class="ml-5 w-0 flex-1">
+            <dl>
+              <dt class="text-sm font-medium text-gray-500 truncate">Under Review</dt>
+              <dd class="text-lg font-medium text-gray-900"><%= @under_review_requests %></dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+      <div class="bg-gray-50 px-5 py-3">
+        <%= link_to admin_reimbursement_requests_path(status: 'under_review'), 
+                    class: "text-sm font-medium text-indigo-600 hover:text-indigo-500" do %>
+          View under review
+          <span aria-hidden="true"> →</span>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- All Requests -->
+    <div class="bg-white overflow-hidden shadow rounded-lg">
+      <div class="p-5">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <div class="w-8 h-8 bg-gray-500 rounded-md flex items-center justify-center">
+              <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+              </svg>
+            </div>
+          </div>
+          <div class="ml-5 w-0 flex-1">
+            <dl>
+              <dt class="text-sm font-medium text-gray-500 truncate">Total Requests</dt>
+              <dd class="text-lg font-medium text-gray-900"><%= ReimbursementRequest.count %></dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+      <div class="bg-gray-50 px-5 py-3">
+        <%= link_to admin_reimbursement_requests_path, 
+                    class: "text-sm font-medium text-indigo-600 hover:text-indigo-500" do %>
+          View all requests
+          <span aria-hidden="true"> →</span>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Requests -->
+  <div class="mt-8">
+    <div class="bg-white shadow overflow-hidden sm:rounded-md">
+      <div class="px-4 py-5 sm:px-6">
+        <h3 class="text-lg leading-6 font-medium text-gray-900">Recent Requests</h3>
+        <p class="mt-1 max-w-2xl text-sm text-gray-500">Latest reimbursement requests submitted</p>
+      </div>
+      <ul role="list" class="divide-y divide-gray-200">
+        <% if @recent_requests.any? %>
+          <% @recent_requests.each do |request| %>
+            <li>
+              <%= link_to admin_reimbursement_request_path(request), class: "block hover:bg-gray-50" do %>
+                <div class="px-4 py-4 flex items-center justify-between">
+                  <div class="flex items-center">
+                    <div class="flex-shrink-0 h-10 w-10">
+                      <%= render Catalyst::AvatarComponent.new(
+                        initials: "#{request.user.first_name&.first}#{request.user.last_name&.first}",
+                        size: :md,
+                        alt: "#{request.user.first_name} #{request.user.last_name}",
+                        class: "bg-gray-500 text-white"
+                      ) %>
+                    </div>
+                    <div class="ml-4">
+                      <div class="flex items-center">
+                        <div class="text-sm font-medium text-gray-900">
+                          <%= request.title %>
+                        </div>
+                        <div class="ml-2">
+                          <span class="inline-flex rounded-full px-2 text-xs font-semibold leading-5
+                            <%= case request.status
+                                when 'draft' then 'bg-gray-100 text-gray-800'
+                                when 'submitted' then 'bg-yellow-100 text-yellow-800'
+                                when 'under_review' then 'bg-blue-100 text-blue-800'
+                                when 'approved' then 'bg-green-100 text-green-800'
+                                when 'rejected' then 'bg-red-100 text-red-800'
+                                when 'paid' then 'bg-purple-100 text-purple-800'
+                                else 'bg-gray-100 text-gray-800'
+                                end %>">
+                            <%= request.status.humanize %>
+                          </span>
+                        </div>
+                      </div>
+                      <div class="text-sm text-gray-500">
+                        <%= request.user.first_name %> <%= request.user.last_name %> • 
+                        $<%= number_with_precision(request.amount_in_dollars, precision: 2) %> • 
+                        <%= request.expense_date&.strftime('%b %d, %Y') %>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="flex items-center text-sm text-gray-500">
+                    <%= request.created_at.strftime('%b %d, %I:%M %p') %>
+                    <svg class="ml-2 h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                    </svg>
+                  </div>
+                </div>
+              <% end %>
+            </li>
+          <% end %>
+        <% else %>
+          <li class="px-4 py-6 text-center text-sm text-gray-500">
+            No reimbursement requests yet.
+          </li>
+        <% end %>
+      </ul>
+      <% if @recent_requests.any? %>
+        <div class="bg-gray-50 px-4 py-3">
+          <%= link_to admin_reimbursement_requests_path, 
+                      class: "text-sm font-medium text-indigo-600 hover:text-indigo-500" do %>
+            View all requests
+            <span aria-hidden="true"> →</span>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="mt-8">
+    <div class="bg-white shadow sm:rounded-lg">
+      <div class="px-4 py-5 sm:p-6">
+        <h3 class="text-lg leading-6 font-medium text-gray-900">Quick Actions</h3>
+        <div class="mt-5">
+          <div class="rounded-md bg-blue-50 p-4">
+            <div class="flex">
+              <div class="flex-shrink-0">
+                <svg class="h-5 w-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                </svg>
+              </div>
+              <div class="ml-3 flex-1 md:flex md:justify-between">
+                <p class="text-sm text-blue-700">
+                  Treasury admins can review and approve reimbursement requests. Use the filters and bulk actions to efficiently process multiple requests.
+                </p>
+                <p class="mt-3 text-sm md:mt-0 md:ml-6">
+                  <%= link_to admin_reimbursement_requests_path, 
+                              class: "whitespace-nowrap font-medium text-blue-700 hover:text-blue-600" do %>
+                    Get started
+                    <span aria-hidden="true"> →</span>
+                  <% end %>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

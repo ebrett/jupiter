@@ -1,0 +1,48 @@
+<% content_for :title, "New Vendor Payment Request" %>
+
+<div class="max-w-4xl mx-auto p-6">
+  <!-- Breadcrumb Navigation -->
+  <nav class="flex mb-8" aria-label="Breadcrumb">
+    <ol class="flex items-center space-x-4">
+      <li>
+        <%= link_to root_path, class: "text-gray-400 hover:text-gray-500" do %>
+          <svg class="flex-shrink-0 h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path>
+          </svg>
+          <span class="sr-only">Home</span>
+        <% end %>
+      </li>
+      <li>
+        <div class="flex items-center">
+          <svg class="flex-shrink-0 h-5 w-5 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+          </svg>
+          <%= link_to "Vendor Requests", vendor_requests_path, class: "ml-4 text-sm font-medium text-gray-500 hover:text-gray-700" %>
+        </div>
+      </li>
+      <li>
+        <div class="flex items-center">
+          <svg class="flex-shrink-0 h-5 w-5 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+          </svg>
+          <span class="ml-4 text-sm font-medium text-gray-500" aria-current="page">New Request</span>
+        </div>
+      </li>
+    </ol>
+  </nav>
+
+  <!-- Page Header -->
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-900">Submit Vendor Payment Request</h1>
+    <p class="mt-2 text-sm text-gray-600">
+      Use this form to request payment to vendors for goods or services provided to Democrats Abroad. 
+      All fields marked with <span class="text-red-500">*</span> are required.
+    </p>
+  </div>
+
+  <!-- Form Component -->
+  <%= render VendorPaymentFormComponent.new(
+        vendor_request: @vendor_request, 
+        expense_categories: @expense_categories
+      ) %>
+</div>

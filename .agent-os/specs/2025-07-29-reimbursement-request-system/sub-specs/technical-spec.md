@@ -42,24 +42,21 @@ This is the technical specification for the spec detailed in @.agent-os/specs/20
 
 ## Approach Options
 
-**Option A: Simple Status Field Approach**
-- Pros: Easy to implement, straightforward state management
-- Cons: Limited workflow flexibility, harder to track approval history
+**Option A: Simple Enum with Timestamps (Selected)**
+- Pros: Rails-native approach, easy to implement, straightforward state management, no external dependencies
+- Cons: Manual state transition validation, requires separate audit trail implementation
 
-**Option B: State Machine with AASM (Selected)**
+**Option B: State Machine with AASM**
 - Pros: Robust state management, clear workflow definitions, built-in audit trail
-- Cons: Additional gem dependency, slightly more complex implementation
+- Cons: Additional gem dependency, slightly more complex implementation, external dependency overhead
 
-**Option C: Custom Workflow Engine**
-- Pros: Maximum flexibility, tailored to specific needs
-- Cons: Significant development overhead, potential bugs, maintenance complexity
+**Option C: Event Sourcing with Eventide**
+- Pros: Complete audit trail, time travel capabilities, microservices-ready
+- Cons: Significant architectural complexity, steep learning curve, infrastructure overhead
 
-**Rationale:** AASM provides the perfect balance of workflow power and implementation simplicity, with built-in guards and callbacks that align perfectly with our approval process requirements.
+**Rationale:** Simple enum with timestamps provides the perfect balance for an MVP, using Rails conventions while maintaining audit capabilities through a separate events table. This approach eliminates external dependencies while providing clear state management and room for future enhancement.
 
 ## External Dependencies
-
-- **aasm gem** - State machine functionality for request workflow management
-  - **Justification:** Provides robust state management with guards, callbacks, and automatic audit trail generation essential for approval workflows
 
 - **image_processing gem** - Image resizing and optimization for receipt previews
   - **Justification:** Already included with Rails 8 Active Storage, needed for generating receipt thumbnails in admin interface

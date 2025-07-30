@@ -226,7 +226,12 @@ users_data.each do |user_attrs|
     u.password = user_attrs[:password]
     u.first_name = user_attrs[:first_name] if user_attrs[:first_name]
     u.last_name = user_attrs[:last_name] if user_attrs[:last_name]
-    u.nationbuilder_uid = user_attrs[:nationbuilder_uid] if user_attrs[:nationbuilder_uid]
+    if user_attrs[:nationbuilder_uid]
+      u.nationbuilder_profile_data = {
+        "id" => user_attrs[:nationbuilder_uid],
+        "last_synced_at" => Time.current.iso8601
+      }
+    end
   end
 
   # Assign roles (idempotent - won't duplicate)

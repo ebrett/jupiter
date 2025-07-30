@@ -1,0 +1,280 @@
+<div class="max-w-4xl mx-auto p-6">
+  <%= form_with(model: vendor_request, url: vendor_requests_path, local: true, builder: TailwindFormBuilder, class: "space-y-8", data: { controller: "vendor-form" }) do |form| %>
+    
+    <!-- Error Summary -->
+    <% if vendor_request.errors.any? %>
+      <div class="rounded-md bg-red-50 p-4">
+        <div class="flex">
+          <div class="flex-shrink-0">
+            <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd" />
+            </svg>
+          </div>
+          <div class="ml-3">
+            <h3 class="text-sm font-medium text-red-800">Please correct the following errors:</h3>
+            <div class="mt-2 text-sm text-red-700">
+              <ul class="list-disc space-y-1 pl-5">
+                <% vendor_request.errors.full_messages.each do |message| %>
+                  <li><%= message %></li>
+                <% end %>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% end %>
+
+    <!-- Request Information Section -->
+    <div class="bg-white shadow-sm ring-1 ring-gray-900/5 rounded-lg p-6">
+      <h2 class="text-lg font-semibold text-gray-900 mb-6">Payment Request Information</h2>
+      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+        <!-- Purpose -->
+        <div>
+          <%= label_tag "vendor_request[form_data][purpose]", class: label_classes do %>
+            Purpose <%= required_asterisk %>
+          <% end %>
+          <%= text_field_tag "vendor_request[form_data][purpose]", 
+                form_data['purpose'], 
+                class: input_class_for_field('purpose'),
+                maxlength: 255,
+                required: true,
+                placeholder: "e.g., Website development, printing services",
+                data: { action: "input->vendor-form#validateField" } %>
+          <%= field_error('purpose') %>
+        </div>
+
+        <!-- Urgency -->
+        <div>
+          <%= label_tag "vendor_request[form_data][urgency]", class: label_classes do %>
+            Urgency
+          <% end %>
+          <%= select_tag "vendor_request[form_data][urgency]", 
+                options_for_select(urgency_options, form_data['urgency'] || 'normal'), 
+                class: input_class_for_field('urgency'),
+                data: { action: "change->vendor-form#validateField" } %>
+          <%= field_error('urgency') %>
+        </div>
+
+        <!-- Expense Category -->
+        <div>
+          <%= label_tag "vendor_request[form_data][expense_category_code]", class: label_classes do %>
+            Expense Category <%= required_asterisk %>
+          <% end %>
+          <%= select_tag "vendor_request[form_data][expense_category_code]", 
+                options_for_select([['Select category...', '']] + expense_categories, form_data['expense_category_code']), 
+                class: input_class_for_field('expense_category_code'),
+                required: true,
+                data: { action: "change->vendor-form#validateField" } %>
+          <%= field_error('expense_category_code') %>
+        </div>
+
+        <!-- Chapter -->
+        <div>
+          <%= label_tag "vendor_request[form_data][chapter]", class: label_classes do %>
+            Chapter
+          <% end %>
+          <%= text_field_tag "vendor_request[form_data][chapter]", 
+                form_data['chapter'], 
+                class: input_class_for_field('chapter'),
+                maxlength: 255,
+                placeholder: "e.g., Berlin, London",
+                data: { action: "input->vendor-form#validateField" } %>
+          <%= field_error('chapter') %>
+        </div>
+
+        <!-- Amount Requested -->
+        <div>
+          <%= label_tag "vendor_request[amount_requested]", class: label_classes do %>
+            Invoice Amount <%= required_asterisk %>
+          <% end %>
+          <div class="flex">
+            <div class="relative flex-1">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <span class="text-gray-500 sm:text-sm">$</span>
+              </div>
+              <%= number_field_tag "vendor_request[amount_requested]", 
+                    vendor_request.amount_requested, 
+                    class: input_class_for_field('amount_requested') + " pl-7 rounded-r-none",
+                    step: 0.01,
+                    min: 0.01,
+                    required: true,
+                    data: { action: "input->vendor-form#validateField" } %>
+            </div>
+            <%= select_tag "vendor_request[currency_code]", 
+                  options_for_select([['USD', 'USD'], ['EUR', 'EUR'], ['GBP', 'GBP'], ['CAD', 'CAD'], ['AUD', 'AUD']], vendor_request.currency_code || 'USD'), 
+                  class: input_classes + " rounded-l-none border-l-0 w-20" %>
+          </div>
+          <%= field_error('amount_requested') %>
+        </div>
+
+        <!-- Description -->
+        <div class="sm:col-span-2">
+          <%= label_tag "vendor_request[form_data][description]", class: label_classes do %>
+            Description <%= required_asterisk %>
+          <% end %>
+          <%= text_area_tag "vendor_request[form_data][description]", 
+                form_data['description'], 
+                class: input_class_for_field('description'),
+                rows: 4,
+                maxlength: 1000,
+                required: true,
+                placeholder: "Detailed description of goods or services provided",
+                data: { action: "input->vendor-form#validateField" } %>
+          <%= field_error('description') %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Vendor Information Section -->
+    <div class="bg-white shadow-sm ring-1 ring-gray-900/5 rounded-lg p-6">
+      <h2 class="text-lg font-semibold text-gray-900 mb-6">Vendor Information</h2>
+      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+        <!-- Vendor Name -->
+        <div>
+          <%= label_tag "vendor_request[form_data][vendor_name]", class: label_classes do %>
+            Vendor Name <%= required_asterisk %>
+          <% end %>
+          <%= text_field_tag "vendor_request[form_data][vendor_name]", 
+                form_data['vendor_name'], 
+                class: input_class_for_field('vendor_name'),
+                maxlength: 255,
+                required: true,
+                placeholder: "Business or individual name",
+                data: { action: "input->vendor-form#validateField" } %>
+          <%= field_error('vendor_name') %>
+        </div>
+
+        <!-- Vendor Email -->
+        <div>
+          <%= label_tag "vendor_request[form_data][vendor_email]", class: label_classes do %>
+            Vendor Email
+          <% end %>
+          <%= email_field_tag "vendor_request[form_data][vendor_email]", 
+                form_data['vendor_email'], 
+                class: input_class_for_field('vendor_email'),
+                placeholder: "For payment notifications (optional)",
+                data: { action: "input->vendor-form#validateField" } %>
+          <%= field_error('vendor_email') %>
+        </div>
+
+        <!-- Vendor Address -->
+        <div class="sm:col-span-2">
+          <%= label_tag "vendor_request[form_data][vendor_address]", class: label_classes do %>
+            Vendor Address <%= required_asterisk %>
+          <% end %>
+          <%= text_area_tag "vendor_request[form_data][vendor_address]", 
+                form_data['vendor_address'], 
+                class: input_class_for_field('vendor_address'),
+                rows: 3,
+                maxlength: 500,
+                required: true,
+                placeholder: "Full business address for payment",
+                data: { action: "input->vendor-form#validateField" } %>
+          <%= field_error('vendor_address') %>
+        </div>
+
+        <!-- Vendor Tax ID -->
+        <div>
+          <%= label_tag "vendor_request[form_data][vendor_tax_id]", class: label_classes do %>
+            Tax ID / VAT Number
+          <% end %>
+          <%= text_field_tag "vendor_request[form_data][vendor_tax_id]", 
+                form_data['vendor_tax_id'], 
+                class: input_class_for_field('vendor_tax_id'),
+                maxlength: 50,
+                placeholder: "If applicable",
+                data: { action: "input->vendor-form#validateField" } %>
+          <%= field_error('vendor_tax_id') %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Invoice Information Section -->
+    <div class="bg-white shadow-sm ring-1 ring-gray-900/5 rounded-lg p-6">
+      <h2 class="text-lg font-semibold text-gray-900 mb-6">Invoice Information</h2>
+      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+        <!-- Invoice Number -->
+        <div>
+          <%= label_tag "vendor_request[form_data][invoice_number]", class: label_classes do %>
+            Invoice Number <%= required_asterisk %>
+          <% end %>
+          <%= text_field_tag "vendor_request[form_data][invoice_number]", 
+                form_data['invoice_number'], 
+                class: input_class_for_field('invoice_number'),
+                maxlength: 100,
+                required: true,
+                placeholder: "e.g., INV-2025-001",
+                data: { action: "input->vendor-form#validateField" } %>
+          <%= field_error('invoice_number') %>
+        </div>
+
+        <!-- Invoice Date -->
+        <div>
+          <%= label_tag "vendor_request[form_data][invoice_date]", class: label_classes do %>
+            Invoice Date <%= required_asterisk %>
+          <% end %>
+          <%= date_field_tag "vendor_request[form_data][invoice_date]", 
+                form_data['invoice_date'], 
+                class: input_class_for_field('invoice_date'),
+                required: true,
+                data: { action: "change->vendor-form#validateField" } %>
+          <%= field_error('invoice_date') %>
+        </div>
+
+        <!-- Due Date -->
+        <div>
+          <%= label_tag "vendor_request[form_data][due_date]", class: label_classes do %>
+            Due Date
+          <% end %>
+          <%= date_field_tag "vendor_request[form_data][due_date]", 
+                form_data['due_date'], 
+                class: input_class_for_field('due_date'),
+                data: { action: "change->vendor-form#validateField" } %>
+          <%= field_error('due_date') %>
+        </div>
+
+        <!-- Payment Terms -->
+        <div>
+          <%= label_tag "vendor_request[form_data][payment_terms]", class: label_classes do %>
+            Payment Terms
+          <% end %>
+          <%= text_field_tag "vendor_request[form_data][payment_terms]", 
+                form_data['payment_terms'], 
+                class: input_class_for_field('payment_terms'),
+                maxlength: 100,
+                placeholder: "e.g., Net 30, Due on receipt",
+                data: { action: "input->vendor-form#validateField" } %>
+          <%= field_error('payment_terms') %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Invoice Upload Section -->
+    <div class="bg-white shadow-sm ring-1 ring-gray-900/5 rounded-lg p-6">
+      <h2 class="text-lg font-semibold text-gray-900 mb-6">Invoice Upload</h2>
+      <div>
+        <%= label_tag "vendor_request[invoices]", class: label_classes do %>
+          Invoices <%= required_asterisk %>
+        <% end %>
+        <%= file_field_tag "vendor_request[invoices]", 
+              multiple: true,
+              accept: "image/*,application/pdf",
+              class: "block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100",
+              required: true,
+              data: { action: "change->vendor-form#validateFiles" } %>
+        <p class="mt-1 text-sm text-gray-500">Upload invoice documents (PDF, JPG, PNG). Max 10MB per file.</p>
+        <%= field_error('invoices') %>
+      </div>
+    </div>
+
+    <!-- Form Actions -->
+    <div class="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200">
+      <%= link_to "Cancel", vendor_requests_path, 
+            class: "inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2" %>
+      
+      <%= form.submit "Submit Request", 
+            class: "inline-flex justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2",
+            data: { action: "click->vendor-form#validateForm" } %>
+    </div>
+  <% end %>
+</div>

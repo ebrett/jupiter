@@ -26,7 +26,7 @@ RSpec.describe User, type: :model do
   it 'allows NationBuilder users without password' do
     nb_user = described_class.new(
       email_address: 'nb@example.com',
-      nationbuilder_uid: 'nb123'
+      nationbuilder_profile_data: { 'id' => 'nb123' }
     )
     expect(nb_user).to be_valid
   end

@@ -27,7 +27,7 @@ class User < ApplicationRecord
 
   # Ransack configuration - explicitly allowlist searchable attributes
   def self.ransackable_attributes(auth_object = nil)
-    [ "created_at", "email_address", "first_name", "id", "id_value", "last_name", "nationbuilder_uid", "updated_at" ]
+    [ "created_at", "email_address", "first_name", "id", "id_value", "last_name", "updated_at" ]
   end
 
   def self.ransackable_associations(auth_object = nil)
@@ -136,6 +136,13 @@ class User < ApplicationRecord
   end
 
   # NationBuilder profile data methods with memoization
+  def nationbuilder_uid
+    @nationbuilder_uid ||= begin
+      return nil unless nationbuilder_profile_data
+      nationbuilder_profile_data["id"]
+    end
+  end
+
   def nationbuilder_tags
     @nationbuilder_tags ||= begin
       return [] unless nationbuilder_profile_data
@@ -201,6 +208,7 @@ class User < ApplicationRecord
   end
 
   def clear_profile_memoization
+    @nationbuilder_uid = nil
     @nationbuilder_tags = nil
     @nationbuilder_phone = nil
     @nationbuilder_raw_data = nil

@@ -53,9 +53,12 @@ This is the tests coverage details for the spec detailed in @.agent-os/specs/202
 ### Integration Tests
 
 **ReimbursementRequestsController**
-- GET #index renders user's requests with proper filtering
-- GET #show displays request details with authorization
-- GET #new renders form with proper Catalyst components
+- GET #index renders user's requests with proper filtering (JSON)
+- GET #index renders HTML template with schema-compatible data display
+- GET #show displays request details with authorization (JSON)
+- GET #show renders HTML template with all request attributes correctly
+- GET #new renders form with proper Catalyst components (JSON)
+- GET #new renders HTML form template with correct field names and schema
 - POST #create successfully creates request with valid params
 - POST #create renders form with errors for invalid params
 - POST #create handles file uploads with Active Storage
@@ -64,6 +67,8 @@ This is the tests coverage details for the spec detailed in @.agent-os/specs/202
 - DELETE #destroy removes draft requests only
 - Handles authorization failures with proper redirects
 - Implements proper pagination for large request lists
+- HTML view integration tests verify schema compatibility across all templates
+- Form component tests ensure proper attribute mapping with new database schema
 
 **Admin::ReimbursementRequestsController**
 - GET #index renders admin dashboard with filtering

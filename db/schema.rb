@@ -10,9 +10,37 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_06_214434) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_29_153741) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "active_storage_attachments", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "record_type", null: false
+    t.bigint "record_id", null: false
+    t.bigint "blob_id", null: false
+    t.datetime "created_at", null: false
+    t.index ["blob_id"], name: "index_active_storage_attachments_on_blob_id"
+    t.index ["record_type", "record_id", "name", "blob_id"], name: "index_active_storage_attachments_uniqueness", unique: true
+  end
+
+  create_table "active_storage_blobs", force: :cascade do |t|
+    t.string "key", null: false
+    t.string "filename", null: false
+    t.string "content_type"
+    t.text "metadata"
+    t.string "service_name", null: false
+    t.bigint "byte_size", null: false
+    t.string "checksum"
+    t.datetime "created_at", null: false
+    t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
+  end
+
+  create_table "active_storage_variant_records", force: :cascade do |t|
+    t.bigint "blob_id", null: false
+    t.string "variation_digest", null: false
+    t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
 
   create_table "cloudflare_challenges", force: :cascade do |t|
     t.string "challenge_id", null: false
@@ -77,8 +105,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_06_214434) do
     t.jsonb "raw_response"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.datetime "rotated_at"
-    t.integer "version"
     t.index ["user_id"], name: "index_nationbuilder_tokens_on_user_id"
   end
 
@@ -89,6 +115,52 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_06_214434) do
     t.datetime "updated_at", null: false
     t.index ["session_id"], name: "index_rails_sessions_on_session_id", unique: true
     t.index ["updated_at"], name: "index_rails_sessions_on_updated_at"
+  end
+
+  create_table "reimbursement_request_events", force: :cascade do |t|
+    t.bigint "reimbursement_request_id", null: false
+    t.bigint "user_id", null: false
+    t.string "event_type", null: false
+    t.string "from_status"
+    t.string "to_status"
+    t.text "notes"
+    t.jsonb "event_data", default: {}
+    t.datetime "created_at", precision: nil, default: -> { "CURRENT_TIMESTAMP" }, null: false
+    t.index ["event_type"], name: "index_reimbursement_request_events_on_event_type"
+    t.index ["reimbursement_request_id", "created_at"], name: "idx_events_request_time"
+    t.index ["reimbursement_request_id"], name: "index_reimbursement_request_events_on_reimbursement_request_id"
+    t.index ["user_id"], name: "index_reimbursement_request_events_on_user_id"
+  end
+
+  create_table "reimbursement_requests", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "title", null: false
+    t.text "description", null: false
+    t.integer "amount_cents", null: false
+    t.string "currency", default: "USD", null: false
+    t.date "expense_date", null: false
+    t.string "category", null: false
+    t.string "status", default: "draft", null: false
+    t.datetime "submitted_at", precision: nil
+    t.datetime "reviewed_at", precision: nil
+    t.datetime "approved_at", precision: nil
+    t.datetime "rejected_at", precision: nil
+    t.datetime "paid_at", precision: nil
+    t.bigint "approved_by_id"
+    t.integer "approved_amount_cents"
+    t.text "approval_notes"
+    t.text "rejection_reason"
+    t.string "request_number", null: false
+    t.string "priority", default: "normal"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["approved_by_id"], name: "index_reimbursement_requests_on_approved_by_id"
+    t.index ["category"], name: "index_reimbursement_requests_on_category"
+    t.index ["expense_date"], name: "index_reimbursement_requests_on_expense_date"
+    t.index ["request_number"], name: "index_reimbursement_requests_on_request_number", unique: true
+    t.index ["status"], name: "index_reimbursement_requests_on_status"
+    t.index ["submitted_at"], name: "index_reimbursement_requests_on_submitted_at"
+    t.index ["user_id"], name: "index_reimbursement_requests_on_user_id"
   end
 
   create_table "requests", force: :cascade do |t|
@@ -125,29 +197,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_06_214434) do
     t.index ["user_id"], name: "index_sessions_on_user_id"
   end
 
-  create_table "setup_wizard_steps", force: :cascade do |t|
-    t.bigint "setup_wizard_id", null: false
-    t.string "name", null: false
-    t.string "status", default: "pending", null: false
-    t.text "error_message"
-    t.datetime "completed_at"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["setup_wizard_id", "name"], name: "index_setup_wizard_steps_on_setup_wizard_id_and_name", unique: true
-    t.index ["setup_wizard_id"], name: "index_setup_wizard_steps_on_setup_wizard_id"
-  end
-
-  create_table "setup_wizards", force: :cascade do |t|
-    t.datetime "completed_at"
-    t.string "current_step", null: false
-    t.jsonb "nationbuilder_config", default: {}, null: false
-    t.jsonb "admin_users", default: {}, null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["completed_at"], name: "index_setup_wizards_on_completed_at"
-    t.index ["current_step"], name: "index_setup_wizards_on_current_step"
-  end
-
   create_table "user_roles", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.bigint "role_id", null: false
@@ -163,7 +212,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_06_214434) do
     t.string "password_digest"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "nationbuilder_uid"
     t.string "first_name"
     t.string "last_name"
     t.datetime "email_verified_at"
@@ -171,18 +219,22 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_06_214434) do
     t.datetime "verification_sent_at"
     t.jsonb "nationbuilder_profile_data"
     t.index ["email_address"], name: "index_users_on_email_address", unique: true
-    t.index ["nationbuilder_uid"], name: "index_users_on_nationbuilder_uid", unique: true
     t.index ["verification_token"], name: "index_users_on_verification_token", unique: true
   end
 
+  add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "cloudflare_challenges", "users"
   add_foreign_key "expense_categories", "expense_categories", column: "parent_id"
   add_foreign_key "feature_flag_assignments", "feature_flags"
   add_foreign_key "feature_flags", "users", column: "created_by_id"
   add_foreign_key "feature_flags", "users", column: "updated_by_id"
   add_foreign_key "nationbuilder_tokens", "users"
+  add_foreign_key "reimbursement_request_events", "reimbursement_requests", on_delete: :cascade
+  add_foreign_key "reimbursement_request_events", "users"
+  add_foreign_key "reimbursement_requests", "users", column: "approved_by_id"
+  add_foreign_key "reimbursement_requests", "users", on_delete: :cascade
   add_foreign_key "sessions", "users"
-  add_foreign_key "setup_wizard_steps", "setup_wizards"
   add_foreign_key "user_roles", "roles"
   add_foreign_key "user_roles", "users"
 end

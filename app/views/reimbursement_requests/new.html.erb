@@ -1,0 +1,191 @@
+<% content_for :title, "New Reimbursement Request" %>
+
+<div class="max-w-4xl mx-auto p-6">
+  <!-- Breadcrumb Navigation -->
+  <nav class="flex mb-8" aria-label="Breadcrumb">
+    <ol class="flex items-center space-x-4">
+      <li>
+        <%= link_to root_path, class: "text-gray-400 hover:text-gray-500" do %>
+          <svg class="flex-shrink-0 h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path>
+          </svg>
+          <span class="sr-only">Home</span>
+        <% end %>
+      </li>
+      <li>
+        <div class="flex items-center">
+          <svg class="flex-shrink-0 h-5 w-5 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+          </svg>
+          <%= link_to "Reimbursement Requests", reimbursement_requests_path, class: "ml-4 text-sm font-medium text-gray-500 hover:text-gray-700" %>
+        </div>
+      </li>
+      <li>
+        <div class="flex items-center">
+          <svg class="flex-shrink-0 h-5 w-5 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+          </svg>
+          <span class="ml-4 text-sm font-medium text-gray-500" aria-current="page">New Request</span>
+        </div>
+      </li>
+    </ol>
+  </nav>
+
+  <!-- Page Header -->
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-900">Submit Reimbursement Request</h1>
+    <p class="mt-2 text-sm text-gray-600">
+      Use this form to request reimbursement for expenses you paid on behalf of Democrats Abroad. 
+      All fields marked with <span class="text-red-500">*</span> are required.
+    </p>
+  </div>
+
+  <!-- Form -->
+  <%= form_with model: @reimbursement_request, local: true, class: "space-y-8" do |form| %>
+    
+    <!-- Error Summary -->
+    <% if @reimbursement_request.errors.any? %>
+      <div class="rounded-md bg-red-50 p-4">
+        <div class="flex">
+          <div class="flex-shrink-0">
+            <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd" />
+            </svg>
+          </div>
+          <div class="ml-3">
+            <h3 class="text-sm font-medium text-red-800">Please correct the following errors:</h3>
+            <div class="mt-2 text-sm text-red-700">
+              <ul class="list-disc space-y-1 pl-5">
+                <% @reimbursement_request.errors.full_messages.each do |message| %>
+                  <li><%= message %></li>
+                <% end %>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% end %>
+
+    <!-- Request Information Section -->
+    <div class="bg-white shadow-sm ring-1 ring-gray-900/5 rounded-lg p-6">
+      <h2 class="text-lg font-semibold text-gray-900 mb-6">Request Information</h2>
+      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+        
+        <!-- Title -->
+        <div class="sm:col-span-2">
+          <label for="reimbursement_request_title" class="block text-sm font-medium leading-6 text-gray-900">
+            Request Title <span class="text-red-500">*</span>
+          </label>
+          <%= form.text_field :title, 
+                           class: "mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6",
+                           placeholder: "Enter a brief title for your request" %>
+        </div>
+
+        <!-- Description -->
+        <div class="sm:col-span-2">
+          <label for="reimbursement_request_description" class="block text-sm font-medium leading-6 text-gray-900">
+            Description <span class="text-red-500">*</span>
+          </label>
+          <%= form.text_area :description, 
+                           rows: 3,
+                           class: "mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6",
+                           placeholder: "Describe the purpose of this reimbursement request..." %>
+        </div>
+
+        <!-- Amount -->
+        <div>
+          <label for="reimbursement_request_amount_in_dollars" class="block text-sm font-medium leading-6 text-gray-900">
+            Amount Requested <span class="text-red-500">*</span>
+          </label>
+          <%= form.number_field :amount_in_dollars, 
+                             step: 0.01,
+                             min: 0,
+                             class: "mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6",
+                             placeholder: "0.00" %>
+        </div>
+
+        <!-- Currency -->
+        <div>
+          <label for="reimbursement_request_currency" class="block text-sm font-medium leading-6 text-gray-900">
+            Currency <span class="text-red-500">*</span>
+          </label>
+          <%= form.select :currency, 
+                        options_for_select([
+                          ['USD ($)', 'USD'],
+                          ['EUR (€)', 'EUR'],
+                          ['GBP (£)', 'GBP']
+                        ], @reimbursement_request.currency || 'USD'),
+                        {},
+                        { class: "mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6" } %>
+        </div>
+
+        <!-- Category -->
+        <div>
+          <label for="reimbursement_request_category" class="block text-sm font-medium leading-6 text-gray-900">
+            Expense Category <span class="text-red-500">*</span>
+          </label>
+          <%= form.select :category, 
+                        options_for_select([
+                          ['Travel', 'travel'],
+                          ['Accommodation', 'accommodation'], 
+                          ['Meals', 'meals'],
+                          ['Office Supplies', 'supplies'],
+                          ['Communications', 'communications'],
+                          ['Events', 'events'],
+                          ['Other', 'other']
+                        ]),
+                        { prompt: 'Select category...' },
+                        { class: "mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6" } %>
+        </div>
+
+        <!-- Expense Date -->
+        <div>
+          <label for="reimbursement_request_expense_date" class="block text-sm font-medium leading-6 text-gray-900">
+            Expense Date <span class="text-red-500">*</span>
+          </label>
+          <%= form.date_field :expense_date, 
+                           class: "mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6" %>
+        </div>
+
+        <!-- Priority -->
+        <div>
+          <label for="reimbursement_request_priority" class="block text-sm font-medium leading-6 text-gray-900">
+            Priority
+          </label>
+          <%= form.select :priority, 
+                        options_for_select([
+                          ['Normal', 'normal'],
+                          ['High', 'high'],
+                          ['Urgent', 'urgent']
+                        ], @reimbursement_request.priority || 'normal'),
+                        {},
+                        { class: "mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6" } %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Receipt Upload Section -->
+    <div class="bg-white shadow-sm ring-1 ring-gray-900/5 rounded-lg p-6">
+      <h2 class="text-lg font-semibold text-gray-900 mb-6">Receipt Upload</h2>
+      <div>
+        <label for="reimbursement_request_receipts" class="block text-sm font-medium leading-6 text-gray-900">
+          Receipts <span class="text-red-500">*</span>
+        </label>
+        <%= form.file_field :receipts, 
+              multiple: true,
+              accept: "image/*,application/pdf",
+              class: "mt-2 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" %>
+        <p class="mt-1 text-sm text-gray-500">Upload receipts or supporting documents (PDF, JPG, PNG). Max 10MB per file.</p>
+      </div>
+    </div>
+
+    <!-- Form Actions -->
+    <div class="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200">
+      <%= link_to "Cancel", reimbursement_requests_path, 
+            class: "inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2" %>
+      
+      <%= form.submit "Create Request", 
+            class: "inline-flex justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2" %>
+    </div>
+  <% end %>
+</div>
